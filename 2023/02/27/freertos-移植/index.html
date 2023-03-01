@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>freertos-移植 | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="下载freertos源码FreeRTOS，准备一个stm32空工程。  解压后，FreeRTOS包含以下文件夹   ​	demo：一些移植好的历程，包括stm32f103等， ​	license：略 ​	source：源码，包括include（一些头文件），和portable（和编译器密切相关的文件，keil环境用RVDS）  将source下以.c结尾的文件移植到我们工程下面新建的src文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="freertos-移植">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="下载freertos源码FreeRTOS，准备一个stm32空工程。  解压后，FreeRTOS包含以下文件夹   ​	demo：一些移植好的历程，包括stm32f103等， ​	license：略 ​	source：源码，包括include（一些头文件），和portable（和编译器密切相关的文件，keil环境用RVDS）  将source下以.c结尾的文件移植到我们工程下面新建的src文">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-02-27T01:49:27.000Z">
+<meta property="article:modified_time" content="2023-02-27T08:08:57.121Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="freertos">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'freertos-移植',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-02-27 16:08:57'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">freertos-移植</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-02-27T01:49:27.000Z" title="发表于 2023-02-27 09:49:27">2023-02-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-02-27T08:08:57.121Z" title="更新于 2023-02-27 16:08:57">2023-02-27</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="freertos-移植"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+<hr>
+<ol>
+<li><p>下载freertos源码<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/freertos/files/FreeRTOS/">FreeRTOS</a>，准备一个stm32空工程。</p>
+</li>
+<li><p>解压后，FreeRTOS包含以下文件夹</p>
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227095353061.png" class="" title="image-20230227095353061"></li>
+</ol>
+<p>​	demo：一些移植好的历程，包括stm32f103等，</p>
+<p>​	license：略</p>
+<p>​	<strong>source</strong>：源码，包括include（一些头文件），和portable（和编译器密切相关的文件，keil环境用RVDS）</p>
+<ol start="3">
+<li><p>将source下以.c结尾的文件移植到我们工程下面新建的src文件夹中，</p>
+<p>将portable下MemMang文件夹和RVDS文件夹下cm3文件夹移植到我们工程下面新建的prot文件夹中，</p>
+<p>将include文件夹移植到我们工程文件夹下。</p>
+</li>
+</ol>
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227100413506.png" class="" title="image-20230227100413506">
+
+<ol start="4">
+<li><p>拷贝freeRTOSConfig.s（demo工程下）到我们工程下</p>
+</li>
+<li><p>添加源码到工程组文件夹</p>
+</li>
+</ol>
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227102816769.png" class="" title="image-20230227102816769">
+
+<ol start="6">
+<li><p>指定头文件路径，主要是include文件夹，port文件夹和FreeRTOSConfig.h文件，</p>
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227103635344.png" class="" title="image-20230227103635344"></li>
+</ol>
+<h1 id="FreeRTOSConfig-h文件主要内容"><a href="#FreeRTOSConfig-h文件主要内容" class="headerlink" title="FreeRTOSConfig.h文件主要内容"></a>FreeRTOSConfig.h文件主要内容</h1><h2 id="断言，-freertos定义了一些断言接口"><a href="#断言，-freertos定义了一些断言接口" class="headerlink" title="断言， freertos定义了一些断言接口"></a>断言， freertos定义了一些断言接口</h2>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define vAssertCalled(char,int) printf(&quot;Error:%s,%d\r\n&quot;,char,int)</span><br><span class="line">#define configASSERT(x) if((x)==0) vAssertCalled(__FILE__,__LINE__)</span><br></pre></td></tr></table></figure>
+
+<p>   __FILE__, __LINE__是c语言几种特殊定义，__FILE__指正在编译文件的文件名, __LINE__指正在编译文件的行号。</p>
+<h2 id="抢占式，configUSE-PREEMPTION，高优先级任务就绪后，立刻抢占cpu使用"><a href="#抢占式，configUSE-PREEMPTION，高优先级任务就绪后，立刻抢占cpu使用" class="headerlink" title="抢占式，configUSE_PREEMPTION，高优先级任务就绪后，立刻抢占cpu使用"></a>抢占式，configUSE_PREEMPTION，高优先级任务就绪后，立刻抢占cpu使用</h2><ul>
+<li>时间片调度，configUSE_TIME_SLICING，置1时，系统节拍中断时运行优先级最高的任务，相同优先级任务互相切换。置0时，相同优先级任务不切换，执行完高优先级任务再切换。</li>
+<li>选择下一个任务，configUSE_PORT_OPTIMISED_TASK_SELECTION<ul>
+<li>通用方法（软件），扫描就绪链表，完全由c实现，不依赖于硬件</li>
+<li>特殊方法（硬件），依赖于汇编指令（类似CLZ前导零指令，M3,M4,M7中有），受限于32位寄存器，导致只能用32个优先级</li>
+</ul>
+</li>
+</ul>
+<h2 id="任务通知-configUSE-TASK-NOTIFICATIONS"><a href="#任务通知-configUSE-TASK-NOTIFICATIONS" class="headerlink" title="任务通知 configUSE_TASK_NOTIFICATIONS"></a>任务通知 configUSE_TASK_NOTIFICATIONS</h2><p>​		官方说明，使用任务通知，会比使用信号量更高效，</p>
+<blockquote>
+<p>FreeRTOS 官方说明：Unblocking an RTOS task with a direct notification is 45% faster and uses less RAM than unblocking a task with a binary semaphore.</p>
+</blockquote>
+<h2 id="空闲钩子函数-configUSE-IDLE-HOOK"><a href="#空闲钩子函数-configUSE-IDLE-HOOK" class="headerlink" title="空闲钩子函数 configUSE_IDLE_HOOK"></a>空闲钩子函数 configUSE_IDLE_HOOK</h2><p>执行到空闲任务时，决定是否跳转到对应函数执行。freertos 规定了这个函数的名字和参数，void  vApplicationIdleHook(void)，我们可以增加他的内容。</p>
+<h2 id="软件定时器-configUSE-TIMERS"><a href="#软件定时器-configUSE-TIMERS" class="headerlink" title="软件定时器 configUSE_TIMERS"></a>软件定时器 configUSE_TIMERS</h2><p>不依赖于硬件，理论上可以配置无限个，实际上由我们配置的configTIMER_QUEUE_LENGTH数量决定。</p>
+<h2 id="可选函数配置选项"><a href="#可选函数配置选项" class="headerlink" title="可选函数配置选项"></a>可选函数配置选项</h2><p>如下，定义了INCLUDE_xabcdefg这个宏为一时，才能使用xabcdefg这个函数接口</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_xTaskGetSchedulerState           1                       </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_vTaskPrioritySet		         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_uxTaskPriorityGet		         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_vTaskDelete				         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_vTaskCleanUpResources	         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_vTaskSuspend			         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_vTaskDelayUntil			         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_vTaskDelay				         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_eTaskGetState			         1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INCLUDE_xTimerPendFunctionCall	         0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="中断相关"><a href="#中断相关" class="headerlink" title="中断相关"></a>中断相关</h2><p>中断最低优先级，configLIBRARY_LOWEST_INTERRUPT_PRIORITY ，stm32中断优先级有四位，最低是15。这个优先级是用来配置SYstick和pendsv的。</p>
+<p>系统可管理的最高中断优先级，configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY，这是通过配置basepri寄存器实现的。如果这个值配置成5，那么理论上中断优先级位于0，1，2，3，4的中断是不受freertos管理的，位于5及5之上的可以被freertos使用basepri寄存器屏蔽。实际上这还和中断优先级分组有关，详见<a target="_blank" rel="noopener" href="https://blog.csdn.net/WXLmjr/article/details/85487108/">STM32 BASEPRI的作用</a></p>
+<p>configMAX_SYSCALL_INTERRUPT_PRIORITY：让 configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 向左偏移四位，因为basepri高四位有效</p>
+<p>除了basepri外，还有另外两个中断屏蔽寄存器：</p>
+<table>
+<thead>
+<tr>
+<th>名字</th>
+<th>功能描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PRIMASK</td>
+<td>这是个只有单一比特的寄存器。 在它被置 1 后，就关掉所有可屏蔽的异常， 只剩下 NMI 和硬 FAULT可以响应。它的缺省值是 0，表示没有关中断。</td>
+</tr>
+<tr>
+<td>FAULTMASK</td>
+<td>这是个只有 1 个位的寄存器。当它置 1 时，只有 NMI 才能响应，所有其它的 异常，甚至是硬 FAULT，也通通闭嘴。它的缺省值也是 0，表示没有关异 常。</td>
+</tr>
+<tr>
+<td>BASEPRI</td>
+<td>这个寄存器最多有 9 位（ 由表达优先级的位数决定）。它定义了被屏蔽优先 级的阈值。当它被设成某个值后，所有优先级号大于等于此值的中断都被关 （优先级号越大，优先级越低）。但若被设成 0，则不关闭任何中断， 0 也是 缺省值。</td>
+</tr>
+</tbody></table>
+<p>configUSE_TRACE_FACILITY，用于FreeRTOS可视化调试软件Tracealyzer。不用systemview了。</p>
+<h1 id="FreeRTOSConfig-h文件修改部分"><a href="#FreeRTOSConfig-h文件修改部分" class="headerlink" title="FreeRTOSConfig.h文件修改部分"></a>FreeRTOSConfig.h文件修改部分</h1><p>增加对于开发板的头文件，增加对printf函数的支持，对很多宏定义可以选择性的打开或关闭。</p>
+<h1 id="stm32f10x-it-c文件修改部分"><a href="#stm32f10x-it-c文件修改部分" class="headerlink" title="stm32f10x_it.c文件修改部分"></a>stm32f10x_it.c文件修改部分</h1><p>心跳♥——systick，port中已经实现了systick的配置（vPortSetupTimerInterrupt）</p>
+<p>，实现了定时器增加函数（xPortSysTickHandler），我们只需要完成对systick中断函数的配置即可。如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">void</span> <span class="title function_">xPortSysTickHandler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">SysTick_Handler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (INCLUDE_xTaskGetSchedulerState == 1) <span class="comment">//这个宏在前文中定义过</span></span></span><br><span class="line">		<span class="keyword">if</span>(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) &#123; </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">		xPortSysTickHandler();</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (INCLUDE_xTaskGetSchedulerState == 1)</span></span><br><span class="line">		&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="修改main-c"><a href="#修改main-c" class="headerlink" title="修改main.c"></a>修改main.c</h1><p>引用 FreeRTOS.h, task.h 头文件</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/">https://tjzhang-src.github.io/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/freertos/">freertos</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/.github.io/2023/02/27/freertos-%E4%BB%BB%E5%8A%A1%E5%88%9B%E5%BB%BA/" title="freertos-任务创建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">freertos-任务创建</div></div></a></div><div class="next-post pull-right"><a href="/.github.io/2023/02/26/test/" title="test"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">test</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/.github.io/2023/02/27/freertos-%E4%BB%BB%E5%8A%A1%E5%88%9B%E5%BB%BA/" title="freertos-任务创建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-27</div><div class="title">freertos-任务创建</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#FreeRTOSConfig-h%E6%96%87%E4%BB%B6%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="toc-number">1.</span> <span class="toc-text">FreeRTOSConfig.h文件主要内容</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%AD%E8%A8%80%EF%BC%8C-freertos%E5%AE%9A%E4%B9%89%E4%BA%86%E4%B8%80%E4%BA%9B%E6%96%AD%E8%A8%80%E6%8E%A5%E5%8F%A3"><span class="toc-number">1.1.</span> <span class="toc-text">断言， freertos定义了一些断言接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A2%E5%8D%A0%E5%BC%8F%EF%BC%8CconfigUSE-PREEMPTION%EF%BC%8C%E9%AB%98%E4%BC%98%E5%85%88%E7%BA%A7%E4%BB%BB%E5%8A%A1%E5%B0%B1%E7%BB%AA%E5%90%8E%EF%BC%8C%E7%AB%8B%E5%88%BB%E6%8A%A2%E5%8D%A0cpu%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">抢占式，configUSE_PREEMPTION，高优先级任务就绪后，立刻抢占cpu使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E9%80%9A%E7%9F%A5-configUSE-TASK-NOTIFICATIONS"><span class="toc-number">1.3.</span> <span class="toc-text">任务通知 configUSE_TASK_NOTIFICATIONS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E9%97%B2%E9%92%A9%E5%AD%90%E5%87%BD%E6%95%B0-configUSE-IDLE-HOOK"><span class="toc-number">1.4.</span> <span class="toc-text">空闲钩子函数 configUSE_IDLE_HOOK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8-configUSE-TIMERS"><span class="toc-number">1.5.</span> <span class="toc-text">软件定时器 configUSE_TIMERS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E9%80%89%E5%87%BD%E6%95%B0%E9%85%8D%E7%BD%AE%E9%80%89%E9%A1%B9"><span class="toc-number">1.6.</span> <span class="toc-text">可选函数配置选项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E7%9B%B8%E5%85%B3"><span class="toc-number">1.7.</span> <span class="toc-text">中断相关</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FreeRTOSConfig-h%E6%96%87%E4%BB%B6%E4%BF%AE%E6%94%B9%E9%83%A8%E5%88%86"><span class="toc-number">2.</span> <span class="toc-text">FreeRTOSConfig.h文件修改部分</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#stm32f10x-it-c%E6%96%87%E4%BB%B6%E4%BF%AE%E6%94%B9%E9%83%A8%E5%88%86"><span class="toc-number">3.</span> <span class="toc-text">stm32f10x_it.c文件修改部分</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9main-c"><span class="toc-number">4.</span> <span class="toc-text">修改main.c</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2023/02/28/c-%E5%9F%BA%E7%A1%801/" title="c++基础1">c++基础1</a><time datetime="2023-02-28T02:33:02.000Z" title="发表于 2023-02-28 10:33:02">2023-02-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2023/02/27/freertos-%E4%BB%BB%E5%8A%A1%E5%88%9B%E5%BB%BA/" title="freertos-任务创建">freertos-任务创建</a><time datetime="2023-02-27T08:21:36.000Z" title="发表于 2023-02-27 16:21:36">2023-02-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/" title="freertos-移植">freertos-移植</a><time datetime="2023-02-27T01:49:27.000Z" title="发表于 2023-02-27 09:49:27">2023-02-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2023/02/26/test/" title="test">test</a><time datetime="2023-02-26T12:39:32.000Z" title="发表于 2023-02-26 20:39:32">2023-02-26</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 By John Doe</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
