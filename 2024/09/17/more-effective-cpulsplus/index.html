@@ -1,0 +1,621 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>more_effective_cpulsplus | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 指针与引用在这样情况下，使用指针：  可能存在不指向任何对象的可能 需要在不同时刻指向不同的对象。  在这样情况下，使用引用：  上述的其他情况 重载操作符时，返回值用引用  2.c++风格类型转换static_cast ,很多类型转换的工作 const_cast, 去掉const 或 volatileness 属性 dynamic_cast, 安全的沿着类的继承关系向下进行类型转换 re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="more_effective_cpulsplus">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2024/09/17/more-effective-cpulsplus/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="1. 指针与引用在这样情况下，使用指针：  可能存在不指向任何对象的可能 需要在不同时刻指向不同的对象。  在这样情况下，使用引用：  上述的其他情况 重载操作符时，返回值用引用  2.c++风格类型转换static_cast ,很多类型转换的工作 const_cast, 去掉const 或 volatileness 属性 dynamic_cast, 安全的沿着类的继承关系向下进行类型转换 re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2024-09-17T13:35:20.000Z">
+<meta property="article:modified_time" content="2024-10-09T07:10:09.811Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="c++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2024/09/17/more-effective-cpulsplus/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'more_effective_cpulsplus',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-10-09 15:10:09'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">32</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">more_effective_cpulsplus</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-17T13:35:20.000Z" title="发表于 2024-09-17 21:35:20">2024-09-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-10-09T07:10:09.811Z" title="更新于 2024-10-09 15:10:09">2024-10-09</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">10.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>37分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="more_effective_cpulsplus"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+<h3 id="1-指针与引用"><a href="#1-指针与引用" class="headerlink" title="1. 指针与引用"></a>1. 指针与引用</h3><p>在这样情况下，使用指针：</p>
+<ol>
+<li>可能存在不指向任何对象的可能</li>
+<li>需要在不同时刻指向不同的对象。</li>
+</ol>
+<p>在这样情况下，使用引用：</p>
+<ol>
+<li>上述的其他情况</li>
+<li>重载操作符时，返回值用引用</li>
+</ol>
+<h3 id="2-c-风格类型转换"><a href="#2-c-风格类型转换" class="headerlink" title="2.c++风格类型转换"></a>2.c++风格类型转换</h3><p>static_cast ,很多类型转换的工作</p>
+<p>const_cast, 去掉const 或 volatileness 属性</p>
+<p>dynamic_cast, 安全的沿着类的继承关系向下进行类型转换</p>
+<p>reinterpret_cast, 指针之间转换（通常不可移植）</p>
+<h3 id="3-多态与数组不应该一起使用"><a href="#3-多态与数组不应该一起使用" class="headerlink" title="3.多态与数组不应该一起使用"></a>3.多态与数组不应该一起使用</h3><p>如果创建了派生类数组，将其传给基类数组形参，虽然不会报错，但内存分布有很大的问题，派生类一般大于基类，而基类数组间隔小于派生类数组间隔，会导致错误。有很大的潜在问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">class Base&#123;</span><br><span class="line">    public:</span><br><span class="line">    int a = 6;</span><br><span class="line">&#125;;</span><br><span class="line">class Der: public Base&#123;</span><br><span class="line">    public:</span><br><span class="line">        int b = 9;</span><br><span class="line">&#125;;</span><br><span class="line">void func(const Base bs[10])&#123;</span><br><span class="line">    for(int i = 0; i &lt; 10; i++)&#123;</span><br><span class="line">        cout &lt;&lt; bs[i].a;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line">int main(void)&#123;</span><br><span class="line">    Der ds[10];</span><br><span class="line">    func(ds);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;;</span><br><span class="line">(yolo) tangjie.zhang@moveai415:effective_cpp$ ./b</span><br><span class="line">6969696969</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-避免无用的缺省函数"><a href="#4-避免无用的缺省函数" class="headerlink" title="4.避免无用的缺省函数"></a>4.避免无用的缺省函数</h3><p>有些类不能有缺省构造函数（比如不能输入没有姓名的地址簿）对于没有缺省构造函数，有三种情况会遇到错误：</p>
+<ol>
+<li><p>建立数组时。不过也有三种方法回避这个限制</p>
+<ol>
+<li><p>对于非堆数组，可以提供额外参数，但这不可用于堆数组。</p>
+<p><code>int ID1, ID2; Base b[] = &#123;Base(ID1), Base(ID2)&#125;; </code></p>
+</li>
+<li><p>使用指针数组代替对象数组，即创建数组，数组存放的是对象的指针，对象的构造以及析构都需要手动完成。</p>
+</li>
+<li><p>之所以会出错是因为：创建数组分为两步（从栈，从堆new都是），1、分配内存，2、调用默认构造函数，关键在于第二步，所以可以将这两步分开处理。先分配（通过malloc，operator new，**<code>allocator</code>**），再构造（placement new 或者 construct）。它的缺点与第二点类似，需要手动处理内存分配，对象构建，对象析构，内存释放。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *rawMemory = </span><br><span class="line">  <span class="keyword">operator</span> <span class="keyword">new</span>[](<span class="number">10</span>*<span class="built_in">sizeof</span>(EquipmentPiece)); </span><br><span class="line">  </span><br><span class="line"><span class="comment">// make bestPieces point to it so it can be treated as an </span></span><br><span class="line"><span class="comment">// EquipmentPiece array </span></span><br><span class="line">EquipmentPiece *bestPieces = </span><br><span class="line">  <span class="built_in">static_cast</span>&lt;EquipmentPiece*&gt;(rawMemory); </span><br><span class="line">  </span><br><span class="line"><span class="comment">// construct the EquipmentPiece objects in the memory </span></span><br><span class="line"><span class="comment">// 使用&quot;placement new&quot; (参见条款 M8) </span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i) </span><br><span class="line">  <span class="keyword">new</span> (&amp;bestPieces[i]) <span class="built_in">EquipmentPiece</span>( ID Number )</span><br><span class="line">删除：</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">9</span>; i &gt;= <span class="number">0</span>; --i) </span><br><span class="line">  bestPieces[i].~<span class="built_in">EquipmentPiece</span>();  </span><br><span class="line"><span class="comment">// deallocate the raw memory </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">operator</span> <span class="keyword">delete</span>[](rawMemory)</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>无法很多在基于模板的容器内使用</p>
+</li>
+</ol>
+<p>​	像vector等优秀的容器没有对默认构造函数的要求了。</p>
+<p>提不提供缺省构造函数是程序员的一个选择，提供一个无意义的，会增加其它部分的处理工作，但会简化构造。本书作者认为不应该强求所有类都有默认构造函数。</p>
+<h3 id="5-谨慎使用类型转换函数"><a href="#5-谨慎使用类型转换函数" class="headerlink" title="5.谨慎使用类型转换函数"></a>5.谨慎使用类型转换函数</h3><p>c++和c都支持隐式转换，这是语言特性，无法控制。如果是自己的类，则有更多的控制能力。</p>
+<p>有两个函数允许编译器进行这些转换：<strong>单参数构造函数(只要第二个参数开始有默认值就行了)和隐式类型转换运算符</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">class Rational&#123;</span><br><span class="line">    public:</span><br><span class="line">    Rational(int num = 0,</span><br><span class="line">            int den = 1):num(num) , den(den)&#123;&#125;;</span><br><span class="line"></span><br><span class="line">    void print()&#123;</span><br><span class="line">        cout &lt;&lt; &quot;num: &quot; &lt;&lt; num &lt;&lt; endl;</span><br><span class="line">        cout &lt;&lt; &quot;den: &quot; &lt;&lt; den &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">    int num;</span><br><span class="line">    int den;</span><br><span class="line">&#125;;</span><br><span class="line">int main(void)&#123;</span><br><span class="line">    Rational c;</span><br><span class="line">    c = 5;</span><br><span class="line">    c.print();</span><br><span class="line">    return 0;</span><br><span class="line">&#125;;</span><br><span class="line">ttj@ttj:~/cpp$ ./b</span><br><span class="line">num: 5</span><br><span class="line">den: 1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class Rational &#123; </span><br><span class="line">public: </span><br><span class="line">  ... </span><br><span class="line">  operator double() const;                   // 转换 Rational 类成 </span><br><span class="line">&#125;;                                           // double 类型 </span><br><span class="line">在下面这种情况下，这个函数会被自动调用： </span><br><span class="line">Rational r(1, 2);                            // r 的值是 1/2 </span><br><span class="line">double d = 0.5 * r;                          // 转换 r 到 double, </span><br><span class="line">                                         // 然后做乘法</span><br></pre></td></tr></table></figure>
+
+<p>为什么不需要使用转换函数：<strong>这些函数会被隐式调用执行</strong>，难以判断。</p>
+<p>解决方法：</p>
+<ul>
+<li>用成员函数替代类型转换运算符（比如string类的 c_str ）</li>
+<li>为构造函数添加<code>explicit</code>关键字，或者使用代理类如下，c++不允许连续进行两次隐式类型转换。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">class Array &#123;</span><br><span class="line">public:</span><br><span class="line">  class ArraySize &#123;                    // 这个类是新的</span><br><span class="line">  public:</span><br><span class="line">    ArraySize(int numElements): theSize(numElements) &#123;&#125;</span><br><span class="line">    int size() const &#123; return theSize; &#125;</span><br><span class="line">  private:</span><br><span class="line">    int theSize;</span><br><span class="line">  &#125;;</span><br><span class="line">Array(int lowBound, int highBound);</span><br><span class="line">  Array(ArraySize size);                  // 注意新的声明</span><br><span class="line">&#125;;</span><br><span class="line">int main()&#123;</span><br><span class="line">    Array a = Array::ArraySize(0);  // 可以</span><br><span class="line">    Array b = 0;                    // 不行</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">ttj@ttj:~/cpp$ g++ -o b 4.1.2.cpp</span><br><span class="line">4.1.2.cpp: In function ‘int main()’:</span><br><span class="line">4.1.2.cpp:18:15: error: conversion from ‘int’ to non-scalar type ‘Array’ requested</span><br><span class="line">   18 |     Array b = 0;</span><br><span class="line">      |             </span><br></pre></td></tr></table></figure>
+
+<p><strong>6.自增自减操作符前后缀的区别</strong></p>
+<p>为了区分，后缀有一个0作为int参数。</p>
+<p>后缀通过前缀实现，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">UPInt&amp; UPInt::operator++() </span><br><span class="line">&#123; </span><br><span class="line">  *this += 1;                             // 增加 </span><br><span class="line">  return *this;                           // 取回值 </span><br><span class="line">&#125; </span><br><span class="line">// postfix form: fetch and increment </span><br><span class="line">const UPInt UPInt::operator++(int) </span><br><span class="line">&#123; </span><br><span class="line">  UPInt oldValue = *this;                 // 取回值 </span><br><span class="line">  ++(*this);        // 增加 </span><br><span class="line">return oldValue;                          // 返回被取回的值 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-不要重载-amp-amp-、-、-与"><a href="#7-不要重载-amp-amp-、-、-与" class="headerlink" title="7.不要重载&amp;&amp;、 ||、 与 ,"></a>7.不要重载<code>&amp;&amp;、 ||、 与 ,</code></h3><p>c++与c一致，使用布尔表达式短路求值法。而一旦重载，则你<strong>以函数调用法替代了短路求值法</strong>: 左右两个表达式都会以<strong>未知顺序</strong>被<strong>计算出</strong>，然后传递给运算符函数，这是无法变更的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (expression1 &amp;&amp; expression2) ... </span><br><span class="line">  对于编译器来说，等同于下面代码之一： </span><br><span class="line">if (expression1.operator&amp;&amp;(expression2)) ... </span><br><span class="line">                              // when operator&amp;&amp; is a member function </span><br><span class="line">if (operator&amp;&amp;(expression1, expression2)) ... </span><br><span class="line">                              // when operator&amp;&amp; is a global function</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-不同含义的new和delete"><a href="#8-不同含义的new和delete" class="headerlink" title="8.不同含义的new和delete"></a>8.不同含义的new和delete</h3><p><strong>new操作符</strong>（new operator）和<strong>new操作</strong>（operator new）是有区别的，</p>
+<p>如下<code>auto str = new string(&quot;hello&quot;)</code> 中的new是new操作符，是语言内置的，他的功能由两部分：</p>
+<ul>
+<li>分配足够的内存</li>
+<li>调用构造函数初始化内存中的对象</li>
+</ul>
+<p>我们能改变的是如何为对象分配内存，这个功能由new操作完成，<code>void * operator new(size_t size);</code></p>
+<p>重载即可，可以增加额外的参数，但第一个参数必须是size_t类型的。（参见 Effective C++ 条款 8 至条款 10。）</p>
+<p>如上所述，可以重载以掌握内存分配功能，那么如何掌握初始化对象功能呢：通过placement new实现。</p>
+<p><code>new (buffer) Widget(widgetSize)</code>，这是new操作符的一种用法，它会调用如下的operator new(placement new) ：<code>void * operator new(size_t, void *location</code>。</p>
+<p>operator delete 与 delete 操作符的关系与 operator new 与 new 操作符的关系一样</p>
+<p>delete操作符会先调用析构函数，然后释放内存。</p>
+<p>new，delete与operator new，operator delete应该匹配，不能出现placement new + delete的情况（毕竟你不知道内存是如何分配的，如果是个共享内存呢）</p>
+<h3 id="9-使用析构函数防止资源泄漏"><a href="#9-使用析构函数防止资源泄漏" class="headerlink" title="9.使用析构函数防止资源泄漏"></a>9.使用析构函数防止资源泄漏</h3><p>。。。略</p>
+<h3 id="10-在构造函数中防止资源泄漏"><a href="#10-在构造函数中防止资源泄漏" class="headerlink" title="10.在构造函数中防止资源泄漏"></a>10.在构造函数中防止资源泄漏</h3><p>构造函数中产生异常，对象没有被完全构建，已经申请的指针数据不会被自动释放（<strong>即使离开作用域</strong>），也不能手动释放，因为根本得不到对象地址。</p>
+<p>一种做法是在构造函数中捕获所有异常，释放掉所有资源，在让异常重新传递。如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">try &#123;                            // 这 try block 是新加入的 </span><br><span class="line">    if (imageFileName != &quot;&quot;) &#123; </span><br><span class="line">      theImage = new Image(imageFileName); </span><br><span class="line">    &#125;  </span><br><span class="line">  if (audioClipFileName != &quot;&quot;) &#123; </span><br><span class="line">      theAudioClip = new AudioClip(audioClipFileName); </span><br><span class="line">    &#125; </span><br><span class="line">  &#125; </span><br><span class="line">  catch (...) &#123;                      // 捕获所有异常 </span><br><span class="line">    delete theImage;                 // 完成必要的清除代码 </span><br><span class="line">    delete theAudioClip;  </span><br><span class="line">    throw;                           // 继续传递异常 </span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似的做法虽然可以达到要求，但一种更好的做法是将指针交由类管理。纯指针必须经历new 和 delete两个过程，将其作为类的成员变量或者单独使用时，如果因为遗忘或者异常很可能会导致内存泄漏，即使通过try catch 弥补，效果也差强人意。更好的做法时当指针一出现时就交由类<strong>（智能指针）</strong>管理，一旦对象创建成功，不管该对象是单独使用还是作为父对象的成员变量，都能够自动完成指针释放。（现在纯指针过时了，任何时候都应该记用智能指针替代，我说的）</p>
+<h3 id="11-异常不应该传出析构函数（effective-c-也讲过一样的）"><a href="#11-异常不应该传出析构函数（effective-c-也讲过一样的）" class="headerlink" title="11.异常不应该传出析构函数（effective c++ 也讲过一样的）"></a>11.异常不应该传出析构函数（effective c++ 也讲过一样的）</h3><p>有两种情况会调用析构函数，一种是通过正常情况删除一个对象，宁一种是异常传递的堆栈辗转开解（stack-unwinding）过程中，由异常处理系统删除一个对象。但析构函数不知道异常是不是处于激活状态，所以按照最差情况（异常已激活考虑），他将<strong>不能抛出异常</strong>（程序本来处于异常中，如果抛出了，会直接终止）</p>
+<blockquote>
+<p>禁止异常传递到析构函数外有两个原因，第一能够在异常转递的堆栈辗转开解（stack-unwinding）的过程中，防止 terminate 被调用。第二它能帮助确保析构函数总能完成我们希望它做的所有事情。</p>
+</blockquote>
+<h3 id="12-理解“抛出一个异常”与“传递一个参数”或“调用一个虚函数”间的差异"><a href="#12-理解“抛出一个异常”与“传递一个参数”或“调用一个虚函数”间的差异" class="headerlink" title="12.理解“抛出一个异常”与“传递一个参数”或“调用一个虚函数”间的差异"></a>12.理解“抛出一个异常”与“传递一个参数”或“调用一个虚函数”间的差异</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">class Widget &#123; ... &#125;;                 //一个类，具体是什么类 </span><br><span class="line">                                 // 在这里并不重要 </span><br><span class="line">void f1(Widget w);                    // 一些函数，其参数分别为 </span><br><span class="line">void f2(Widget&amp; w);                   // Widget, Widget&amp;,或 </span><br><span class="line"></span><br><span class="line">void f3(const Widget&amp; w);             // Widget* 类型 </span><br><span class="line"></span><br><span class="line">void f4(Widget *pw);  </span><br><span class="line"></span><br><span class="line">void f5(const Widget *pw); </span><br><span class="line">catch (Widget w) ...                  //一些 catch 子句，用来 </span><br><span class="line">catch (Widget&amp; w)   ...               //捕获异常，异常的类型为 </span><br><span class="line">catch (const Widget&amp; w) ...           // Widget, Widget&amp;, 或 </span><br><span class="line">catch (Widget *pw) ...                // Widget* </span><br><span class="line">catch (const Widget *pw) ...</span><br></pre></td></tr></table></figure>
+
+<p>如上，catch的参数看起来和函数的参数一致，没啥区别，实际上他们有些异同点：</p>
+<p><strong>相同点：</strong></p>
+<ol>
+<li>你传递函数参数与异常的途径可以是传值、传递引用或传递指针，这是相同的。</li>
+</ol>
+<p><strong>不同点：</strong></p>
+<ol>
+<li>你调用函数时，程序的控制权最终还会返回到函数的调用处，但是当你抛出一个异常时，控制权永远不会回到抛出异常的地方</li>
+<li>当抛出异常时仍将复制出抛出的对象（如上的w），即使是通过引用传递（因为离开作用域，原对象可能被释放），这导致一个问题：抛出异常运行速度比参数传递要慢</li>
+</ol>
+<p>​	当异常对象被拷贝时，拷贝操作是由对象的拷贝构造函数完成的。该拷贝构造函数是对象的静态类型（static type）所对应类的拷贝构造函数，而不是对象的动态类型（dynamic type）对应类的拷贝构造函数。（条款25说明可以根据动态类型拷贝）</p>
+<p>在catch中抛出异常时，也有差异：第一个没有拷贝，直接传引用，第二个再次拷贝，传值。（这样会影响效率，而且再次拷贝也会按照静态类型的构造函数生成对象。）<strong>一般使用throw。</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">catch (Widget&amp; w)                 // 捕获 Widget 异常 </span><br><span class="line">&#123; </span><br><span class="line">  ...                             // 处理异常 </span><br><span class="line">  throw;                          // 重新抛出异常，让它 </span><br><span class="line">&#125;                                 // 继续传递 </span><br><span class="line">catch (Widget&amp; w)                 // 捕获 Widget 异常 </span><br><span class="line">&#123; </span><br><span class="line">  ...                             // 处理异常 </span><br><span class="line">  throw w;                        // 传递被捕获异常的拷贝</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>一个被异常抛出的对象，可以传递给非const引用。函数显然不能这么做。</li>
+<li>抛引用，拷贝一次；抛值，拷贝两次（一是拷贝到临时对象中，二是拷贝到参数中）；抛指针，拷贝两次（注意，指针应该执行全局内存）。</li>
+<li>函数调用者或抛出异常者与被调用者或异常捕获者之间的类型匹配的过程不同。抛出异常者<strong>不会进行类型隐式转换。</strong>两种转换除外：<strong>catch基类的子句可以catch派生类。类型指针到无类型指针的转换</strong>，<code>catch (const void*)会捕获任意指针类型异常 </code></li>
+<li>catch 子句匹配顺序总是取决于它们在程序中出现的<strong>先后顺序</strong>。</li>
+</ol>
+<h3 id="13-通过引用捕获异常"><a href="#13-通过引用捕获异常" class="headerlink" title="13.通过引用捕获异常"></a>13.通过引用捕获异常</h3><p>通过指针捕获，会遇到一些问题：空悬指针，应不应该删除指针。</p>
+<p>通过值捕获，可以避免上面的问题，但会有新的问题：对象拷贝两次，对象被切割（派生类-&gt;基类）</p>
+<p><strong>通过引用传递，能解决上面的所有问题。这是被推荐的</strong></p>
+<h3 id="14-谨慎使用异常规格（c-11弃用，c-17废除）"><a href="#14-谨慎使用异常规格（c-11弃用，c-17废除）" class="headerlink" title="14.谨慎使用异常规格（c++11弃用，c++17废除）"></a>14.谨慎使用异常规格（c++11弃用，c++17废除）</h3><p><code>unexpected --&gt; terminate --&gt; abort </code></p>
+<p>当没有合适的catch处理异常时，unexpected被调用，如果没有其他的操作，会调用terminate，terminate的默认行为是调用abort，abort会直接结束程序，不会像exit一样执行清理操作，关闭文件，释放内存等。</p>
+<p>违反异常规格的异常发生时，由于没有适当的 <code>catch</code> 子句来处理这个异常，程序会调<code>unexpected</code>，然后是 <code>terminate</code>，最终调用 <code>abort</code>。这将导致程序立即停止运行，</p>
+<h3 id="15-了解异常处理的系统开销"><a href="#15-了解异常处理的系统开销" class="headerlink" title="15.了解异常处理的系统开销"></a>15.了解异常处理的系统开销</h3><ol>
+<li><p>建立数据结构来跟踪对象是否被完全构造。</p>
+</li>
+<li><p>try 块，每个try块预计增加5%-10%代码尺寸，每个异常规格花掉与 try 块一样多的系统开销。</p>
+</li>
+<li><p>抛出异常的开销，开销是正常函数的指数级，如果你用异常表示一个比较普遍的状况，那你必须重新予以考虑。</p>
+</li>
+</ol>
+<h3 id="16-牢记80-20准则"><a href="#16-牢记80-20准则" class="headerlink" title="16.牢记80-20准则"></a>16.牢记80-20准则</h3><p>即20%的代码使用了80%的资源，包括时间，内存，磁盘等。</p>
+<p>80－20 准则既简化了你的工作又使你的工作变得复杂。</p>
+<p><strong>简化：</strong>大多数时间你能够编写性能一般的代码，因为 80％的时间里这些代码的效率不会影响到整个系统的性能</p>
+<p><strong>复杂：</strong>如果你的软件出现了性能问题，需要找到那一小块代码位置，提高他们的性能。如何找，两个方法：</p>
+<ul>
+<li>大多数人用的方法，猜，感觉。作者认为程序性能特征往往不能靠直觉确定，猜出的概率与随机数差不多。</li>
+<li>正确的方法，用 profiler 程序识别出令人讨厌的程序的 20％部分。profiler可以找出语句或者函数被调用了多少次，这可以帮我们推断其他不能直接计算的软件行为。用户不关心函数调用多少，他们只厌恶等待。用<strong>尽可能多，有代表性</strong>的的数据profile 你的软件。</li>
+</ul>
+<h3 id="17-lazy-evaluation-懒惰计算法"><a href="#17-lazy-evaluation-懒惰计算法" class="headerlink" title="17.lazy evaluation 懒惰计算法"></a>17.lazy evaluation 懒惰计算法</h3><p>lazy evaluation应用广泛，如下：</p>
+<ol>
+<li><p><strong>引用计数</strong>。比如复制对象后，s2不代表新对象，而是s1的引用，遇到写数据时才复制。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = &quot;Hello&quot;;  </span><br><span class="line">String s2 = s1;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>区别读取还是写入</strong>，通常没法直接判断一个操作是读还是写，通过使用 lazy evaluation 和条款 M30 中讲述的 proxy class，我们可以推迟做出是读操作还是写操作的决定，直到我们能判断出正确的答案。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; s[3];                         // 调用 operator[] 读取 s[3] </span><br><span class="line">s[3] = &#x27;x&#x27;;                            // 写</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>懒惰提取</strong>，如果一个类中的若干个数据成员需要从数据库初始化。为避免耗时，初始化时可直接赋零，真正使用时才从数据库读取数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">LargeObject::LargeObject(ObjectID id) </span><br><span class="line">: oid(id), field1Value(0), field2Value(0), field3Value(0), ... </span><br><span class="line">&#123;&#125;  </span><br><span class="line">const string&amp; LargeObject::field1() const </span><br><span class="line">&#123; </span><br><span class="line">  if (field1Value == 0) &#123; </span><br><span class="line">    从数据库中为 filed 1 读取数据，使 </span><br><span class="line">    field1Value 指向这个值; </span><br><span class="line">  &#125;  </span><br><span class="line">  return *field1Value; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>懒惰表达式计算</p>
+<p>直到用时才计算，话说这不是三元表达式相关的工作吗</p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template&lt;class T&gt; </span><br><span class="line">class Matrix &#123; ... &#125;;                         // for homogeneous matrices  </span><br><span class="line">Matrix&lt;int&gt; m1(1000, 1000);                   // 一个 1000 ＊ 1000 的矩阵 </span><br><span class="line">Matrix&lt;int&gt; m2(1000, 1000);                   // 同上  </span><br><span class="line">...  </span><br><span class="line">Matrix&lt;int&gt; m3 = m1 + m2;                     // m1＋m2 </span><br></pre></td></tr></table></figure>
+
+<p>c+++特别适合用户实现 lazy evaluation，因为它对封装的支持使得能在类里加入lazy evaluation，而根本不用让类的使用者知道。</p>
+<p>profiler 调查（参见条款 M16）显示出类实现有一个性能瓶颈，就可以用使用 <strong>lazy evaluation 的类实现来替代它</strong></p>
+<h3 id="18-分期还期望的计算"><a href="#18-分期还期望的计算" class="headerlink" title="18.分期还期望的计算"></a>18.分期还期望的计算</h3><p>上个条款介绍了lazy evaluation，这有种不同的态度也可以提高软件性能：over-eager evaluation。让程序做的事情比被要求的还要多，</p>
+<p>例如：min等函数需要频繁调用时，实时跟踪当前的最小最大值，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">template&lt;class NumericalType&gt; </span><br><span class="line">class DataCollection &#123; </span><br><span class="line">public: </span><br><span class="line">  NumericalType min() const; </span><br><span class="line">  NumericalType max() const; </span><br><span class="line">  NumericalType avg() const; </span><br><span class="line">  ... </span><br><span class="line">&#125;; </span><br></pre></td></tr></table></figure>
+
+<p>两种应用方法：cache，precatch。空间换时间</p>
+<h3 id="priflier的使用：gprof"><a href="#priflier的使用：gprof" class="headerlink" title="priflier的使用：gprof"></a>priflier的使用：gprof</h3><p>编译选项增加<code>-pg</code>，运行程序后，出现gmon.out文件。按照如下步骤：</p>
+<p>1.编写程序如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;cstdlib&gt;</span><br><span class="line">int a(void)</span><br><span class="line">&#123;</span><br><span class="line">    int i=0,g=0;</span><br><span class="line">    while(i++&lt;100000)</span><br><span class="line">    &#123;</span><br><span class="line">        g+=i;</span><br><span class="line">    &#125;</span><br><span class="line">    return g;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int b(void)</span><br><span class="line">&#123;</span><br><span class="line">    int i=0,g=0;</span><br><span class="line">    while(i++&lt;400000)</span><br><span class="line">    &#123;</span><br><span class="line">        g +=i;</span><br><span class="line">    &#125;</span><br><span class="line">    return g;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc, char** argv)</span><br><span class="line">&#123;</span><br><span class="line">    int iterations;</span><br><span class="line">    if(argc != 2)</span><br><span class="line">    &#123;</span><br><span class="line">        printf(&quot;Usage %s &lt;No of Iterations&gt;\n&quot;, argv[0]);</span><br><span class="line">        exit(-1);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    iterations = atoi(argv[1]);</span><br><span class="line">    printf(&quot;No of iterations = %d\n&quot;, iterations);</span><br><span class="line">    while(iterations--)</span><br><span class="line">    &#123;</span><br><span class="line">        a();</span><br><span class="line">        b();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里main调用了两个函数<code>a, b</code>，b函数的执行时间应该是a函数的4倍。</p>
+<p>2.然后进行编译，注意需要加上 <code>-pg</code>参数，<code>g++ -pg -o b example.cpp</code>。然后运行，<code>./b 50000</code>。之后可以在当前文件夹下看到自动生成的<code>gmon.out</code>文件。（如果需要输出结果中带上源码，需要增加 <code>-g</code> 选项.）</p>
+<p>3.然后进行分析，gprof提供的分析包括两个输出模式部分，flat profile模式和call graph模式。</p>
+<ul>
+<li>Flat profile： 显示每个函数花费的时间，以及函数调用次数。</li>
+<li>Call graph：显示函数调用链</li>
+</ul>
+<p>使用时，一般输入如下命令：<code>gprof  b gmon.out 参数</code>, 其中参数包括如下几个：</p>
+<ul>
+<li><code>-b</code>: 输出摘要报告，不再输出统计图表中每个字段的详细描c<code>-p</code> 得到每个函数占用的执行时间 </li>
+<li><code>-q</code> 得到函数的时间消耗列表</li>
+<li><code>-A</code> 得到一个带注释的“源代码清单”，指出每个函数的执行次数，需要<code>-g</code>选项编译配合。</li>
+</ul>
+<p><strong>flat profile模式：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ttj@ttj:~/cpp$ gprof b gmon.out -p -b</span><br><span class="line">Flat profile:</span><br><span class="line">Each sample counts as 0.01 seconds.</span><br><span class="line">  %   cumulative   self              self     total</span><br><span class="line"> time   seconds   seconds    calls  us/call  us/call  name</span><br><span class="line"> 81.27     42.49    42.49    50000   849.75   849.75  b()</span><br><span class="line"> 20.25     53.08    10.59    50000   211.78   211.78  a()</span><br></pre></td></tr></table></figure>
+
+<p>不加<code>-b</code>可以看到每个字段的详细解释，目前不清楚的是为什么cumulative时间，b为什么比a少</p>
+<blockquote>
+<p>程序的累积执行时间只是包括gprof能够监控到的函数。工作在内核态的函数和没有加-pg编译的第三方库函数是无法被gprof能够监控到的。</p>
+</blockquote>
+<p><strong>call graph模式</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">ttj@ttj:~/cpp$ gprof b gmon.out -q -b</span><br><span class="line">                        Call graph</span><br><span class="line">granularity: each sample hit covers 2 byte(s) for 0.02% of 53.08 seconds</span><br><span class="line">index % time    self  children    called     name</span><br><span class="line">                                                 &lt;spontaneous&gt;</span><br><span class="line">[1]    100.0    0.00   53.08                 main [1]</span><br><span class="line">               42.49    0.00   50000/50000       b() [2]</span><br><span class="line">               10.59    0.00   50000/50000       a() [3]</span><br><span class="line">-----------------------------------------------</span><br><span class="line">               42.49    0.00   50000/50000       main [1]</span><br><span class="line">[2]     80.0   42.49    0.00   50000         b() [2]</span><br><span class="line">-----------------------------------------------</span><br><span class="line">               10.59    0.00   50000/50000       main [1]</span><br><span class="line">[3]     20.0   10.59    0.00   50000         a() [3]</span><br><span class="line">-----------------------------------------------</span><br><span class="line">Index by function name</span><br><span class="line">   [3] a()                     [2] b()</span><br></pre></td></tr></table></figure>
+
+<p>这个表格的每行代表了一个函数，每行内左边有序号的行代表当前行，它上面的行代表调用该函数的函数，它下面的行代表它调用的函数。</p>
+<p><code>gprof</code>只能查看用户态函数，适合于查找用户级程序的瓶颈，无法得到程序在内核态函数的运行时间。</p>
+<p>如要监控第三方库函数执行时间，第三方库也必须是添加 <code>–pg</code> 选项编译。</p>
+<p>gprof的特点是它只能分析应用程序在运行过程中所消耗掉的CPU时间，只有当应用程序的函数消耗CPU的时候，gprof才能够获取函数的性能数据。如果应用程序在运行过程中暂时挂起，并在系统内核唤醒应用程序后进一步执行，那么在应用程序中间暂停的时间性能数据是无法统计的；而且在应用程序等待I&#x2F;O操作返回的时间，性能数据也是无法统计的。</p>
+<p>参考文献：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/youxin/p/7988479.html">Linux性能优化gprof使用 - youxin - 博客园 (cnblogs.com)</a>， <a target="_blank" rel="noopener" href="https://www.cnblogs.com/andashu/p/6378000.html">性能分析工具gprof介绍（转载） - 安大叔 - 博客园 (cnblogs.com)</a></p>
+<h3 id="19-理解临时对象的来源"><a href="#19-理解临时对象的来源" class="headerlink" title="19.理解临时对象的来源"></a>19.理解临时对象的来源</h3><p>临时对象用户是看不见的，它们不出现在你的源代码中。建立一个<strong>没有命名</strong>的非堆（non-heap）对象会产生临时对象。这种对象在两种条件下产生：<strong>为了使函数成功调用而进行隐式类型转换</strong>和<strong>函数返回对象</strong>时。（在异常捕获时，也会通过复制构造函数建立临时对象，再将该对象以值、引用、指针传给catch）</p>
+<p>原文说要避免临时对象，因为他们的创建和销毁需要付出开销。（个人感觉这开销是必须的呀，不改变接口的前提下，始终都需要传入一个该类型的对象的）。见20，21都可以消除部分临时对象。</p>
+<h3 id="20-协助完成返回值优化"><a href="#20-协助完成返回值优化" class="headerlink" title="20.协助完成返回值优化"></a>20.协助完成返回值优化</h3><p>返回 constructor ，而不是直接返回对象。可以降低开销。如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const Rational operator*(const Rational&amp; lhs, </span><br><span class="line">                         const Rational&amp; rhs) &#123; </span><br><span class="line">  return Rational(lhs.numerator() * rhs.numerator(), </span><br><span class="line">                 lhs.denominator() * rhs.denominator()); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="21-通过重载避免隐式类型转换"><a href="#21-通过重载避免隐式类型转换" class="headerlink" title="21.通过重载避免隐式类型转换"></a>21.通过重载避免隐式类型转换</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const UPInt operator+(const UPInt&amp; lhs,      // add UPInt </span><br><span class="line">                      const UPInt&amp; rhs);     // and UPInt  </span><br><span class="line">const UPInt operator+(const UPInt&amp; lhs,      // add UPInt </span><br><span class="line">                      int rhs);              // and int  </span><br><span class="line">const UPInt operator+(int lhs,               // add int and </span><br><span class="line">                      const UPInt&amp; rhs);     // UPInt </span><br></pre></td></tr></table></figure>
+
+<p>虽然可行，但记住80-20原则，</p>
+<h3 id="22-考虑用运算符的赋值形式（op-x3D-）取代其单独形式（op）"><a href="#22-考虑用运算符的赋值形式（op-x3D-）取代其单独形式（op）" class="headerlink" title="22.考虑用运算符的赋值形式（op&#x3D;）取代其单独形式（op）"></a>22.考虑用运算符的赋值形式（op&#x3D;）取代其单独形式（op）</h3><h3 id="23-考虑变更程序库"><a href="#23-考虑变更程序库" class="headerlink" title="23.考虑变更程序库"></a>23.考虑变更程序库</h3><p>类型安全（Type Safety）是编程语言中的一个重要概念，它指的是程序在<strong>编译或运行</strong>时能够防止不恰当的类型操作，从而避免类型错误。类型安全主要包含以下几个方面：</p>
+<ol>
+<li><strong>静态类型检查</strong>：在编译时检查变量和表达式的类型，确保类型匹配。如果发现类型不匹配，编译器会报错，阻止程序运行。</li>
+<li><strong>动态类型检查</strong>：在运行时检查变量和表达式的类型，如果发现类型不匹配，程序会抛出异常。</li>
+</ol>
+<p>参考16-18，如果通过profiler发现有性能瓶颈，尝试更换程序库，比如iostream与printf，</p>
+<h3 id="24-理解虚拟函数、多继承、虚基类和RTTI所需的代价"><a href="#24-理解虚拟函数、多继承、虚基类和RTTI所需的代价" class="headerlink" title="24.理解虚拟函数、多继承、虚基类和RTTI所需的代价"></a>24.理解虚拟函数、多继承、虚基类和RTTI所需的代价</h3><p>语言设计者是一类人，编译器实现者是另一类人，他们按照第一类人的要求去实现，有时实现的好，有时实现的坏，甚至有时没能实现。</p>
+<ol>
+<li>虚拟函数，<strong>要求：执行的代码与调用的动态类型一致。实现：vtbl和vptr</strong>。一个对象只要有虚函数，就有vtbl。</li>
+</ol>
+<p>****太难了，暂停，看后面的</p>
+<h4 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h4><h4 id="25：将构造函数和非成员函数虚拟化"><a href="#25：将构造函数和非成员函数虚拟化" class="headerlink" title="25：将构造函数和非成员函数虚拟化"></a>25：将构造函数和非成员函数虚拟化</h4><p>虚拟构造函数，和含义有点区别，并不是在定义构造函数时在前面加上virtual。而是有点类似于函数工厂的一个函数。</p>
+<blockquote>
+<p>考虑一下 readComponent 所做的工作。它根据所读取的数据建立了一个新对象，或是<br>TextBlock 或是 Graphic。因为它能建立新对象，它的行为与构造函数相似，而且因为它能</p>
+<p>建立不同类型的对象，我们称它为<strong>虚拟构造函数</strong>。虚拟构造函数是指能够根据输入给它的数<br>据的不同而建立不同类型的对象。</p>
+</blockquote>
+<p>还有一类是虚拟拷贝构造函数，其实就是调用了类中的拷贝构造函数构造了对象，再返回。如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class NLComponent &#123; </span><br><span class="line">public: </span><br><span class="line">  // declaration of virtual copy constructor </span><br><span class="line">  virtual NLComponent * clone() const = 0; </span><br><span class="line"></span><br><span class="line">&#125;;  </span><br><span class="line">class TextBlock: public NLComponent &#123; </span><br><span class="line">public: </span><br><span class="line">  virtual TextBlock * clone() const         // virtual copy </span><br><span class="line">  &#123; return new TextBlock(*this); &#125;          // constructor </span><br><span class="line">&#125;;  </span><br><span class="line">class Graphic: public NLComponent &#123; </span><br><span class="line">public: </span><br><span class="line">  virtual Graphic * clone() const            // virtual copy </span><br><span class="line">  &#123; return new Graphic(*this); &#125;             // constructor </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>虚拟构造函数的返回值比较宽松，因为按道理，派生类继承了基类的构造函数，那么函数的返回值应该与基类一致（指向基类的指针或引用），但返回值其实可以指向派生类的指针或引用。</p>
+<p>类似的，虚拟非成员函数并不是说某个非成员函数是virtual的。而是说这个非成员函数调用了类中的虚拟函数。</p>
+<p>比如想要通过 <code>&lt;&lt;</code>打印一个类<code>string</code>（像这样，<code>string a, cout &lt;&lt; a</code>），如何实现呢，</p>
+<ul>
+<li><p>如果是成员函数，分为两类，将该函数定义到</p>
+<ul>
+<li><p><code>ostream</code>内，不太可能，尽量不要修改这些基本的类</p>
+</li>
+<li><p><code>string</code>内，可以实现，但一旦作为成员函数，函数的第一个参数默认是this，就只能这么调用，<code>a &lt;&lt; cout</code>,不符合一般习惯。</p>
+</li>
+</ul>
+</li>
+<li><p>如果不是成员函数，可以声明如下的函数，<code>ostream&amp; operator&lt;&lt;(ostream&amp; s, string&amp; c）</code>可以实现对对象的打印，也能与一般的习惯相符。如果更进一步，想要在这个函数变成虚拟函数（第二个参数，传入<code>string</code>的派生类时，也会调用对应的函数）。由于第二个参数传入的是一个类的引用，它可以对类的函数或者类的派生类的函数进行访问，所以在类中实现一个虚拟函数<code>print</code>，供函数调用即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ostream&amp; operator&lt;&lt;(ostream&amp; s, string&amp; c) &#123; </span><br><span class="line">  return c.print(s); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="26-限制某个类所能产生的对象数量-限制实例化"><a href="#26-限制某个类所能产生的对象数量-限制实例化" class="headerlink" title="26.限制某个类所能产生的对象数量-限制实例化"></a>26.限制某个类所能产生的对象数量-限制实例化</h4><h5 id="如何限制-gt-每个类要被实例化，需要先调用构造函数-gt-把构造函数delete或者声明为private就可以了。"><a href="#如何限制-gt-每个类要被实例化，需要先调用构造函数-gt-把构造函数delete或者声明为private就可以了。" class="headerlink" title="如何限制-&gt;每个类要被实例化，需要先调用构造函数-&gt;把构造函数delete或者声明为private就可以了。"></a>如何限制-&gt;每个类要被实例化，需要先调用构造函数-&gt;把构造函数delete或者声明为private就可以了。</h5><p>假设使用private，这么做了后，将不能创建类的任何实例，如何创建实例呢-&gt;使用friend函数创建实例。如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Printer</span>&#123;</span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		***</span><br><span class="line">	<span class="function"><span class="keyword">friend</span> Printer&amp; <span class="title">thePrinter</span><span class="params">()</span></span>;</span><br><span class="line">	<span class="keyword">private</span>:</span><br><span class="line">		<span class="built_in">Printer</span>();</span><br><span class="line">		<span class="built_in">Printer</span>(<span class="type">const</span> Printer&amp; rhs);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function">Printer&amp; <span class="title">thePrinter</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="type">static</span> Printer p;</span><br><span class="line">	<span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样有一个缺陷，函数<code>thePrinter</code>被放到了全局命名空间，而不是Printer类中。</p>
+<ul>
+<li>一种改进办法是将thePrinter设置为Printer的static函数。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class Printer &#123; </span><br><span class="line">public: </span><br><span class="line">  static Printer&amp; thePrinter(); </span><br><span class="line">  ... </span><br><span class="line">private: </span><br><span class="line">  Printer(); </span><br><span class="line">  Printer(const Printer&amp; rhs); </span><br><span class="line">  ...  </span><br><span class="line">&#125;; </span><br><span class="line">Printer&amp; Printer::thePrinter() &#123; </span><br><span class="line">  static Printer p; </span><br><span class="line">  return p; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>另一种改进方式是新建一个命名空间，将thePrinter函数与Printer类放进去。</li>
+</ul>
+<p>thePrinter有两个值得注意的细节：</p>
+<ul>
+<li><p>唯一的静态Printer对象是放到函数类，而不是类内，这是因为：</p>
+<ul>
+<li>类的静态成员变量在程序启动时初始化，程序结束时释放。函数中的静态局部对象在第一次调用函数时初始化，程序结束时释放。建立 C++一个理论支柱是你<strong>不需为你不用的东西而付出</strong>，在函数里，把类似于 Printer 这样的对象定义为静态成员就是坚持这样的理论。</li>
+<li>还有另一个原因，虽然说类的静态成员变量在程序启动时初始化，但如果有多个object文件呢，他们的初始化顺序不一定，可能会导致一些麻烦，见effective c++ item47</li>
+</ul>
+</li>
+<li><p>（有点微妙，可看原文118）thePrinter不能被声明为内联，</p>
+<blockquote>
+<p><del>带有内部链接的函数可能在程序内被复制（也就是说程序的目标（object）代码可能包含一个以上的内部链接函数的代码</del></p>
+</blockquote>
+</li>
+</ul>
+<p><del>可能导致静态对象的拷贝超过一个，所以不要建立包含局部静态数据的非成员函数</del></p>
+<blockquote>
+<p>from gpt</p>
+<p>对于现代C++编译器，这段旧的建议已经不再适用。现代编译器已经能够很好地处理内部链接的函数和局部静态对象，不会出现静态对象被复制或多次初始化的情况。因此，在现代C++中，使用包含局部静态对象的非成员函数是安全的，不会导致多个静态对象拷贝的发生。</p>
+</blockquote>
+<h5 id="前文所说的做法都是保存一个类的静态对象，使用时调用函数返回就行了，这里有一种新的做法，"><a href="#前文所说的做法都是保存一个类的静态对象，使用时调用函数返回就行了，这里有一种新的做法，" class="headerlink" title="前文所说的做法都是保存一个类的静态对象，使用时调用函数返回就行了，这里有一种新的做法，"></a>前文所说的做法都是保存一个类的静态对象，使用时调用函数返回就行了，这里有一种新的做法，</h5><p>计算类的实例化数目，超过某个值就报错，否则就创建。这很直观，也容易拓展（类的数量可变）如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">size_t</span> Printer::numObjects = <span class="number">0</span>;  </span><br><span class="line">Printer::<span class="built_in">Printer</span>() &#123; </span><br><span class="line">  <span class="keyword">if</span> (numObjects &gt;= <span class="number">1</span>) &#123; </span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">TooManyObjects</span>(); </span><br><span class="line">  &#125;  </span><br><span class="line">  继续运行正常的构造函数;  </span><br><span class="line">  ++numObjects; </span><br><span class="line">&#125;  </span><br><span class="line">Printer::~<span class="built_in">Printer</span>() &#123; </span><br><span class="line">  进行正常的析构函数处理;  </span><br><span class="line">  --numObjects; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>tips.concrete 类是具体类，和抽象类是反义词</p>
+<p>这么做也有一些问题，比如</p>
+<ul>
+<li>如果有个派生类ColorPrinter继承自Printer，那么创建派生类时，由于会调用基类的构造函数，也会导致计数器（numObjects）的增加。一种解决方法时，别从具体类派生出类，而是只从虚类派生。</li>
+<li>如果Printer是某个类的子类，当他的父类被重复实例化化时，Printer的构造函数会报错。</li>
+</ul>
+<blockquote>
+<p>问题是 Printer 对象能存在于三种不同的环境中：只有它们本身；作为其它派类的基类；被嵌入在更大的对象里。存在这些不同环境极大地混淆了跟踪“存在对象的数目”的含义，因为你心目中的“对象的存在” 的含义与编译器不一致。</p>
+</blockquote>
+<p>通常我们只对对象单独存在的情况感兴趣，我们希望限制该类作为基类，作为子类的情况。使用本节第一种方法就好限制，因为构造函数是private，所以该类不能作为基类也不能作为子类。可以将这个技术应用到其他地方。比如：</p>
+<blockquote>
+<p>有一个类，含有非虚析构函数（见effective c++ 14，基类的析构函数应该是虚拟的，不然没法通过指针或者引用释放派生类的部分），那么应该禁止该类产生派生类，但是我们并不限制该类单独产生多少对象。就可以使用private构造函数来实现。还可以优化的一点是makeFAS返回的应该是智能指针。</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FSA</span> &#123; </span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">  <span class="comment">// 伪构造函数 </span></span><br><span class="line">  <span class="function"><span class="type">static</span> FSA * <span class="title">makeFSA</span><span class="params">()</span></span>; </span><br><span class="line">  <span class="function"><span class="type">static</span> FSA * <span class="title">makeFSA</span><span class="params">(<span class="type">const</span> FSA&amp; rhs)</span></span>; </span><br><span class="line">  ...  </span><br><span class="line"><span class="keyword">private</span>: </span><br><span class="line">  <span class="built_in">FSA</span>(); </span><br><span class="line">  <span class="built_in">FSA</span>(<span class="type">const</span> FSA&amp; rhs); </span><br><span class="line">  ... </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function">FSA * <span class="title">FSA::makeFSA</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">FSA</span>(); &#125;  </span><br><span class="line"><span class="function">FSA * <span class="title">FSA::makeFSA</span><span class="params">(<span class="type">const</span> FSA&amp; rhs)</span> </span></span><br><span class="line"><span class="function"></span>&#123; <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">FSA</span>(rhs); &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="允许对象来去自由"><a href="#允许对象来去自由" class="headerlink" title="允许对象来去自由"></a>允许对象来去自由</h5><p>使用thePrinter函数封装对单个函数的访问，使得我们在每次运行程序时只能使用一个对象，甚至不能销毁后建立一个新的对象。如何改变这一点？<strong>将计数的代码与private构造代码结合在一起就行了。</strong>它既保留了不能作为基类，子类的特性，又保留了可以限制对象数量的特性。如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Printer</span> &#123; </span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">TooManyObjects</span>&#123;&#125;;  </span><br><span class="line">  <span class="function"><span class="type">static</span> Printer * <span class="title">makePrinter</span><span class="params">()</span></span>;  </span><br><span class="line">  ...  </span><br><span class="line"><span class="keyword">private</span>: </span><br><span class="line">  <span class="type">static</span> <span class="type">size_t</span> numObjects;  </span><br><span class="line">  <span class="built_in">Printer</span>();  </span><br><span class="line">  <span class="built_in">Printer</span>(<span class="type">const</span> Printer&amp; rhs);        <span class="comment">//我们不定义这个函数 </span></span><br><span class="line">&#125;;                                    <span class="comment">//因为不允许  //进行拷贝 </span></span><br><span class="line">                                     <span class="comment">// (参见 Effective C++条款27) </span></span><br><span class="line"><span class="comment">// Obligatory definition of class static </span></span><br><span class="line"><span class="type">size_t</span> Printer::numObjects = <span class="number">0</span>;  </span><br><span class="line">Printer::<span class="built_in">Printer</span>() </span><br><span class="line">&#123; </span><br><span class="line">  <span class="keyword">if</span> (numObjects &gt;= <span class="number">1</span>) &#123; </span><br><span class="line">    <span class="keyword">throw</span> <span class="built_in">TooManyObjects</span>(); </span><br><span class="line">  &#125;  </span><br><span class="line">  继续运行正常的构造函数;  </span><br><span class="line">  ++numObjects; </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function">Printer * <span class="title">Printer::makePrinter</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; <span class="keyword">return</span> <span class="keyword">new</span> Printer; &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="一个具有对象计数功能的基类"><a href="#一个具有对象计数功能的基类" class="headerlink" title="一个具有对象计数功能的基类"></a>一个具有对象计数功能的基类</h5><p>上述的方法十分好用，但使用有点麻烦，我们就想可不可以将实例计数封装一下，之后如果想要创建类，继承一下封装的类就行了。。。</p>
+<p>有一些要点，这个用于实例计数的基类应该拥有计数的所有变量，函数。同时也要保证每个进行实例计数的都拥有相互隔离的计数器。**—-&gt;通过模板实现**（太巧妙了，我什么时候才能想到啊。除此以外，其他方法都是不行的，非静态成员变量肯定不行，他没法对类的数量计数；静态成员变量也是不行的，因为派生的类访问的都是基类的静态变量，不能实现相互隔离，虽然说可以在派生的类中定义同名变量覆盖掉基类的变量，但这太麻烦了，每定义一个类都需要覆盖一次）</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">BeingCounted</span>&gt; </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Counted</span> &#123; </span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">TooManyObjects</span>&#123;&#125;;                     <span class="comment">// 用来抛出异常  </span></span><br><span class="line">  <span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">objectCount</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> numObjects; &#125;  </span><br><span class="line"><span class="keyword">protected</span>: </span><br><span class="line">  <span class="built_in">Counted</span>(); </span><br><span class="line">  <span class="built_in">Counted</span>(<span class="type">const</span> Counted&amp; rhs);  </span><br><span class="line">  ~<span class="built_in">Counted</span>() &#123; --numObjects; &#125;  </span><br><span class="line"><span class="keyword">private</span>: </span><br><span class="line">  <span class="type">static</span> <span class="type">int</span> numObjects; </span><br><span class="line">  <span class="type">static</span> <span class="type">const</span> <span class="type">size_t</span> maxObjects;  </span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">init</span><span class="params">()</span></span>;                                <span class="comment">// 避免构造函数的 </span></span><br><span class="line">&#125;;                                            <span class="comment">// 代码重复  </span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">BeingCounted</span>&gt; </span><br><span class="line">Counted&lt;BeingCounted&gt;::<span class="built_in">Counted</span>() </span><br><span class="line">&#123; <span class="built_in">init</span>(); &#125;  </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">BeingCounted</span>&gt; </span><br><span class="line">Counted&lt;BeingCounted&gt;::<span class="built_in">Counted</span>(<span class="type">const</span> Counted&lt;BeingCounted&gt;&amp;) </span><br><span class="line">&#123; <span class="built_in">init</span>(); &#125;  </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">BeingCounted</span>&gt; </span><br><span class="line"><span class="type">void</span> Counted&lt;BeingCounted&gt;::<span class="built_in">init</span>() &#123; </span><br><span class="line">  <span class="keyword">if</span> (numObjects &gt;= maxObjects) <span class="keyword">throw</span> <span class="built_in">TooManyObjects</span>(); </span><br><span class="line">  ++numObjects; </span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Counted</code>类中有一个<code>protected</code>，其中包含了该类的构造&#x2F;析构函数，这使得我们不能单独构造该类，不能将该类作为一个子类，但可以将其作为一个基类。继承时，这么做就行了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class Printer: private Counted&lt;Printer&gt; &#123; </span><br><span class="line">public: </span><br><span class="line">  // 伪构造函数 </span><br><span class="line">  static Printer * makePrinter(); </span><br><span class="line">  static Printer * makePrinter(const Printer&amp; rhs);  </span><br><span class="line">  ~Printer();  </span><br><span class="line">  ...  </span><br><span class="line">  using Counted&lt;Printer&gt;::objectCount;     // 参见下面解释 </span><br><span class="line">  using Counted&lt;Printer&gt;::TooManyObjects;  // 参见下面解释  </span><br><span class="line">private: </span><br><span class="line">  Printer(); </span><br><span class="line">  Printer(const Printer&amp; rhs); </span><br><span class="line">bbs.theithome.com</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>没人关心基类的具体细节，所有使用了private继承，</p>
+<p>Counted 所做的大部分工作对于派生类是隐藏的，但派生类可能想知道有多少Printer对象存在，所以可以使用using 将objectCount函数恢复public访问权。（至于为什么将<code>TooManyObjects</code>声明为public还不太清楚，虽然原文解释了，128）</p>
+<p>后还有一点需要注意，可以定义 Counted 内的静态成员，也可以不定义，每定义一个派生类时再定义（如果程序员忘了定义，也会有报错）</p>
+<h4 id="27-禁止在堆中分配对象"><a href="#27-禁止在堆中分配对象" class="headerlink" title="27.禁止在堆中分配对象"></a>27.禁止在堆中分配对象</h4><h5 id="要求在堆中分配对象"><a href="#要求在堆中分配对象" class="headerlink" title="要求在堆中分配对象"></a>要求在堆中分配对象</h5><p>如何限制仅在堆中分配对象。非堆对象在定义时自动构造，在生命周期结束时调用析构函数。所以只要禁止这两个函数之一，构建非堆对象就会报错了-&gt;无法构造了。</p>
+<p>一般做法是让析构函数变成private，让构造函数变成public，可以额外提供一个伪析构函数供在堆的对象调用。如下：（不能使用delete a，这会调用operater delete函数以及析构函数）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;                                                             using namespace std;</span><br><span class="line">class A&#123;</span><br><span class="line">public:</span><br><span class="line">    A();</span><br><span class="line">    destroy();</span><br><span class="line">private:</span><br><span class="line">    ~A();</span><br><span class="line">&#125;;</span><br><span class="line">int main(void)&#123;</span><br><span class="line">    A();</span><br><span class="line">    auto a = new A();</span><br><span class="line">    a-&gt;destroy(); //不能使用delete a，这会调用operater delete函数以及析构函数</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">te.cpp: In function ‘int main()’:</span><br><span class="line">te.cpp:10:7: error: ‘A::~A()’ is private within this context</span><br><span class="line">   10 |     A();</span><br><span class="line">      |       ^</span><br><span class="line">te.cpp:7:5: note: declared private here</span><br><span class="line">    7 |     ~A();</span><br><span class="line">      |     ^</span><br></pre></td></tr></table></figure>
+
+<p>将析构函数声明为private，不仅限制了对象本身的构造，也限制其作为基类以及类中的子类。</p>
+<p>上面的问题可以解决：比如把析构函数声明为protected，如果某个类包含本类，则改为指向其的指针。（friend类，可以解决吧，应该）</p>
+<h5 id="判断一个对象是否在堆中"><a href="#判断一个对象是否在堆中" class="headerlink" title="判断一个对象是否在堆中"></a>判断一个对象是否在堆中</h5><h6 id="可以分析下在堆，在非堆的初始化顺序"><a href="#可以分析下在堆，在非堆的初始化顺序" class="headerlink" title="可以分析下在堆，在非堆的初始化顺序"></a>可以分析下在堆，在非堆的初始化顺序</h6><ul>
+<li>在堆中，调用operator new -&gt; 调用构造函数</li>
+<li>在非堆，系统完成内存分配  -&gt; 调用构造函数</li>
+</ul>
+<p>区别在于，在堆中需要多执行一个opearor new 函数，可以在这执行一些判定。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">class heapcon&#123;</span><br><span class="line">    public:</span><br><span class="line">    class HeapConstraintViolation&#123;&#125;;</span><br><span class="line">    heapcon();</span><br><span class="line">    static void * operator new(size_t size);</span><br><span class="line">    static bool onHeap;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line">bool heapcon::onHeap = false;</span><br><span class="line">void* heapcon::operator new(size_t size)&#123;</span><br><span class="line">    onHeap = true;</span><br><span class="line">    return ::operator new(size);</span><br><span class="line">&#125;;</span><br><span class="line">heapcon::heapcon()&#123;</span><br><span class="line">    if(!onHeap)&#123;</span><br><span class="line">        cerr &lt;&lt; &quot;cannot constuct in !heap&quot;;</span><br><span class="line">        throw HeapConstraintViolation();</span><br><span class="line">    &#125;</span><br><span class="line">    cerr &lt;&lt; &quot;construct in heap;&quot;;</span><br><span class="line">    onHeap = false;</span><br><span class="line">&#125;;</span><br><span class="line">int main(void)&#123;</span><br><span class="line">//    auto h = new heapcon();</span><br><span class="line">//    heapcon s&#123;&#125;;</span><br><span class="line">    heapcon* temp = new heapcon(*new heapcon());</span><br><span class="line">    return 0;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>但有个缺陷是无法使用 new[]，除非还需要定义一个operator  new[],但是operator new[]只调用一次，但是，构造函数会调用n次（n为数组大小），所以可以考虑将onheap改为一个计数的。（但如果有多个数组同时定义，安全性能保证吗，不知道不知道，或者直接将new [] 禁了，反正也不常用&#x2F;dog）</p>
+<h6 id="原书作者也认为上述做法不太靠谱。"><a href="#原书作者也认为上述做法不太靠谱。" class="headerlink" title="原书作者也认为上述做法不太靠谱。"></a>原书作者也认为上述做法不太靠谱。</h6><p>所以又有一种新的判断方式，内存，系统中，栈向下，堆向上生长，要判断一个地址是栈还是堆可以用该地址与临时定义的变量地址（位于栈顶）比较。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bool onHeap(const void *address) </span><br><span class="line">&#123; </span><br><span class="line">  char onTheStack;                   // 局部栈变量 </span><br><span class="line">  return address &lt; &amp;onTheStack; </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>但这只能区分栈与非栈。一个对象可以定义在三个地方，栈，堆，静态对象的地址。</strong>现在没法区分堆和静态对象。</p>
+<img src="/.github.io/2024/09/17/more-effective-cpulsplus/image-20240912114250154.png" class="" title="image-20240912114250154">
+
+<h6 id="前两种方式都不靠谱，作者又这么分析"><a href="#前两种方式都不靠谱，作者又这么分析" class="headerlink" title="前两种方式都不靠谱，作者又这么分析"></a>前两种方式都不靠谱，作者又这么分析</h6><p>之所以需要知道一个地址是位于堆还是非堆，主要是想要安全的delete 该对象。不过 <strong>安全的delete该对象与该对象地址位于堆不是等价的。</strong>（比如，父类在堆上定义，它的子类地址也在堆上，但这不意味着可以直接delete 该子类。）</p>
+<p>还有一种方式是建立一个地址集合，operator new时往其中加元素，operator delete时从中移除元素。但这有几个缺陷：</p>
+<ul>
+<li>如果定义为全局的operator会污染全局空间</li>
+<li>效率降低</li>
+<li>如何判断一个地址是否在地址集合内，这中间有些缺陷。</li>
+</ul>
+<h5 id="禁止堆对象"><a href="#禁止堆对象" class="headerlink" title="禁止堆对象"></a>禁止堆对象</h5><p>建立对象分为三类：对象直接实例化，对象作为基类初始化，对象被嵌入到其他对象类初始化。</p>
+<ul>
+<li>对象直接实例化：对象在堆中被初始化，必须调用new，这些操作符内嵌于语言，无法修改，但可以利用他们都需要调用operator new这个特点，将operator new设置为private。</li>
+<li>对象作为基类初始化：这么做有个缺陷，一个类的operator new 被定义为private，那么它的派生类也不能在堆上创建（除非派生类重写operator new）</li>
+<li>对象被嵌入到其他对象类初始化：如果一个类的operator new 为private，它可以作为另一个类的成员变量，不会造成什么影响。</li>
+</ul>
+<h4 id="28-smart-指针"><a href="#28-smart-指针" class="headerlink" title="28.smart 指针"></a>28.smart 指针</h4><p>相比于内建指针（dumb pointer），智能指针有很多优势：</p>
+<ul>
+<li>构造与析构，这两个函数可以完全程序员控制，可以用于防止资源泄漏。</li>
+<li>拷贝与赋值，拷贝构造函数、移动构造函数也由程序员控制，可以实现不同形式的复制，如潜复制、深复制。</li>
+<li>Dereferencing，解引用操作符也由程序员控制，可以给解引用符定义返回不同的内容。</li>
+</ul>
+<p>涉及到智能指针构造、赋值、析构</p>
+<p>构造，赋值，存在以下几种处理方式</p>
+<ul>
+<li><p>只拷贝原始指针，这会导致多个指针指向内存中的同一个地址，会导致段内存被delete多次，</p>
+</li>
+<li><p>调用new，建立新对象，但这遗漏了派生类这种情况，会导致派生类被截断。</p>
+</li>
+<li><p>所有权转移，等号右边的指针传给左边，右边的指针改为0。这也有个缺陷，每个指针对象只能赋值给其他对象一次，用完指针就没了。(但也有个trick，可以用const unique<xxx>&amp; 来访问指针，不会产生赋值)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">void printTreeNode(ostream&amp; s, auto_ptr&lt;TreeNode&gt; p) </span><br><span class="line">&#123; s &lt;&lt; *p; &#125; </span><br><span class="line">int main() </span><br><span class="line">bbs.theithome.com</span><br><span class="line">&#123; </span><br><span class="line">  auto_ptr&lt;TreeNode&gt; ptn(new TreeNode); </span><br><span class="line">  ... </span><br><span class="line">  printTreeNode(cout, ptn);          //通过传值方式传递 auto_ptr </span><br><span class="line">  ... </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>实现解引用时，如下，返回值为引用类型而不是对象。最关键的原因是防止派生类被切割。（<strong>这么说，涉及到指针，引用时，不到最后使用时，不该将其转化为类类型。</strong>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template&lt;class T&gt; </span><br><span class="line">T&amp; SmartPtr&lt;T&gt;::operator*() const </span><br><span class="line">&#123; </span><br><span class="line">  perform &quot;smart pointer&quot; processing; </span><br><span class="line">  return *pointee; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="进阶内容，如何判断智能指针是否为NULL"><a href="#进阶内容，如何判断智能指针是否为NULL" class="headerlink" title="进阶内容，如何判断智能指针是否为NULL"></a><strong>进阶内容，如何判断智能指针是否为NULL</strong></h5><p>要想行为与内置指针一致，一种很自然的想法是为智能指针添加一个转换函数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">operator void*();</span><br></pre></td></tr></table></figure>
+
+<p>这么做就能达到与内置指针同样的性质。但这样还是有点瑕疵，比如遇到如下情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SmartPtr&lt;Apple&gt; pa; </span><br><span class="line">SmartPtr&lt;Orange&gt; po; </span><br><span class="line">... </span><br><span class="line">if (pa == po) ..</span><br></pre></td></tr></table></figure>
+
+<p>两者都会被转换成void*指针进行比较，（见条款5，这可能导致很多问题。有些会转换成bool值，比如c++）</p>
+<p>有另一种方法是重载 operator！，但这只对该操作符有效。</p>
+<h5 id="进阶内容，如何将智能指针变为内置指针"><a href="#进阶内容，如何将智能指针变为内置指针" class="headerlink" title="进阶内容，如何将智能指针变为内置指针"></a><strong>进阶内容，如何将智能指针变为内置指针</strong></h5><p>结论，不要提供这样的隐式类型转换，</p>
+<p>c++已经支持智能指针从派生类到基类的转换（unique_ptr由于资源问题暂不支持，也许可以试试move？）</p>
+<h4 id="29-引用计数"><a href="#29-引用计数" class="headerlink" title="29.引用计数"></a>29.引用计数</h4><p>动机1：资源管理，垃圾回收</p>
+<p>动机2：节省内存，多个对象可能对应内存中的同一个区域</p>
+<p>如何实现：</p>
+<p>要计数，需要一个位置保存计数的值，这个值可以和引用的对象一起保存。所以我们将创建一个类来保存引用计数及其跟踪的值。我们叫这个类StringValue，并将其定义在对象内，这阻止了其他人的访问。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class String &#123; </span><br><span class="line">public: </span><br><span class="line">  ...  // the usual String member functions go here </span><br><span class="line">private: </span><br><span class="line">  struct StringValue &#123; ... &#125;;        // holds a reference count </span><br><span class="line">                                     // and a string value </span><br><span class="line">  StringValue *value;                // value of this String </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>。。。。。。。。没看完</p>
+<h4 id="30-代理类"><a href="#30-代理类" class="headerlink" title="30.代理类"></a>30.代理类</h4><p>通过实现多维数组，需要让类可以执行这种操作：<code>A[][]</code>，由于只能重载一个<code>[]</code>,可以考虑执行后返回一个一维数组，再次调用重载<code>[]</code>函数。这其中的一维数组就可以作为代理类。</p>
+<p>上章讲过，因为没法区分<code>operator[]</code>是读还是写，只能假设所有调用都是写操作（导致一旦调用该函数，就将shared置为false），这其实是不合理的，可能会浪费资源。现在考虑能不能将判断读还是写的时机推出到<code>operatro[]</code>之后，这就会利用到<strong>代理类。</strong></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2024/09/17/more-effective-cpulsplus/">https://tjzhang-src.github.io/.github.io/2024/09/17/more-effective-cpulsplus/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/c/">c++</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/.github.io/2024/09/17/effective-cplusplus/" title="effective_cplusplus"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">effective_cplusplus</div></div></a></div><div class="next-post pull-right"><a href="/.github.io/2024/09/17/cplusplusprimer/" title="cplusplusprimer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">cplusplusprimer</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/.github.io/2023/02/28/c-%E5%9F%BA%E7%A1%801/" title="c++基础1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-28</div><div class="title">c++基础1</div></div></a></div><div><a href="/.github.io/2024/09/17/effective-cplusplus/" title="effective_cplusplus"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">effective_cplusplus</div></div></a></div><div><a href="/.github.io/2024/09/17/cplusplusprimer/" title="cplusplusprimer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">cplusplusprimer</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">32</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%8C%87%E9%92%88%E4%B8%8E%E5%BC%95%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">1. 指针与引用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-c-%E9%A3%8E%E6%A0%BC%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2"><span class="toc-number">2.</span> <span class="toc-text">2.c++风格类型转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%A4%9A%E6%80%81%E4%B8%8E%E6%95%B0%E7%BB%84%E4%B8%8D%E5%BA%94%E8%AF%A5%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">3.多态与数组不应该一起使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%81%BF%E5%85%8D%E6%97%A0%E7%94%A8%E7%9A%84%E7%BC%BA%E7%9C%81%E5%87%BD%E6%95%B0"><span class="toc-number">4.</span> <span class="toc-text">4.避免无用的缺省函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%87%BD%E6%95%B0"><span class="toc-number">5.</span> <span class="toc-text">5.谨慎使用类型转换函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E4%B8%8D%E8%A6%81%E9%87%8D%E8%BD%BD-amp-amp-%E3%80%81-%E3%80%81-%E4%B8%8E"><span class="toc-number">6.</span> <span class="toc-text">7.不要重载&amp;&amp;、 ||、 与 ,</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E4%B8%8D%E5%90%8C%E5%90%AB%E4%B9%89%E7%9A%84new%E5%92%8Cdelete"><span class="toc-number">7.</span> <span class="toc-text">8.不同含义的new和delete</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E4%BD%BF%E7%94%A8%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0%E9%98%B2%E6%AD%A2%E8%B5%84%E6%BA%90%E6%B3%84%E6%BC%8F"><span class="toc-number">8.</span> <span class="toc-text">9.使用析构函数防止资源泄漏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E5%9C%A8%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E4%B8%AD%E9%98%B2%E6%AD%A2%E8%B5%84%E6%BA%90%E6%B3%84%E6%BC%8F"><span class="toc-number">9.</span> <span class="toc-text">10.在构造函数中防止资源泄漏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E5%BC%82%E5%B8%B8%E4%B8%8D%E5%BA%94%E8%AF%A5%E4%BC%A0%E5%87%BA%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0%EF%BC%88effective-c-%E4%B9%9F%E8%AE%B2%E8%BF%87%E4%B8%80%E6%A0%B7%E7%9A%84%EF%BC%89"><span class="toc-number">10.</span> <span class="toc-text">11.异常不应该传出析构函数（effective c++ 也讲过一样的）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E7%90%86%E8%A7%A3%E2%80%9C%E6%8A%9B%E5%87%BA%E4%B8%80%E4%B8%AA%E5%BC%82%E5%B8%B8%E2%80%9D%E4%B8%8E%E2%80%9C%E4%BC%A0%E9%80%92%E4%B8%80%E4%B8%AA%E5%8F%82%E6%95%B0%E2%80%9D%E6%88%96%E2%80%9C%E8%B0%83%E7%94%A8%E4%B8%80%E4%B8%AA%E8%99%9A%E5%87%BD%E6%95%B0%E2%80%9D%E9%97%B4%E7%9A%84%E5%B7%AE%E5%BC%82"><span class="toc-number">11.</span> <span class="toc-text">12.理解“抛出一个异常”与“传递一个参数”或“调用一个虚函数”间的差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-%E9%80%9A%E8%BF%87%E5%BC%95%E7%94%A8%E6%8D%95%E8%8E%B7%E5%BC%82%E5%B8%B8"><span class="toc-number">12.</span> <span class="toc-text">13.通过引用捕获异常</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E5%BC%82%E5%B8%B8%E8%A7%84%E6%A0%BC%EF%BC%88c-11%E5%BC%83%E7%94%A8%EF%BC%8Cc-17%E5%BA%9F%E9%99%A4%EF%BC%89"><span class="toc-number">13.</span> <span class="toc-text">14.谨慎使用异常规格（c++11弃用，c++17废除）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-%E4%BA%86%E8%A7%A3%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E7%B3%BB%E7%BB%9F%E5%BC%80%E9%94%80"><span class="toc-number">14.</span> <span class="toc-text">15.了解异常处理的系统开销</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-%E7%89%A2%E8%AE%B080-20%E5%87%86%E5%88%99"><span class="toc-number">15.</span> <span class="toc-text">16.牢记80-20准则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-lazy-evaluation-%E6%87%92%E6%83%B0%E8%AE%A1%E7%AE%97%E6%B3%95"><span class="toc-number">16.</span> <span class="toc-text">17.lazy evaluation 懒惰计算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#18-%E5%88%86%E6%9C%9F%E8%BF%98%E6%9C%9F%E6%9C%9B%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="toc-number">17.</span> <span class="toc-text">18.分期还期望的计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#priflier%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%9Agprof"><span class="toc-number">18.</span> <span class="toc-text">priflier的使用：gprof</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#19-%E7%90%86%E8%A7%A3%E4%B8%B4%E6%97%B6%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%9D%A5%E6%BA%90"><span class="toc-number">19.</span> <span class="toc-text">19.理解临时对象的来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#20-%E5%8D%8F%E5%8A%A9%E5%AE%8C%E6%88%90%E8%BF%94%E5%9B%9E%E5%80%BC%E4%BC%98%E5%8C%96"><span class="toc-number">20.</span> <span class="toc-text">20.协助完成返回值优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-%E9%80%9A%E8%BF%87%E9%87%8D%E8%BD%BD%E9%81%BF%E5%85%8D%E9%9A%90%E5%BC%8F%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2"><span class="toc-number">21.</span> <span class="toc-text">21.通过重载避免隐式类型转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-%E8%80%83%E8%99%91%E7%94%A8%E8%BF%90%E7%AE%97%E7%AC%A6%E7%9A%84%E8%B5%8B%E5%80%BC%E5%BD%A2%E5%BC%8F%EF%BC%88op-x3D-%EF%BC%89%E5%8F%96%E4%BB%A3%E5%85%B6%E5%8D%95%E7%8B%AC%E5%BD%A2%E5%BC%8F%EF%BC%88op%EF%BC%89"><span class="toc-number">22.</span> <span class="toc-text">22.考虑用运算符的赋值形式（op&#x3D;）取代其单独形式（op）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-%E8%80%83%E8%99%91%E5%8F%98%E6%9B%B4%E7%A8%8B%E5%BA%8F%E5%BA%93"><span class="toc-number">23.</span> <span class="toc-text">23.考虑变更程序库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-%E7%90%86%E8%A7%A3%E8%99%9A%E6%8B%9F%E5%87%BD%E6%95%B0%E3%80%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E3%80%81%E8%99%9A%E5%9F%BA%E7%B1%BB%E5%92%8CRTTI%E6%89%80%E9%9C%80%E7%9A%84%E4%BB%A3%E4%BB%B7"><span class="toc-number">24.</span> <span class="toc-text">24.理解虚拟函数、多继承、虚基类和RTTI所需的代价</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%80%E5%B7%A7"><span class="toc-number">24.1.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#25%EF%BC%9A%E5%B0%86%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E5%92%8C%E9%9D%9E%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="toc-number">24.2.</span> <span class="toc-text">25：将构造函数和非成员函数虚拟化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#26-%E9%99%90%E5%88%B6%E6%9F%90%E4%B8%AA%E7%B1%BB%E6%89%80%E8%83%BD%E4%BA%A7%E7%94%9F%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%95%B0%E9%87%8F-%E9%99%90%E5%88%B6%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="toc-number">24.3.</span> <span class="toc-text">26.限制某个类所能产生的对象数量-限制实例化</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%99%90%E5%88%B6-gt-%E6%AF%8F%E4%B8%AA%E7%B1%BB%E8%A6%81%E8%A2%AB%E5%AE%9E%E4%BE%8B%E5%8C%96%EF%BC%8C%E9%9C%80%E8%A6%81%E5%85%88%E8%B0%83%E7%94%A8%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0-gt-%E6%8A%8A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0delete%E6%88%96%E8%80%85%E5%A3%B0%E6%98%8E%E4%B8%BAprivate%E5%B0%B1%E5%8F%AF%E4%BB%A5%E4%BA%86%E3%80%82"><span class="toc-number">24.3.1.</span> <span class="toc-text">如何限制-&gt;每个类要被实例化，需要先调用构造函数-&gt;把构造函数delete或者声明为private就可以了。</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%89%8D%E6%96%87%E6%89%80%E8%AF%B4%E7%9A%84%E5%81%9A%E6%B3%95%E9%83%BD%E6%98%AF%E4%BF%9D%E5%AD%98%E4%B8%80%E4%B8%AA%E7%B1%BB%E7%9A%84%E9%9D%99%E6%80%81%E5%AF%B9%E8%B1%A1%EF%BC%8C%E4%BD%BF%E7%94%A8%E6%97%B6%E8%B0%83%E7%94%A8%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E5%B0%B1%E8%A1%8C%E4%BA%86%EF%BC%8C%E8%BF%99%E9%87%8C%E6%9C%89%E4%B8%80%E7%A7%8D%E6%96%B0%E7%9A%84%E5%81%9A%E6%B3%95%EF%BC%8C"><span class="toc-number">24.3.2.</span> <span class="toc-text">前文所说的做法都是保存一个类的静态对象，使用时调用函数返回就行了，这里有一种新的做法，</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%81%E8%AE%B8%E5%AF%B9%E8%B1%A1%E6%9D%A5%E5%8E%BB%E8%87%AA%E7%94%B1"><span class="toc-number">24.3.3.</span> <span class="toc-text">允许对象来去自由</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%85%B7%E6%9C%89%E5%AF%B9%E8%B1%A1%E8%AE%A1%E6%95%B0%E5%8A%9F%E8%83%BD%E7%9A%84%E5%9F%BA%E7%B1%BB"><span class="toc-number">24.3.4.</span> <span class="toc-text">一个具有对象计数功能的基类</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#27-%E7%A6%81%E6%AD%A2%E5%9C%A8%E5%A0%86%E4%B8%AD%E5%88%86%E9%85%8D%E5%AF%B9%E8%B1%A1"><span class="toc-number">24.4.</span> <span class="toc-text">27.禁止在堆中分配对象</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A6%81%E6%B1%82%E5%9C%A8%E5%A0%86%E4%B8%AD%E5%88%86%E9%85%8D%E5%AF%B9%E8%B1%A1"><span class="toc-number">24.4.1.</span> <span class="toc-text">要求在堆中分配对象</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%98%AF%E5%90%A6%E5%9C%A8%E5%A0%86%E4%B8%AD"><span class="toc-number">24.4.2.</span> <span class="toc-text">判断一个对象是否在堆中</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E5%88%86%E6%9E%90%E4%B8%8B%E5%9C%A8%E5%A0%86%EF%BC%8C%E5%9C%A8%E9%9D%9E%E5%A0%86%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F"><span class="toc-number">24.4.2.1.</span> <span class="toc-text">可以分析下在堆，在非堆的初始化顺序</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%8E%9F%E4%B9%A6%E4%BD%9C%E8%80%85%E4%B9%9F%E8%AE%A4%E4%B8%BA%E4%B8%8A%E8%BF%B0%E5%81%9A%E6%B3%95%E4%B8%8D%E5%A4%AA%E9%9D%A0%E8%B0%B1%E3%80%82"><span class="toc-number">24.4.2.2.</span> <span class="toc-text">原书作者也认为上述做法不太靠谱。</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%89%8D%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%E9%83%BD%E4%B8%8D%E9%9D%A0%E8%B0%B1%EF%BC%8C%E4%BD%9C%E8%80%85%E5%8F%88%E8%BF%99%E4%B9%88%E5%88%86%E6%9E%90"><span class="toc-number">24.4.2.3.</span> <span class="toc-text">前两种方式都不靠谱，作者又这么分析</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A6%81%E6%AD%A2%E5%A0%86%E5%AF%B9%E8%B1%A1"><span class="toc-number">24.4.3.</span> <span class="toc-text">禁止堆对象</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#28-smart-%E6%8C%87%E9%92%88"><span class="toc-number">24.5.</span> <span class="toc-text">28.smart 指针</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6%E5%86%85%E5%AE%B9%EF%BC%8C%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E6%98%AF%E5%90%A6%E4%B8%BANULL"><span class="toc-number">24.5.1.</span> <span class="toc-text">进阶内容，如何判断智能指针是否为NULL</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6%E5%86%85%E5%AE%B9%EF%BC%8C%E5%A6%82%E4%BD%95%E5%B0%86%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E5%8F%98%E4%B8%BA%E5%86%85%E7%BD%AE%E6%8C%87%E9%92%88"><span class="toc-number">24.5.2.</span> <span class="toc-text">进阶内容，如何将智能指针变为内置指针</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#29-%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0"><span class="toc-number">24.6.</span> <span class="toc-text">29.引用计数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#30-%E4%BB%A3%E7%90%86%E7%B1%BB"><span class="toc-number">24.7.</span> <span class="toc-text">30.代理类</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/10/02/PyTorch1/" title="无题">无题</a><time datetime="2024-10-02T10:04:35.793Z" title="发表于 2024-10-02 18:04:35">2024-10-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/30/csapp1/" title="csapp1">csapp1</a><time datetime="2024-09-30T01:19:42.000Z" title="发表于 2024-09-30 09:19:42">2024-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/29/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%87%AA%E6%95%91%E6%8C%87%E5%8D%97/" title="研究生自救指南.md">研究生自救指南.md</a><time datetime="2024-09-29T12:39:47.000Z" title="发表于 2024-09-29 20:39:47">2024-09-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/21/webserver/" title="webserver">webserver</a><time datetime="2024-09-21T03:10:24.000Z" title="发表于 2024-09-21 11:10:24">2024-09-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/20/cmake%E7%9A%84%E4%BD%BF%E7%94%A8/" title="cmake的使用">cmake的使用</a><time datetime="2024-09-20T12:48:35.000Z" title="发表于 2024-09-20 20:48:35">2024-09-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2024 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2024/09/17/more-effective-cpulsplus/'
+    this.page.identifier = '/.github.io/2024/09/17/more-effective-cpulsplus/'
+    this.page.title = 'more_effective_cpulsplus'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

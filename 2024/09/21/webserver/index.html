@@ -1,0 +1,412 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>webserver | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="serverrrrrrrrrrrrrrrrrrrrrr– IO 多路复用 VS 多进程&#x2F;多线程IO 多路复用不用维护线程进程，大大减小了系统的开销。 多路复用的实现主要基于 select、poll、epoll select12345#include &lt;sys&#x2F;select.h&gt;#include &lt;sys&#x2F;time.h&gt;int select(int maxfdp1,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webserver">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2024/09/21/webserver/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="serverrrrrrrrrrrrrrrrrrrrrr– IO 多路复用 VS 多进程&#x2F;多线程IO 多路复用不用维护线程进程，大大减小了系统的开销。 多路复用的实现主要基于 select、poll、epoll select12345#include &lt;sys&#x2F;select.h&gt;#include &lt;sys&#x2F;time.h&gt;int select(int maxfdp1,">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2024-09-21T03:10:24.000Z">
+<meta property="article:modified_time" content="2024-09-24T06:56:28.958Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="other">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2024/09/21/webserver/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'webserver',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-09-24 14:56:28'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">32</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">webserver</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-21T03:10:24.000Z" title="发表于 2024-09-21 11:10:24">2024-09-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-09-24T06:56:28.958Z" title="更新于 2024-09-24 14:56:28">2024-09-24</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="webserver"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>serverrrrrrrrrrrrrrrrrrrrrr–</p>
+<h3 id="IO-多路复用-VS-多进程-x2F-多线程"><a href="#IO-多路复用-VS-多进程-x2F-多线程" class="headerlink" title="IO 多路复用 VS 多进程&#x2F;多线程"></a>IO 多路复用 VS 多进程&#x2F;多线程</h3><p>IO 多路复用不用维护线程进程，大大减小了系统的开销。</p>
+<p>多路复用的实现主要基于 select、poll、epoll</p>
+<h4 id="select"><a href="#select" class="headerlink" title="select"></a>select</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;sys/select.h&gt;</span><br><span class="line">#include &lt;sys/time.h&gt;</span><br><span class="line">int select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,</span><br><span class="line">          const struct timeval *timeout);</span><br><span class="line">// return：表示此时有多少个监控的描述符就绪，若超时则为0，出错为-1。</span><br></pre></td></tr></table></figure>
+
+<p>调用过程：</p>
+<p>1）用户进程需要监控某些资源 fds，在调用 select 函数后会阻塞，操作系统会将用户线程加入这些资源的等待队列中。</p>
+<p>2）直到有描述副就绪（有数据可读、可写或有 except）或超时（timeout 指定等待时间，如果立即返回设为 null 即可），函数返回。</p>
+<p>3）select 函数返回后，中断程序唤起用户线程。用户可以遍历 fds，通过 FD_ISSET 判断具体哪个 fd 收到数据，并做出相应处理。</p>
+<h3 id="getopt"><a href="#getopt" class="headerlink" title="getopt"></a>getopt</h3><blockquote>
+<p><code>getopt</code> 是一个用于解析命令行参数的库函数，主要用于在程序中处理命令行输入。它最常见于 C 和 C++ 编程语言，允许开发者轻松地从命令行输入中提取选项和参数，并处理它们。</p>
+<h3 id="基本功能"><a href="#基本功能" class="headerlink" title="基本功能"></a>基本功能</h3><p>当程序通过命令行执行时，用户可以传递选项（如 <code>-a</code>、<code>-b</code>）和参数（如文件名、路径等）。<code>getopt</code> 提供了一种标准化的方法来解析这些选项，并支持短选项（如 <code>-a</code>）以及长选项（如 <code>--option</code>）。它可以识别是否某个选项需要附带参数，并进行相应的处理。</p>
+<h3 id="getopt-使用步骤"><a href="#getopt-使用步骤" class="headerlink" title="getopt 使用步骤"></a><code>getopt</code> 使用步骤</h3><ol>
+<li><p><strong>引入头文件</strong>：在 C 或 C++ 程序中使用 <code>getopt</code> 需要包含 <code>unistd.h</code> 头文件（在 Unix&#x2F;Linux 环境下）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;unistd.h&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>定义选项</strong>：你需要在代码中定义哪些选项可用。例如，<code>-a</code> 是一个简单选项，而 <code>-b</code> 需要一个参数。</p>
+</li>
+<li><p><strong>调用 <code>getopt</code> 解析</strong>：通过循环调用 <code>getopt</code> 来解析命令行中的每个选项。</p>
+</li>
+</ol>
+<h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h3><p>以下是一个简单的例子，展示如何使用 <code>getopt</code> 来解析命令行选项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line"></span><br><span class="line">int main(int argc, char *argv[]) &#123;</span><br><span class="line">    int opt;</span><br><span class="line"></span><br><span class="line">    // 循环处理所有命令行选项</span><br><span class="line">    while ((opt = getopt(argc, argv, &quot;ab:c&quot;)) != -1) &#123;</span><br><span class="line">        switch (opt) &#123;</span><br><span class="line">        case &#x27;a&#x27;:</span><br><span class="line">            printf(&quot;Option -a selected\n&quot;);</span><br><span class="line">            break;</span><br><span class="line">        case &#x27;b&#x27;:</span><br><span class="line">            printf(&quot;Option -b selected with argument: %s\n&quot;, optarg);</span><br><span class="line">            break;</span><br><span class="line">        case &#x27;c&#x27;:</span><br><span class="line">            printf(&quot;Option -c selected\n&quot;);</span><br><span class="line">            break;</span><br><span class="line">        default:</span><br><span class="line">            fprintf(stderr, &quot;Usage: %s [-a] [-b argument] [-c]\n&quot;, argv[0]);</span><br><span class="line">            return 1;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参数解释"><a href="#参数解释" class="headerlink" title="参数解释"></a>参数解释</h3><ul>
+<li><code>argc</code> 和 <code>argv[]</code>：<code>argc</code> 是命令行参数的数量，<code>argv[]</code> 是一个指向字符串的数组，包含命令行参数。</li>
+<li><code>opt</code>：每次调用 <code>getopt</code> 时，它返回解析的选项字符。</li>
+<li><code>optarg</code>：当选项需要参数时，<code>optarg</code> 会指向该选项的参数值。</li>
+<li><code>&quot;ab:c&quot;</code>：定义了程序接受的选项。<code>a</code> 和 <code>c</code> 是不带参数的选项，<code>b:</code> 需要一个参数（注意冒号 <code>:</code>）。</li>
+</ul>
+<h3 id="输出示例"><a href="#输出示例" class="headerlink" title="输出示例"></a>输出示例</h3><p>如果我们运行该程序：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./program -a -b argument -c</span><br></pre></td></tr></table></figure>
+
+<p>输出将是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Option -a selected</span><br><span class="line">Option -b selected with argument: argument</span><br><span class="line">Option -c selected</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他功能"><a href="#其他功能" class="headerlink" title="其他功能"></a>其他功能</h3><ul>
+<li><code>getopt_long</code>：除了处理短选项外，C 还提供了 <code>getopt_long</code> 函数，用于处理长选项（如 <code>--help</code>）。它可以让你定义更具描述性的命令行选项。</li>
+</ul>
+<p><code>getopt</code> 是处理命令行参数的标准工具，尤其适合需要解析简单选项的程序。</p>
+</blockquote>
+<h3 id="非阻塞IO-amp-ET-LT"><a href="#非阻塞IO-amp-ET-LT" class="headerlink" title="非阻塞IO &amp; ET LT"></a>非阻塞IO &amp; ET LT</h3><p><strong>阻塞IO：</strong>会一直等待，除非将数据读完。</p>
+<p><strong>非阻塞IO：</strong>当前没有读到足够的数据时，<code>read</code>会立刻返回，将<code>errno</code>设置为<code>EAGAIN</code> 或<code>EWOULDBLOCK</code>,</p>
+<p><strong>ET边缘触发：</strong>文件描述符的状态发生变化时产生一次事件。</p>
+<p><strong>LT水平出发：</strong>检测到有事件时，会触发，<strong>没有处理该事件</strong>则后续会一直触发。</p>
+<p>通常选择 <strong>ET + 非阻塞IO</strong>，使用ET时，由于只会触发一次，哪怕该文件描述符产生了多个变化也只会有一次事件，<strong>所有应该要在事件触发时尽快的读完该文件描述符上的所有事件</strong>（如果阻塞了，那么阻塞期间的事件不会产生触发事件，导致不能被处理）</p>
+<h3 id="r-n"><a href="#r-n" class="headerlink" title="\r\n"></a>\r\n</h3><blockquote>
+<p>HTTP协议是基于TCP&#x2F;IP协议栈的，而TCP&#x2F;IP协议栈中的许多协议（如SMTP、FTP等）都继承了这种使用<code>\r\n</code>作为行结束的传统。HTTP&#x2F;1.0和HTTP&#x2F;1.1规范都明确指出，HTTP消息的头部（Headers）应该使用<code>\r\n</code>作为行结束符。</p>
+</blockquote>
+<h3 id="recv"><a href="#recv" class="headerlink" title="recv"></a>recv</h3><blockquote>
+<p>These calls return the number of bytes received, or -1 if an error occurred.  In the event of an error,  errno is set to indicate the error.</p>
+<p>When a stream socket peer has performed an orderly shutdown, the return value will be 0 (the traditional “end-of-file” return).</p>
+<p>返回-1代表错误，并将errno置为对应的值，返回0代表对端关闭</p>
+</blockquote>
+<blockquote>
+<p>EAGAIN or EWOULDBLOCK<br>              The socket is marked nonblocking and the receive operation would block, or a receive timeout  had  been<br>              set  and  the timeout expired before data was received.  POSIX.1 allows either error to be returned for<br>              this case, and does not require these constants to have the  same  value,  so  a  portable  application<br>              should check for both possibilities.</p>
+<p>这个表通常用于检查一个系统调用（如<code>read</code>, <code>write</code>, <code>connect</code>等）是否因为非阻塞I&#x2F;O操作而暂时无法完成。</p>
+</blockquote>
+<h3 id="响应报文部分"><a href="#响应报文部分" class="headerlink" title="响应报文部分"></a>响应报文部分</h3><h4 id="stat"><a href="#stat" class="headerlink" title="stat"></a>stat</h4><p>stat函数用于取得指定文件的文件属性，并将文件属性存储在结构体stat里</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> 1#include &lt;sys/types.h&gt;</span><br><span class="line"> 2#include &lt;sys/stat.h&gt;</span><br><span class="line"> 3#include &lt;unistd.h&gt;</span><br><span class="line"> 4</span><br><span class="line"> 5//获取文件属性，存储在statbuf中</span><br><span class="line"> 6int stat(const char *pathname, struct stat *statbuf);</span><br><span class="line"> 7</span><br><span class="line"> 8struct stat </span><br><span class="line"> 9&#123;</span><br><span class="line">10   mode_t    st_mode;        /* 文件类型和权限 */</span><br><span class="line">11   off_t     st_size;        /* 文件大小，字节数*/</span><br><span class="line">12&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="mmap"><a href="#mmap" class="headerlink" title="mmap"></a>mmap</h4><p>用于将一个文件或其他对象映射到内存，提高文件的访问速度。</p>
+<blockquote>
+<p>建立映射后，这段内存由操作系统管理，可以利用<strong>虚拟内存管理</strong>的所有特性，如分页和交换。</p>
+<p>而<code>mmap</code> 适用于需要高效读写大文件、共享文件内容或需要文件和内存之间直接映射的场景。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">void* mmap(void* start,size_t length,int prot,int flags,int fd,off_t offset);</span><br><span class="line">2int munmap(void* start,size_t length);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>start：映射区的开始地址，设置为0时表示由系统决定映射区的起始地址</p>
+</li>
+<li><p>length：映射区的长度</p>
+</li>
+<li><p>prot：期望的内存保护标志，不能与文件的打开模式冲突</p>
+</li>
+<li><ul>
+<li>PROT_READ 表示页内容可以被读取</li>
+</ul>
+</li>
+<li><p>flags：指定映射对象的类型，映射选项和映射页是否可以共享</p>
+</li>
+<li><ul>
+<li>MAP_PRIVATE 建立一个写入时拷贝的私有映射，内存区域的写入不会影响到原文件</li>
+</ul>
+</li>
+<li><p>fd：有效的文件描述符，一般是由open()函数返回</p>
+</li>
+<li><p>off_toffset：被映射对象内容的起点</p>
+</li>
+</ul>
+<h4 id="iovec"><a href="#iovec" class="headerlink" title="iovec"></a>iovec</h4><p>定义了一个向量元素，通常，这个结构用作一个多元素的数组。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">iovec</span> &#123;</span><br><span class="line">    <span class="type">void</span>      *iov_base;      <span class="comment">/* starting address of buffer */</span></span><br><span class="line">    <span class="type">size_t</span>    iov_len;        <span class="comment">/* size of buffer */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>iov_base指向数据的地址</li>
+<li>iov_len表示数据的长度</li>
+</ul>
+<h4 id="writev"><a href="#writev" class="headerlink" title="writev"></a>writev</h4><p>writev函数用于在一次函数调用中写多个非连续缓冲区到指定的文件，有时也将这该函数称为聚集写。<code>writev</code> 的使用可以减少内存拷贝的次数和系统调用的次数，从而提高 I&#x2F;O 性能。<code>writev</code> 函数的原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"><span class="type">ssize_t</span> <span class="title function_">writev</span><span class="params">(<span class="type">int</span> fd, <span class="type">const</span> <span class="keyword">struct</span> iovec *iov, <span class="type">int</span> iovcnt)</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="线程同步与互斥"><a href="#线程同步与互斥" class="headerlink" title="线程同步与互斥"></a>线程同步与互斥</h3><h4 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a><strong>信号量</strong></h4><p>信号量是一种特殊的变量，它只能取自然数值并且只支持两种操作：等待(P)和信号(V).假设有信号量SV，对其的P、V操作如下：</p>
+<blockquote>
+<ul>
+<li>P，如果SV的值大于0，则将其减一；若SV的值为0，则挂起执行</li>
+<li>V，如果有其他进行因为等待SV而挂起，则唤醒；若没有，则将SV值加一</li>
+</ul>
+</blockquote>
+<p>信号量的取值可以是任何自然数，最常用的，最简单的信号量是二进制信号量，只有0和1两个值.</p>
+<blockquote>
+<ul>
+<li>sem_init函数用于初始化一个未命名的信号量</li>
+<li>sem_destory函数用于销毁信号量</li>
+<li>sem_wait函数将以原子操作方式将信号量减一,信号量为0时,sem_wait阻塞</li>
+<li>sem_post函数以原子操作方式将信号量加一,信号量大于0时,唤醒调用sem_post的线程</li>
+</ul>
+</blockquote>
+<p>以上，成功返回0，失败返回errno</p>
+<h4 id="互斥量"><a href="#互斥量" class="headerlink" title="互斥量"></a><strong>互斥量</strong></h4><p>互斥锁,也成互斥量,可以保护关键代码段,以确保独占式访问.当进入关键代码段,获得互斥锁将其加锁;离开关键代码段,唤醒等待该互斥锁的线程.</p>
+<blockquote>
+<ul>
+<li>pthread_mutex_init函数用于初始化互斥锁</li>
+<li>pthread_mutex_destory函数用于销毁互斥锁</li>
+<li>pthread_mutex_lock函数以原子操作方式给互斥锁加锁</li>
+<li>pthread_mutex_unlock函数以原子操作方式给互斥锁解锁</li>
+</ul>
+</blockquote>
+<p>以上，成功返回0，失败返回errno</p>
+<h4 id="条件变量"><a href="#条件变量" class="headerlink" title="条件变量"></a><strong>条件变量</strong></h4><p>条件变量提供了一种线程间的通知机制,当某个共享数据达到某个值时,唤醒等待这个共享数据的线程.</p>
+<blockquote>
+<ul>
+<li>pthread_cond_init函数用于初始化条件变量</li>
+<li>pthread_cond_destory函数销毁条件变量</li>
+<li>pthread_cond_broadcast函数以广播的方式唤醒<strong>所有</strong>等待目标条件变量的线程</li>
+<li>pthread_cond_wait函数用于等待目标条件变量.该函数调用时需要传入 <strong>mutex参数(加锁的互斥锁)</strong> ,函数执行时,先把调用线程放入条件变量的请求队列,然后将互斥锁mutex解锁,当函数成功返回为0时,互斥锁会再次被锁上. <strong>也就是说函数内部会有一次解锁和加锁操作</strong>.</li>
+</ul>
+</blockquote>
+<h3 id="栈、队列、数组的头、尾"><a href="#栈、队列、数组的头、尾" class="headerlink" title="栈、队列、数组的头、尾"></a>栈、队列、数组的头、尾</h3><p>一般的做法：</p>
+<ul>
+<li>栈的栈顶指针指向当前的栈顶（而不是栈顶的后一个元素）</li>
+<li>约定rear总是指向队尾元素  元素进队，rear增1  约定front指向当前队中队头元素的前一位置  元素出队，front增1  当rear&#x3D;StackSize-1时不能再进队。</li>
+<li>循环队列判满条件：(rear+1)%StackSize&#x3D;front</li>
+</ul>
+<p>尽量使用传统做法，教科书，库都是这么完成的。</p>
+<h3 id="时间"><a href="#时间" class="headerlink" title="时间"></a>时间</h3><p>一种是这么做：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">time_t t = time(NULL);</span><br><span class="line">struct tm *sys_tm = localtime(&amp;t);</span><br><span class="line">struct tm my_tm = *sys_tm;</span><br><span class="line">.....................</span><br><span class="line">m_today = my_tm.tm_mday;这个结构体里面有很多属性供使用</span><br></pre></td></tr></table></figure>
+
+<p>另一种是这么做：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct timeval now = &#123;0, 0&#125;;</span><br><span class="line">gettimeofday(&amp;now, NULL);</span><br><span class="line">.............</span><br><span class="line">now.tv_sec,now.tv_usec,可以用于访问秒与微秒。</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2024/09/21/webserver/">https://tjzhang-src.github.io/.github.io/2024/09/21/webserver/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/other/">other</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/.github.io/2024/09/29/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%87%AA%E6%95%91%E6%8C%87%E5%8D%97/" title="研究生自救指南.md"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">研究生自救指南.md</div></div></a></div><div class="next-post pull-right"><a href="/.github.io/2024/09/20/cmake%E7%9A%84%E4%BD%BF%E7%94%A8/" title="cmake的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">cmake的使用</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/.github.io/2024/09/20/cmake%E7%9A%84%E4%BD%BF%E7%94%A8/" title="cmake的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-20</div><div class="title">cmake的使用</div></div></a></div><div><a href="/.github.io/2023/04/11/bug%E8%AE%B0%E5%BD%95/" title="bug记录"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-11</div><div class="title">bug记录</div></div></a></div><div><a href="/.github.io/2024/09/20/install_and_uninstall/" title="install_and_uninstall"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-20</div><div class="title">install_and_uninstall</div></div></a></div><div><a href="/.github.io/2023/04/13/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" title="经验记录"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-13</div><div class="title">经验记录</div></div></a></div><div><a href="/.github.io/2023/03/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD%E5%AF%B9%E7%85%A7/" title="计算机专业术语对照"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-31</div><div class="title">计算机专业术语对照</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">32</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8-VS-%E5%A4%9A%E8%BF%9B%E7%A8%8B-x2F-%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">IO 多路复用 VS 多进程&#x2F;多线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#select"><span class="toc-number">1.1.</span> <span class="toc-text">select</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#getopt"><span class="toc-number">2.</span> <span class="toc-text">getopt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD"><span class="toc-number">3.</span> <span class="toc-text">基本功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#getopt-%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4"><span class="toc-number">4.</span> <span class="toc-text">getopt 使用步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-number">5.</span> <span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%A7%A3%E9%87%8A"><span class="toc-number">6.</span> <span class="toc-text">参数解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E7%A4%BA%E4%BE%8B"><span class="toc-number">7.</span> <span class="toc-text">输出示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%8A%9F%E8%83%BD"><span class="toc-number">8.</span> <span class="toc-text">其他功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E9%98%BB%E5%A1%9EIO-amp-ET-LT"><span class="toc-number">9.</span> <span class="toc-text">非阻塞IO &amp; ET LT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#r-n"><span class="toc-number">10.</span> <span class="toc-text">\r\n</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#recv"><span class="toc-number">11.</span> <span class="toc-text">recv</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%8A%A5%E6%96%87%E9%83%A8%E5%88%86"><span class="toc-number">12.</span> <span class="toc-text">响应报文部分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#stat"><span class="toc-number">12.1.</span> <span class="toc-text">stat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mmap"><span class="toc-number">12.2.</span> <span class="toc-text">mmap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#iovec"><span class="toc-number">12.3.</span> <span class="toc-text">iovec</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#writev"><span class="toc-number">12.4.</span> <span class="toc-text">writev</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%B8%8E%E4%BA%92%E6%96%A5"><span class="toc-number">13.</span> <span class="toc-text">线程同步与互斥</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-number">13.1.</span> <span class="toc-text">信号量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%92%E6%96%A5%E9%87%8F"><span class="toc-number">13.2.</span> <span class="toc-text">互斥量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="toc-number">13.3.</span> <span class="toc-text">条件变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%88%E3%80%81%E9%98%9F%E5%88%97%E3%80%81%E6%95%B0%E7%BB%84%E7%9A%84%E5%A4%B4%E3%80%81%E5%B0%BE"><span class="toc-number">14.</span> <span class="toc-text">栈、队列、数组的头、尾</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4"><span class="toc-number">15.</span> <span class="toc-text">时间</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/10/02/PyTorch1/" title="无题">无题</a><time datetime="2024-10-02T10:04:35.793Z" title="发表于 2024-10-02 18:04:35">2024-10-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/30/csapp1/" title="csapp1">csapp1</a><time datetime="2024-09-30T01:19:42.000Z" title="发表于 2024-09-30 09:19:42">2024-09-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/29/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%87%AA%E6%95%91%E6%8C%87%E5%8D%97/" title="研究生自救指南.md">研究生自救指南.md</a><time datetime="2024-09-29T12:39:47.000Z" title="发表于 2024-09-29 20:39:47">2024-09-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/21/webserver/" title="webserver">webserver</a><time datetime="2024-09-21T03:10:24.000Z" title="发表于 2024-09-21 11:10:24">2024-09-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/09/20/cmake%E7%9A%84%E4%BD%BF%E7%94%A8/" title="cmake的使用">cmake的使用</a><time datetime="2024-09-20T12:48:35.000Z" title="发表于 2024-09-20 20:48:35">2024-09-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2024 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2024/09/21/webserver/'
+    this.page.identifier = '/.github.io/2024/09/21/webserver/'
+    this.page.title = 'webserver'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
