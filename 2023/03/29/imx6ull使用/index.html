@@ -208,7 +208,7 @@ if (false) {
 <p>至此，编译运行后，将板子拨码开关拨到 USB 启动，按下 reset ， 控制台输入 make run 即可执行, 有个缺点是，只有 手动 下载一次，才能运行一次，按板子上的 reset 好像没用。完整 makefile 如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">led.bin : 1_leds.s</span><br><span class="line">	arm-linux-gnueabihf-gcc -g -c 1_leds.s -o led.o</span><br><span class="line">	arm-linux-gnueabihf-ld  -Ttext 0x87800000 led.o -o led.elf</span><br><span class="line">	arm-linux-gnueabihf-objcopy -O binary -S -g led.elf led.bin</span><br><span class="line">	arm-linux-gnueabihf-objdump -D led.elf &gt; led.dis</span><br><span class="line">	gcc -o imxdownload imxdownload.c</span><br><span class="line">	sudo ./imxdownload led.bin /dev/sdd</span><br><span class="line">run:</span><br><span class="line">	sudo uuu load.imx</span><br><span class="line">clean:</span><br><span class="line">	rm -rf *.o led.bin led.elf led.dis</span><br></pre></td></tr></table></figure>
 
-<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230329104152331.png" class="" title="image-20230329104152331">
+<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230329104152331.png" class title="image-20230329104152331">
 
 
 
@@ -232,9 +232,9 @@ if (false) {
 <p>以 %c， %.c开头时（即以模式定义时），应该会自动为每个.c 编译一次，$&lt; 会依次取出文件(和 $^不一样)</p>
 <p>以$(SOBJS) : $(SFILES)开头时，会一次性编译 SFILES第一个文件（不会往后取文件），结果放到每个 SOBJS文件中。产生指令如下，且会报错：</p>
 </blockquote>
-<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330114821390.png" class="" title="image-20230330114821390">
+<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330114821390.png" class title="image-20230330114821390">
 
-<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330114851047.png" class="" title="image-20230330114851047">
+<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330114851047.png" class title="image-20230330114851047">
 
 <p>生成最终的目标文件：</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(TARGET)</span>.bin : <span class="variable">$(OBJS)</span></span><br><span class="line">	<span class="variable">$(LD)</span> -Timx6u.lds -o <span class="variable">$(TARGET)</span>.elf <span class="variable">$^</span></span><br><span class="line">	<span class="variable">$(OBJCOPY)</span> -O binary -S <span class="variable">$(TARGET)</span>.elf <span class="variable">$@</span></span><br><span class="line">	<span class="variable">$(objdump)</span> -D -m arm <span class="variable">$(TARGET)</span>.elf &gt; <span class="variable">$(TARGET)</span>.dis</span><br><span class="line">	sudo ./imxdownload <span class="variable">$@</span> /dev</span><br></pre></td></tr></table></figure>
@@ -244,7 +244,7 @@ if (false) {
 
 
 
-<h1 id="三极管区分"><a href="#三极管区分" class="headerlink" title="三极管区分"></a>三极管区分</h1><img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/640.png" class="" title="图片">
+<h1 id="三极管区分"><a href="#三极管区分" class="headerlink" title="三极管区分"></a>三极管区分</h1><img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/640.png" class title="图片">
 
 <p>NPN 三极管 输入高电平导通，反之关闭</p>
 <p>PNP 三极管 输入低电平导通，反之关闭</p>
@@ -255,10 +255,10 @@ if (false) {
 <p>左移右移 是两个 &lt;&lt;   &gt;&gt;</p>
 <p>或运算与运算是一个 &amp; |</p>
 <h1 id="时钟配置"><a href="#时钟配置" class="headerlink" title="时钟配置"></a>时钟配置</h1><p>总共需要配置两个地方，一个是 pll1，一个时 cacrr寄存器。（后面的那个&#x2F;2 没用，正点原子说的）</p>
-<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330200051626.png" class="" title="image-20230330200051626">
+<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330200051626.png" class title="image-20230330200051626">
 
 <p>接下来详细看 pll1 部分，有两个复用选择器。配置前，要先切换到step_clk上，然后配置 pll1，最后切换回 main_clk上。</p>
-<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330200418401.png" class="" title="image-20230330200418401">
+<img src="/.github.io/2023/03/29/imx6ull%E4%BD%BF%E7%94%A8/image-20230330200418401.png" class title="image-20230330200418401">
 
 
 

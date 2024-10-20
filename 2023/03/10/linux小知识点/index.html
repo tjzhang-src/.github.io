@@ -228,7 +228,7 @@ if (false) {
 <p>按照常理分区表只能记录四个分区，但其中可以有拓展分区（类似指针），就可以达到无限个分区</p>
 <p>GPT</p>
 <p>磁盘尾有备份，可以用128Bytes来标识一个分区，总共可以表示32 * 4 个分区。</p>
-<img src="/.github.io/2023/03/10/linux%E5%B0%8F%E7%9F%A5%E8%AF%86%E7%82%B9/gpt_partition_1.jpg" class="" title="GPT 分区表的结构示意图">
+<img src="/.github.io/2023/03/10/linux%E5%B0%8F%E7%9F%A5%E8%AF%86%E7%82%B9/gpt_partition_1.jpg" class title="GPT 分区表的结构示意图">
 
 <p><strong>如何开机</strong></p>
 <p>启动也需要执行命令，这些命令在主板的BIOS上，一些硬件参数在主板的CMOS上。</p>
@@ -456,7 +456,7 @@ if (false) {
 <td>某些程序或者是服务启动后，会将他们的PID放置在这个目录下喔！至于PID的意义我们会在后续章节提到的。 与 &#x2F;run 相同，这个目录链接到 &#x2F;run 去了！</td>
 </tr>
 </tbody></table>
-<img src="/.github.io/2023/03/10/linux%E5%B0%8F%E7%9F%A5%E8%AF%86%E7%82%B9/centos7_0210filepermission_4.jpg" class="" title="目录树架构示意图">
+<img src="/.github.io/2023/03/10/linux%E5%B0%8F%E7%9F%A5%E8%AF%86%E7%82%B9/centos7_0210filepermission_4.jpg" class title="目录树架构示意图">
 
 <h4 id="常见特殊目录"><a href="#常见特殊目录" class="headerlink" title="常见特殊目录"></a>常见特殊目录</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.         代表此层目录</span><br><span class="line">..        代表上一层目录</span><br><span class="line">-         代表前一个工作目录</span><br><span class="line">~         代表“目前使用者身份”所在的主文件夹</span><br><span class="line">~account  代表 account 这个使用者的主文件夹（account是个帐号名称）</span><br></pre></td></tr></table></figure>
 

@@ -245,7 +245,7 @@ if (false) {
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">2c81:       48 89 c7                mov    %rax,%rdi</span><br><span class="line">2c84:       e8 77 f7 ff ff          callq  2400 &lt;__asan_report_store4@plt&gt;</span><br><span class="line">2c89:       48 8b 85 08 fc ff ff    mov    -0x3f8(%rbp),%rax</span><br><span class="line">2c90:       8b 95 f0 fb ff ff       mov    -0x410(%rbp),%edx</span><br></pre></td></tr></table></figure>
 
 <p>通过上下文，基本可以将该语句锁定在while循环内，但不知道对应那条c语言语句。</p>
-<img src="/.github.io/2023/04/11/bug%E8%AE%B0%E5%BD%95/image-20230413112739796.png" class="" title="image-20230413112739796">
+<img src="/.github.io/2023/04/11/bug%E8%AE%B0%E5%BD%95/image-20230413112739796.png" class title="image-20230413112739796">
 
 <p><strong>第二</strong>，查看影子寄存器，待研究</p>
 <p><strong>第三，</strong>gdb调试，下面详述一下调试过程，</p>

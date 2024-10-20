@@ -201,7 +201,7 @@ if (false) {
 <li>不会修改自身数据，如a.add(b),会返回一个新的tensor</li>
 <li>会修改自身数据，如a.add_(b)</li>
 </ul>
-<h4 id="创建tensor方式："><a href="#创建tensor方式：" class="headerlink" title="创建tensor方式："></a>创建tensor方式：</h4><img src="/.github.io/2024/09/10/PyTorch-h/image-20231122102327188.png" class="" title="image-20231122102327188">
+<h4 id="创建tensor方式："><a href="#创建tensor方式：" class="headerlink" title="创建tensor方式："></a>创建tensor方式：</h4><img src="/.github.io/2024/09/10/PyTorch-h/image-20231122102327188.png" class title="image-20231122102327188">
 
 <p>Tensor函数是最复杂多变的方式，可以接收list，可以指定形状，可以传入其他的tensor，或者torch.Size类别。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a = t.Tensor(<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">b = t.Tensor([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">2</span>, <span class="number">3</span>]])</span><br><span class="line">c = t.Tensor(a)</span><br><span class="line">b.tolist() k<span class="comment">#可以把tensor转会list</span></span><br></pre></td></tr></table></figure>
@@ -222,10 +222,10 @@ if (false) {
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">a = t.randn(3, 4)</span><br><span class="line">print(a)</span><br><span class="line">print(a[a&gt;1])</span><br><span class="line">------------------------------</span><br><span class="line">tensor([[ 1.3819,  1.4626, -0.0858, -1.2977],</span><br><span class="line">        [-0.1992,  0.1883,  0.5572, -2.4197],</span><br><span class="line">        [ 2.4179, -0.0833,  0.6245, -0.6284]])</span><br><span class="line">tensor([1.3819, 1.4626, 2.4179])</span><br></pre></td></tr></table></figure>
 
 <p>其他的选择函数：</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122111914158.png" class="" title="image-20231122111914158">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122111914158.png" class title="image-20231122111914158">
 
 <p>对一个二维gather，输出的每个元素如下</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122113254206.png" class="" title="image-20231122113254206">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122113254206.png" class title="image-20231122113254206">
 
 <p>与gather对应的逆操作是scatter_。</p>
 <h5 id="高级索引"><a href="#高级索引" class="headerlink" title="高级索引"></a>高级索引</h5><p>可以看成普通索引的拓展，但是结果一般不和原始Tensor共享内存。</p>
@@ -233,22 +233,22 @@ if (false) {
 
 <p>这与之前带 冒号的索引很相似，逗号分割的是不同维度，可以小于tensor的维度，只不过原来是i:j ，现在是[a, b],表示a或b，不同维度之间的匹配次数不愿意，原来是i*j，现在是各维度的元素数量（应该，有点不好描述）</p>
 <h5 id="Tensor类型"><a href="#Tensor类型" class="headerlink" title="Tensor类型"></a>Tensor类型</h5><p>tensor有不同类型，每种类型分别对应有CPU和GPU版本的，默认tensor是floattensor类型，可以通过t.set_default_tensor_type 修改tensor类型，（如果默认类型为gpu tensor，那么所有操作都将在GPU上进行）,</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122145243071.png" class="" title="image-20231122145243071">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122145243071.png" class title="image-20231122145243071">
 
 <p>各类型之间可以进行转换，**type(new_type)**是通用的做法，除此之外，还有float，long，half等快捷方式。GPU tensor 和 CPU tensor之间的相互转换可以通过 tensor.cuda 和 tensor.cpu的方法实现，Tensor还有一个new 方法，可以创建该tensor类型的tensor</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a = t.Tensor(2, 3)</span><br><span class="line">b = a.long()</span><br><span class="line">c = a.type_as(b)</span><br><span class="line">d = c.new(3, 4)</span><br></pre></td></tr></table></figure>
 
 <h5 id="逐元素操作"><a href="#逐元素操作" class="headerlink" title="逐元素操作"></a>逐元素操作</h5><p>element-wise，操作输入与输出形状一致。</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122151449753.png" class="" title="image-20231122151449753">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122151449753.png" class title="image-20231122151449753">
 
 <h5 id="归并操作"><a href="#归并操作" class="headerlink" title="归并操作"></a>归并操作</h5><p>使输出形状小于输入形状，并可以沿着某一维度指定操作。如加法sum，可以计算整个tensor的和，也可以计算每一行&#x2F;每一列的和。</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122152116695.png" class="" title="image-20231122152116695">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122152116695.png" class title="image-20231122152116695">
 
 <p>以上函数都有一个参数dim，用来指定是在那个维度上操作的，另外一个注意点：（wuenda视频里也经常有keepdims&#x3D;True）</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122154306601.png" class="" title="image-20231122154306601">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122154306601.png" class title="image-20231122154306601">
 
 <h5 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h5><p>有些是逐元素比较，有些类似于归并操作。常用函数如下：</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122160645303.png" class="" title="image-20231122160645303">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122160645303.png" class title="image-20231122160645303">
 
 <p>第一行实现了运算符重载可以用<code>a&gt;=b, a!=b </code>等，返回结果是一个bytetensor。max&#x2F;min有三种用法，</p>
 <ul>
@@ -258,7 +258,7 @@ if (false) {
 </ul>
 <blockquote>
 <p>维度，整个多维矩阵可以看出一棵树，从第一维到第n维，max的第二种用法需要指定dim为第几维度，对应到树上就是第几层树，然后在该层间找最大值（同一个父节点）</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122183635877.png" class="" title="image-20231122183635877">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231122183635877.png" class title="image-20231122183635877">
 
 <p>例子：</p>
 <p>x &#x3D; numpy.array([[[1, 2], [3, 4]],       [[4, 3], [2, 1]]])  （pytorch也一样）</p>
@@ -267,7 +267,7 @@ if (false) {
 
 </blockquote>
 <h5 id="线性代数"><a href="#线性代数" class="headerlink" title="线性代数"></a>线性代数</h5><p>pytorch的线性函数主要封装了blas和lapack，常用的函数如下表所示</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231123104238447.png" class="" title="image-20231123104238447">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231123104238447.png" class title="image-20231123104238447">
 
 
 
@@ -292,7 +292,7 @@ if (false) {
 <h3 id="小试牛刀-线性回归"><a href="#小试牛刀-线性回归" class="headerlink" title="小试牛刀-线性回归"></a>小试牛刀-线性回归</h3><p><code>%matplotlib inline</code> 将使得 matplotlib 的图表直接嵌入到 notebook 中的输出单元格中，而不是弹出一个新的图形窗口。这对于在 notebook 中进行数据分析和可视化非常方便。</p>
 <h2 id="autograd"><a href="#autograd" class="headerlink" title="autograd"></a>autograd</h2><p>方便用户使用，专门开发的自动求导引擎，根据输入和前向传播过程自动构建计算图，执行反向传播。了解基本计算图知识很有必要（Christopher Olah）</p>
 <h3 id="Variable（部分可能是老版本的）"><a href="#Variable（部分可能是老版本的）" class="headerlink" title="Variable（部分可能是老版本的）"></a>Variable（部分可能是老版本的）</h3><p>Pytorch在autograd模块中实现了计算图的相关功能，autograd中的核心计算结构是Variable，Variable封装了tensor。Variable包含三个属性，data(保存variable包含的tensor)，grad（保存data对应的梯度），grad_fn（指向一个function，记录variable的操作历史）,</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231124160752724.png" class="" title="image-20231124160752724">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231124160752724.png" class title="image-20231124160752724">
 
 <p>Variable的构造参数需要传入tensor，同时有两个可选参数。</p>
 <p>requires_grad(bool) ，是否需要对该variable进行求导。</p>
@@ -311,7 +311,7 @@ if (false) {
 <p>两种创建</p>
 <h2 id="优化器"><a href="#优化器" class="headerlink" title="优化器"></a>优化器</h2><p>常用优化方法封装到torch.optim中，所有优化方法都是继承基类optim.Optimizer，</p>
 <p>nn.module 和nn.fucntional, 模型有可学习的参数，最好用第一个，否则都可。激活函数（relu，sigmoid，tanh，）池化没有可学习的参数，可以用对应的functional函数代替。卷积，全连接等网络建议用nn.module。有参数也可以用funtional，只是需要手动定义参数，如。</p>
-<img src="/.github.io/2024/09/10/PyTorch-h/image-20231205104540178.png" class="" title="image-20231205104540178">
+<img src="/.github.io/2024/09/10/PyTorch-h/image-20231205104540178.png" class title="image-20231205104540178">
 
 
 

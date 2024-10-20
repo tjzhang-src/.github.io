@@ -194,10 +194,10 @@ if (false) {
 <ol start="2">
 <li>new操作包含了operator new 和 对象构造两部分。在第一部分，需要考虑如下事情：</li>
 </ol>
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213335463.png" class title="image-20241020213335463">
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213335463.png" class title="image-20241020213335463">
 
 <p>Alloc使用方式，（看图吧，虽然旧，但还是写得很好的）</p>
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213328540.png" class title="image-20241020213328540">
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213328540.png" class title="image-20241020213328540">
 
 <ol start="3">
 <li>一些奇怪的函数写法</li>
@@ -220,7 +220,7 @@ if (false) {
 <blockquote>
 <p> trivial destructor函数：不重要的析构函数，</p>
 </blockquote>
-<p>如下两个函数被设计为全局函数<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213315851.png" class title="image-20241020213315851"></p>
+<p>如下两个函数被设计为全局函数<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213315851.png" class title="image-20241020213315851"></p>
 <ol start="6">
 <li>if constexpr</li>
 </ol>
@@ -317,9 +317,9 @@ if (false) {
 </blockquote>
 </li>
 </ol>
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213307573.png" class title="image-20241020213307573">
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213307573.png" class title="image-20241020213307573">
 
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213303981.png" class title="image-20241020213303981">
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213303981.png" class title="image-20241020213303981">
 
 <ol start="8">
 <li><p>copy系列函数</p>
@@ -342,14 +342,14 @@ if (false) {
 <li><p>空间足够</p>
 <ul>
 <li><p>插入点之后的元素大于要插入的元素数目（为什么要分两步保存原始元素，而不是一步，第一个原因是<strong>待拷贝区域与拷贝区域有交叉</strong>，第二个原因是尾部的空间没有被初始化，需要使用uninitialize_copy, 而前面只用copy就行了）</p>
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213256713.png" class title="image-20241020213256713">
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213256713.png" class title="image-20241020213256713">
 </li>
 <li><p>插入点之后的元素小于要插入的元素数目</p>
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213253235.png" class title="image-20241020213253235"></li>
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213253235.png" class title="image-20241020213253235"></li>
 </ul>
 </li>
 <li><p>空间不够</p>
-<img src="/.github.io/.github/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213240009.png" class title="image-20241020213240009"></li>
+<img src="/.github.io/2024/10/10/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/image-20241020213240009.png" class title="image-20241020213240009"></li>
 </ul>
 </li>
 <li><p>list</p>

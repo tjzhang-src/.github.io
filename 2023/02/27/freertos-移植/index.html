@@ -194,7 +194,7 @@ if (false) {
 <li><p>下载freertos源码<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/freertos/files/FreeRTOS/">FreeRTOS</a>，准备一个stm32空工程。</p>
 </li>
 <li><p>解压后，FreeRTOS包含以下文件夹</p>
-<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227095353061.png" class="" title="image-20230227095353061"></li>
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227095353061.png" class title="image-20230227095353061"></li>
 </ol>
 <p>​	demo：一些移植好的历程，包括stm32f103等，</p>
 <p>​	license：略</p>
@@ -205,7 +205,7 @@ if (false) {
 <p>将include文件夹移植到我们工程文件夹下。</p>
 </li>
 </ol>
-<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227100413506.png" class="" title="image-20230227100413506">
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227100413506.png" class title="image-20230227100413506">
 
 <ol start="4">
 <li><p>拷贝freeRTOSConfig.s（demo工程下）到我们工程下</p>
@@ -213,11 +213,11 @@ if (false) {
 <li><p>添加源码到工程组文件夹</p>
 </li>
 </ol>
-<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227102816769.png" class="" title="image-20230227102816769">
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227102816769.png" class title="image-20230227102816769">
 
 <ol start="6">
 <li><p>指定头文件路径，主要是include文件夹，port文件夹和FreeRTOSConfig.h文件，</p>
-<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227103635344.png" class="" title="image-20230227103635344"></li>
+<img src="/.github.io/2023/02/27/freertos-%E7%A7%BB%E6%A4%8D/image-20230227103635344.png" class title="image-20230227103635344"></li>
 </ol>
 <h1 id="FreeRTOSConfig-h文件主要内容"><a href="#FreeRTOSConfig-h文件主要内容" class="headerlink" title="FreeRTOSConfig.h文件主要内容"></a>FreeRTOSConfig.h文件主要内容</h1><h2 id="断言，-freertos定义了一些断言接口"><a href="#断言，-freertos定义了一些断言接口" class="headerlink" title="断言， freertos定义了一些断言接口"></a>断言， freertos定义了一些断言接口</h2>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define vAssertCalled(char,int) printf(&quot;Error:%s,%d\r\n&quot;,char,int)</span><br><span class="line">#define configASSERT(x) if((x)==0) vAssertCalled(__FILE__,__LINE__)</span><br></pre></td></tr></table></figure>
 
