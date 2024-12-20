@@ -1,0 +1,585 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Linux高性能服务器编程 | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1-4章又介绍了TCP&#x2F;IP协议 TCP&#x2F;IP协议簇     上面这图很具有误导性，比如ICMP是作为数据封装到IP内，但把他们画到同一层。ARP是作为数据封装到数据链路（比如以太网帧）内，但把他们画到同一层  TCP: 可靠的、面向连接的、基于流的。 UDP: 不可靠、无连接、基于数据报的。 封装&amp;分用：分用指的解析本层书籍，将处理后的数据往上层传。   复位报文段产">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux高性能服务器编程">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="1-4章又介绍了TCP&#x2F;IP协议 TCP&#x2F;IP协议簇     上面这图很具有误导性，比如ICMP是作为数据封装到IP内，但把他们画到同一层。ARP是作为数据封装到数据链路（比如以太网帧）内，但把他们画到同一层  TCP: 可靠的、面向连接的、基于流的。 UDP: 不可靠、无连接、基于数据报的。 封装&amp;分用：分用指的解析本层书籍，将处理后的数据往上层传。   复位报文段产">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2024-12-04T09:01:31.000Z">
+<meta property="article:modified_time" content="2024-12-20T14:25:04.414Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux高性能服务器编程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-12-20 22:25:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">43</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">19</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Linux高性能服务器编程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-04T09:01:31.000Z" title="发表于 2024-12-04 17:01:31">2024-12-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-12-20T14:25:04.414Z" title="更新于 2024-12-20 22:25:04">2024-12-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">5.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>19分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux高性能服务器编程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>1-4章又介绍了TCP&#x2F;IP协议</p>
+<h3 id="TCP-x2F-IP协议簇"><a href="#TCP-x2F-IP协议簇" class="headerlink" title="TCP&#x2F;IP协议簇"></a>TCP&#x2F;IP协议簇</h3><img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241204171026525.png" class title="image-20241204171026525">
+
+
+
+<blockquote>
+<p>上面这图很具有误导性，比如ICMP是作为数据封装到IP内，但把他们画到同一层。ARP是作为数据封装到数据链路（比如以太网帧）内，但把他们画到同一层</p>
+</blockquote>
+<p>TCP: 可靠的、面向连接的、基于流的。</p>
+<p>UDP: 不可靠、无连接、基于数据报的。</p>
+<p>封装&amp;分用：分用指的解析本层书籍，将处理后的数据往上层传。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219111244485.png" class title="image-20241219111244485">
+
+<h4 id="复位报文段"><a href="#复位报文段" class="headerlink" title="复位报文段"></a>复位报文段</h4><p>产生复位报文段的三种情况：</p>
+<h5 id="访问不存在的端口"><a href="#访问不存在的端口" class="headerlink" title="访问不存在的端口"></a>访问不存在的端口</h5><p>访问不存在的端口或者该端口处于TIME_WAIT状态，客户端会收到复位报文段。</p>
+<h5 id="异常终止连接"><a href="#异常终止连接" class="headerlink" title="异常终止连接"></a>异常终止连接</h5><p>TCP提供了异常终止一个连接的方式，即向对方发送一个复位报文段。对方收到后，会丢弃所有排队等待发送的数据。</p>
+<h5 id="处理半打开连接"><a href="#处理半打开连接" class="headerlink" title="处理半打开连接"></a>处理半打开连接</h5><p>比如服务端和客户端已经连接上，但是服务端网线被拔了，重新接上后。只有客户端维护着连接，当他往管道写入数据时，会受到一个复位报文段。</p>
+<h4 id="TCP交互数据流"><a href="#TCP交互数据流" class="headerlink" title="TCP交互数据流"></a>TCP交互数据流</h4><p>TCP连接的应用数据分为两类：<strong>交互数据和成块数据</strong>。</p>
+<p>比如通<code>telnet</code>访问服务器，会经过如下过程</p>
+<p>每键入一个字符，会将该字符用<code>TCP</code>包发给服务器，服务器回发了确认消息以及数据，客户端立刻回发确认消息。</p>
+<p>这可能导致网络上过多的数据包，可以通过Nagle算法解决：即限制通信双方只能有一个未被确认的的报文段（即，收到对方的确认前不能发送新数据）</p>
+<h4 id="TCP成块数据流"><a href="#TCP成块数据流" class="headerlink" title="TCP成块数据流"></a>TCP成块数据流</h4><h4 id="带外数据"><a href="#带外数据" class="headerlink" title="带外数据"></a>带外数据</h4><p>用于通告对方本端发生的重要事件。</p>
+<p>TCP、UDP都没有真正的带外数据，不过TCP利用其头部中的紧急指针和紧急指针标志为应用程序提供了一种紧急方式。</p>
+<p>发送方将带外数据写入到发送缓冲区后，会设置紧急指针和紧急指针标志。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241218213232983.png" class title="image-20241218213232983">
+
+<h3 id="TCP-x2F-IP通信案例"><a href="#TCP-x2F-IP通信案例" class="headerlink" title="TCP&#x2F;IP通信案例"></a>TCP&#x2F;IP通信案例</h3><h3 id="Linux网络编程基础API"><a href="#Linux网络编程基础API" class="headerlink" title="Linux网络编程基础API"></a>Linux网络编程基础API</h3><h4 id="socket地址API"><a href="#socket地址API" class="headerlink" title="socket地址API"></a>socket地址API</h4><h5 id="主机字节序和网络字节序"><a href="#主机字节序和网络字节序" class="headerlink" title="主机字节序和网络字节序"></a>主机字节序和网络字节序</h5><p>大部分PC使用（小端）主机字节序，Java虚拟机使用大端字节序。为了避免在建立连接时再沟通双方字节序，所以干脆在传输过程中都使用大端（网络）字节序。</p>
+<p><code>htonl, htons, ntohl, ntohs</code>是常用的转换方式。</p>
+<h5 id="通用socket地址"><a href="#通用socket地址" class="headerlink" title="通用socket地址"></a>通用socket地址</h5><p>表示socket地址的是结构体sockaddr，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct sockaddr&#123;</span><br><span class="line">	sa_family_t sa_family;</span><br><span class="line">	char sa_data[14];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="专用socket地址"><a href="#专用socket地址" class="headerlink" title="专用socket地址"></a>专用socket地址</h5><img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219103735765.png" class title="image-20241219103735765">
+
+<p>所有专用socket地址类型的变量在使用时需要转化为通用socket地址类型sockaddr（强制转换）。</p>
+<h5 id="IP地址转换函数"><a href="#IP地址转换函数" class="headerlink" title="IP地址转换函数"></a>IP地址转换函数</h5><img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219104609523.png" class title="image-20241219104609523">
+
+<p><code>inet_addr</code>用于将点分十进制<strong>字符串IPv4地址</strong>转换为字节序<strong>整数</strong>表示的IPv4地址。</p>
+<p><code>inet_aton</code>也是完成这个功能，但他将转换结果保存到参数inp指向的结构中。</p>
+<p><code>inet_ntoa</code>将网络字节序整数转化为点分十进制表示的IPv4地址，但该函数内部用<strong>一个静态变量</strong>存储转换结果，他是不可重入的。</p>
+<p>上面的三个函数只能用于IPv4，下面的两个函数可以指定协议簇，适用于IPv4和IPv6.</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219105222213.png" class title="image-20241219105222213">
+
+<h4 id="创建socket"><a href="#创建socket" class="headerlink" title="创建socket"></a>创建socket</h4><p><code>int socket(int domain, int type, int protocol)</code>。</p>
+<ul>
+<li>domain参数告诉系统使用哪个底层协议簇，比如PF_INET, PF_INET6</li>
+<li>type参数指定了服务类型，SOCK_STREAM表示使用TCP。（从内核2.6.17开始，可以将SOCK_STREAM和两个标志<strong>相与</strong>后传给函数，这两个标志SOCK_NONBLOCK和SOCK_CLOEXEC分别表示socket是非阻塞的以及创建子进程时在子进程中关闭该socket）</li>
+<li>protocol参数通常设为0</li>
+</ul>
+<p>成功返回socket文件描述符，失败返回-1并设置errno。</p>
+<h4 id="命名socket"><a href="#命名socket" class="headerlink" title="命名socket"></a>命名socket</h4><p>创建socket后，还需要为其指定某个具体的socket地址，这称为socket命名。<code>int bind(int sockfd, const struct sockaddr* my_addr, socklen_t addrlen)</code></p>
+<p>bind将my_addr指定的sockat地址分配给未命名的sockfd文件描述符。成功返回0，失败返回-1并设置errno，常见的两个errno：</p>
+<ul>
+<li>EACCES，如果绑定的地址是知名服务端口，bind将返回这个错误。</li>
+<li>EADDRINUSE，被绑定的地址正在使用中，比如将socket绑定到一个TIME_WAIT状态的socket地址。</li>
+</ul>
+<h4 id="监听socket"><a href="#监听socket" class="headerlink" title="监听socket"></a>监听socket</h4><p><code>int listen(int sockfd, int backlog)</code>,</p>
+<p>backlog参数指定处于<code>ESTABLISHED</code>的socket的上限，典型值为5。处于半连接状态<code>SYN_RCVD</code>的上限由内核参数配置。</p>
+<h4 id="接受连接"><a href="#接受连接" class="headerlink" title="接受连接"></a>接受连接</h4><p><code>int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)</code>，</p>
+<p>addr用来获取远端socket地址。accept成功时返回新的连接socket，否则返回-1并设置errno。</p>
+<h4 id="发起连接"><a href="#发起连接" class="headerlink" title="发起连接"></a>发起连接</h4><p><code>int connect(int sockfd, const struct sockaddr *serv_addr, socklen_t addrlen)</code>,</p>
+<h4 id="关闭连接"><a href="#关闭连接" class="headerlink" title="关闭连接"></a>关闭连接</h4><p><code>int close(int fd)</code></p>
+<p>它会将该fd的引用计数减一，当fd的引用计数变为0时，才会关闭连接。如果要立刻终止连接，可以使用shutdown系统调用</p>
+<p><code>int shutdown(int sockfd, int howto)</code>howto有三种参数</p>
+<ul>
+<li>SHUT_RD，关闭读，应用程序不能读该sockfd，并清空读缓冲区。</li>
+<li>SHUT_WR，关闭写，应用程序不能写该sockfd，并清空写缓冲区。</li>
+<li>SHUTRDWR，关闭读写</li>
+</ul>
+<h4 id="数据读写"><a href="#数据读写" class="headerlink" title="数据读写"></a>数据读写</h4><h5 id="TCP数据读写"><a href="#TCP数据读写" class="headerlink" title="TCP数据读写"></a>TCP数据读写</h5><p>通用的文件读写操作<code>read</code>和<code>write</code>适用于<code>socket</code>，但socket编程接口提供了几个专门用于数据读写的数据调用，他们增强了对数据读写的控制，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssize_t recv(int sockfd, void *buf, size_t len, int flags);</span><br><span class="line">ssize_t send(int sockfd, const void *buf, size_t len, int flags);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>recv: flags通常设为0即可。recv成功返回数据长度，出错则返回-1并设置errno，对方已经关闭连接则返回0。(如果还没收到对方的数据，则不返回)</li>
+<li>send，成功返回实际写入数据的长度，失败返回-1并设置errno。</li>
+</ul>
+<p>flags参数提供了额外的控制。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219141525027.png" class title="image-20241219141525027">
+
+<p>flags参数只对当此send和recv调用生效，可以通过setsockopt来永久的修改socket的某些属性。</p>
+<p>针对含有带外数据TCP数据读取，正常数据的接收会被带外数据截断，比如服务器发送<code>123abc123</code>,其中abc是带外数据（设置flags为MSG_OOB），客户端通过一次recv是没法读取全部数据的，通过recv()读取<code>123ab</code>,然后通过recv(MSG_OOB)读取<code>c</code>, 通过recv读取<code>123</code>。</p>
+<h5 id="UDP数据读写"><a href="#UDP数据读写" class="headerlink" title="UDP数据读写"></a>UDP数据读写</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen);</span><br><span class="line">ssize_t sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen);</span><br></pre></td></tr></table></figure>
+
+<p>因为UDP是无连接的，并不会将sockfd绑定到一个固定的地址上，所以每次发送数据时都需要指定从哪个地址发送数据，</p>
+<h5 id="通用数据读写函数"><a href="#通用数据读写函数" class="headerlink" title="通用数据读写函数"></a>通用数据读写函数</h5><p>socket编程接口提供了一对通用的数据读写系统调用。它可以用与TCP和UDP的数据读取。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219150112522.png" class title="image-20241219150112522">
+
+<h4 id="带外标记"><a href="#带外标记" class="headerlink" title="带外标记"></a>带外标记</h4><h4 id="地址信息函数"><a href="#地址信息函数" class="headerlink" title="地址信息函数"></a>地址信息函数</h4><p>获取sockfd对应的socket地址。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219150631131.png" class title="image-20241219150631131">
+
+<h4 id="socket选项"><a href="#socket选项" class="headerlink" title="socket选项"></a>socket选项</h4><p>如果说fcntl是控制文件描述符属性的通用POSIX方法，那么如下的两个系统调用则是设置socket文件描述符属性的方法：</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219151243991.png" class title="image-20241219151243991">
+
+<p>不同的level指定了要对哪些协议进行操作：</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219151946741.png" class title="image-20241219151946741">
+
+<ul>
+<li>对服务器而言有些选项只能在listen系统调用前生效，因为比如最大报文段选项只能在TCP同步报文段设置，执行listen系统调用后，可能已经接受了客户端的连接，这时已经没法更改最大报文段选项了。通常accept返回的socket会自动继承监听socket的选项，包括SO_DEBUG、SO_DONTROUTE等。</li>
+<li>对于客户端而言，这些选项应该在connect之前设置。</li>
+</ul>
+<h5 id="SO-REUSEADDR选项"><a href="#SO-REUSEADDR选项" class="headerlink" title="SO_REUSEADDR选项"></a>SO_REUSEADDR选项</h5><p>通过将该选项设置为1，可以直接使用处于TIME_WAIT状态的socket地址，也可以通过修改内核参数来快速回收被关闭的socket。</p>
+<h5 id="SO-RCVBUF和SO-SNDBUF"><a href="#SO-RCVBUF和SO-SNDBUF" class="headerlink" title="SO_RCVBUF和SO_SNDBUF"></a>SO_RCVBUF和SO_SNDBUF</h5><p>设置TCP发送和接收缓冲区的大小。系统会将该参数加倍，并且不得小于某个最小值。</p>
+<h5 id="SO-REVLOWAT和SO-SNDLOWAT选项"><a href="#SO-REVLOWAT和SO-SNDLOWAT选项" class="headerlink" title="SO_REVLOWAT和SO_SNDLOWAT选项"></a>SO_REVLOWAT和SO_SNDLOWAT选项</h5><p>通常低水位标记都为1字节。当可读数据大于低水位标记时，会通知应用程序读数据，当空闲空间大于低水位时，会通知往socket写数据。</p>
+<h5 id="SO-LINGER选项"><a href="#SO-LINGER选项" class="headerlink" title="SO_LINGER选项"></a>SO_LINGER选项</h5><p>用于控制close系统调用在关闭TCP连接时的行为。</p>
+<ul>
+<li><p>默认情况下，当通过close关闭连接时，会立刻返回，并将TCP发送缓冲区残留的数据发送给对方。</p>
+</li>
+<li><p>当设置了SO_LINGER选项时，需要传递一个linger结构体</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct linger&#123;</span><br><span class="line">	int l_onoff; //开启还是关闭</span><br><span class="line">	int l_linger; //滞留时间</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>l_onoff等于0时，SO_LINGER选项不起作用，close仍然使用默认行为来关闭socket。</li>
+<li>l_onoff不为0，l_linger等于0，这时close系统调用立刻返回，TCP模块将丢弃残留的数据，同时给对方发送一个复位报文段。</li>
+<li>l_onoff不为0，l_linger大于0。<ul>
+<li>对于阻塞socket，close将等待一段长为l_linger的时间，直到发送完所有数据并收到确认，没有发送完以及得到确认会返回-1设置errno为EWOULDBLOCK.</li>
+<li>对于非阻塞socket，close会立刻返回，此时需要根据返回值和errno来判断数据是否已经发送完毕。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="网络信息API"><a href="#网络信息API" class="headerlink" title="网络信息API"></a>网络信息API</h4><p>可以用主机名来代表ip地址，也可以用服务名称来代表端口号。</p>
+<h5 id="gethostbyname和gethostbyaddr"><a href="#gethostbyname和gethostbyaddr" class="headerlink" title="gethostbyname和gethostbyaddr"></a>gethostbyname和gethostbyaddr</h5><p>可以通过名字和地址获取主机的完整信息。（先从&#x2F;etc&#x2F;hosts中找，再从DNS找）</p>
+<h5 id="getservbyname和getservbyport"><a href="#getservbyname和getservbyport" class="headerlink" title="getservbyname和getservbyport"></a>getservbyname和getservbyport</h5><p>可以通过名字和端口号获取服务的完整信息。（从&#x2F;etc&#x2F;services读取服务信息）</p>
+<p>这四个函数都不可重入，不是线程安全的。函数名后加<code>_r</code>代表可重入的。</p>
+<h5 id="getaddrinfo"><a href="#getaddrinfo" class="headerlink" title="getaddrinfo"></a>getaddrinfo</h5><p>可以根据主机名获取IP地址，也可以通过服务名获得端口号，是否可重入取决于其内部的gethostbyname和getservbyname是否是可重入的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int getaddrinfo(const char* hostname, const char* service, const struct addrinfo* hints, struct addrinfo** result);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>hostname可以是主机名也可以是IP地址</li>
+<li>service可以是服务名也可以是端口号</li>
+<li>hints可以为NULL</li>
+<li>results指向一个addrinfo类型的链表</li>
+</ul>
+<h5 id="getnameinfo"><a href="#getnameinfo" class="headerlink" title="getnameinfo"></a>getnameinfo</h5><p>获取主机名和服务名</p>
+<h3 id="高级IO函数"><a href="#高级IO函数" class="headerlink" title="高级IO函数"></a>高级IO函数</h3><p>Linux提供了很多高级的IO函数，他们在特定的情况下性能很优异，这些函数分为三类：</p>
+<ul>
+<li>创建文件描述符的函数，如pipe、dup&#x2F;dup2函数</li>
+<li>读写数据的函数，如readv&#x2F;writev、sendfile、mmap&#x2F;munmap、splice和tee函数</li>
+<li>用于控制I&#x2F;O行为和属性的函数，如fcntl函数</li>
+</ul>
+<h4 id="PIPE函数"><a href="#PIPE函数" class="headerlink" title="PIPE函数"></a>PIPE函数</h4><p>pipe函数用于创建一个管道，以实现进程间通信。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int pipe(int fd[2]);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过pipe函数创建的两个文件描述符fd[0]和fd[1]分别构成管道的两端，只能从fd[1]写，只能从fd[0]读，要实现双向传输需要两个管道。</li>
+<li>默认情况下管道是阻塞的。</li>
+<li>如果写端的引用计数为0，则读端的read操作返回0，代表读到了文件结束标记。如果读端的引用计数为0，写端的写操作会失败，出发SIGPIPE信号。</li>
+</ul>
+<p>还有一个socketpair函数，它可以方面的创建<strong>双向管道</strong>。</p>
+<h4 id="dup函数和dup2函数"><a href="#dup函数和dup2函数" class="headerlink" title="dup函数和dup2函数"></a>dup函数和dup2函数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">int dup(int oldfd);</span><br><span class="line">int dup2(int oldfd, int newfd);</span><br></pre></td></tr></table></figure>
+
+<p>这两个函数可以复制一个文件描述符，两者的区别在于dup返回的文件描述符返回的是最小的未被使用的描述符，dup2返回的是指定的描述符newfd。</p>
+<p>通过dup和dup2创建的文件描述符并不继承原文件描述符的属性，比如close-on-exec和non-blocking等。</p>
+<h4 id="readv函数和writev函数"><a href="#readv函数和writev函数" class="headerlink" title="readv函数和writev函数"></a>readv函数和writev函数</h4><p>readv将数据从文件描述符读到分散的内存块中，writev将多块分散的内存数据写入到文件描述符中。这两者相当于简化版的sendmsg和recvmsg函数。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219194727150.png" class title="image-20241219194727150">
+
+<p>如果想要向对方发送多个缓冲区上的数据，则没有必要将他们拼接到一个缓冲区上在发送，而是可以直接通过writev来发送。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219200505431.png" class title="image-20241219200505431">
+
+<h4 id="sendfile函数"><a href="#sendfile函数" class="headerlink" title="sendfile函数"></a>sendfile函数</h4><p>sendfile可以直接在两个文件描述符之间传递数据（完全在内核空间操作），从而避免了在内核缓冲区和用户缓冲区之间的数据拷贝，效率很高，称为<strong>零拷贝</strong>。in_fd必须是一个文件描述符(因为sendfile底层需要使用mmap将in_fd进行映射)，out_fd在Linux2.6.33后可以是任何文件。</p>
+<p><code>ssize_t sendfile(int  out_fd, int in_fd, off_t* offset, ssize_t count)</code>，</p>
+<h4 id="mmap和munmap函数"><a href="#mmap和munmap函数" class="headerlink" title="mmap和munmap函数"></a>mmap和munmap函数</h4><p>mmap可以申请一段内存，用于进程间通信的，也可以将文件映射到内存中。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241219202240380.png" class title="image-20241219202240380">
+
+<ul>
+<li>start指定了映射到虚拟内存中的地址，可以为空</li>
+<li>length指定了内存段的长度</li>
+<li>prot参数用来设置内存段的访问权限，可读可写可执行</li>
+<li>flags指定一些标志，比如是否在进程间共享，是否是从文件映射来的。</li>
+</ul>
+<p>成功返回指向内存区域的指针，失败返回MAP_FAILED((void*)-1)</p>
+<h4 id="splice函数"><a href="#splice函数" class="headerlink" title="splice函数"></a>splice函数</h4><p>用于在两个文件描述符之间移动数据，也是零拷贝数据。(两个文件描述符中，<strong>有一个必须是管道</strong>)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">ssize_t splice(int fd_in, loff_t *off_in, int fd_out,loff_t *off_out, size_t len, unsigned int flags);</span><br></pre></td></tr></table></figure>
+
+<h4 id="tee函数"><a href="#tee函数" class="headerlink" title="tee函数"></a>tee函数</h4><p>在两个管道文件描述符之间复制数据，他不消耗数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssize_t tee(int fd_in, int fd_out, size_t len, unsigned int flags);</span><br></pre></td></tr></table></figure>
+
+<h4 id="fcntl函数"><a href="#fcntl函数" class="headerlink" title="fcntl函数"></a>fcntl函数</h4><p>fcntl和ioctl都可以对文件描述符进行各种操作，ioctl比fcntl能执行更多的控制，对于控制文件描述符常用的属性，fcntl函数是POSIX规定的首选方法。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int fcntl(int fd, int cmd, ... /* arg */ );</span><br></pre></td></tr></table></figure>
+
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220153028717.png" class title="image-20241220153028717">
+
+<p>fcntl常用来将文件描述符设置为非阻塞的。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220153408639.png" class title="image-20241220153408639">
+
+<h3 id="Linux服务器程序规范"><a href="#Linux服务器程序规范" class="headerlink" title="Linux服务器程序规范"></a>Linux服务器程序规范</h3><ul>
+<li>服务器程序以守护进程形式存在，父进程一般是init进程</li>
+<li>服务器程序一般有日志系统，可以输出到文件，一般在<code>/var/log</code>下，有的服务器还能输出日志到专门的UDP服务器。</li>
+<li>Linux服务器程序一般是以非root身份运行的，如mmysqld、httpd、syslogd，分别有自己的运行账户mysql、apache、syslog。</li>
+<li>可以通过命令行选项和配置文件对服务器程序进行配置，大部分配置文件存放在<code>/etc</code>目录下</li>
+<li>服务器启动时会生成一个PID文件存入<code>/var/run</code>目录下，以记录该程序的PID，以便于其他程序查询。</li>
+</ul>
+<h4 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h4><h5 id="Linux系统日志"><a href="#Linux系统日志" class="headerlink" title="Linux系统日志"></a>Linux系统日志</h5><p>Linux一般使用rsyslogd(syslogd)这个守护进程来处理日志。该进程可以同时接收来自用户进程和内核的日志。</p>
+<ul>
+<li>用户进程是通过调用syslog函数来生成系统日志，该函数将日志输出到UNIX本地域socket类型的<code>/dev/log</code>上。rsyslogd则监听该文件以获取用户进程的输出。</li>
+<li>内核日志是通过printk等函数打印到内核的环形缓存中，环形缓存的内容直接映射到<code>/proc/kmsg</code>文件中，rsyslogd通过读取该文件获取内核日志。</li>
+</ul>
+<p>rsyslogd收到用户或内核的日志后，会根据配置文件将日志输出到日志文件。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220161559781.png" class title="image-20241220161559781">
+
+<h5 id="syslog函数"><a href="#syslog函数" class="headerlink" title="syslog函数"></a>syslog函数</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;syslog.h&gt;</span><br><span class="line">void syslog(int priority, const char *format, ...);</span><br></pre></td></tr></table></figure>
+
+<p>该函数使用可变参数来结构化输出。</p>
+<ul>
+<li><p>priority，是设施值和日志级别的按位与，设施值的默认值是LOG_USER, 日志级别有如下几类：</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220163848517.png" class title="image-20241220163848517"></li>
+</ul>
+<p>可以使用下面的函数开启logger并设置syslog的默认输出方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void openlog(const char *ident, int option, int facility);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>ident指定的字符串被存放到日志消息的时间之后，它通常被设置为程序的名字</p>
+</li>
+<li><p>option参数对后序syslog调用的行为进行配置，它可以如下值的组合</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220164146827.png" class title="image-20241220164146827">
+</li>
+<li><p>facility可以修改syslog函数中的默认设施值，</p>
+</li>
+</ul>
+<p>通过如下函数设置日志掩码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int setlogmask(int maskpri);</span><br></pre></td></tr></table></figure>
+
+<h4 id="用户信息"><a href="#用户信息" class="headerlink" title="用户信息"></a>用户信息</h4><p>很多服务器进程需要以root身份启动，但实际运行时，需要切换为普通用户身份运行，以保证安全性。</p>
+<h5 id="UID、EUID、GID和EGID"><a href="#UID、EUID、GID和EGID" class="headerlink" title="UID、EUID、GID和EGID"></a>UID、EUID、GID和EGID</h5><img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220165201234.png" class title="image-20241220165201234">
+
+<p>uid表示的是进程的创建者，euid表示的是进程对资源的实际访问权限。</p>
+<ul>
+<li>通常一个进程能访问什么资源，取决于<strong>创建它的进程（uid，从用户的角度上看的）</strong>的权限。</li>
+<li>使用euid后，一个进程能访问什么资源，取决于该<strong>程序的所有者（从文件系统的层面上看的）</strong>的权限</li>
+</ul>
+<blockquote>
+<p>比如su程序的所有者是root，并且他设置了set-user-id标志，那么通过非root用户执行该程序时，有效用户是root。有效用户为root的进程称为特权进程。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;unistd.h&gt;</span><br><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">int main(void)&#123;</span><br><span class="line">    uid_t uid = getuid();</span><br><span class="line">    uid_t euid = geteuid();</span><br><span class="line">    printf(&quot;userid is %d, effective userid is %\n&quot;, uid, euid);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">(yolo) tangjie.zhang@moveai415:chapter7$ g++ -o uid_euid uid_euid.cpp </span><br><span class="line">(yolo) tangjie.zhang@moveai415:chapter7$ ./uid_euid //1037对应我的用户的id，euid暂时没有设置，可以通过chmod +s uid_euid配置</span><br><span class="line">userid is 1037, effective userid is %</span><br></pre></td></tr></table></figure>
+
+<h5 id="切换用户"><a href="#切换用户" class="headerlink" title="切换用户"></a>切换用户</h5><p>通过setgid和setuid实现。</p>
+<h4 id="进程间关系"><a href="#进程间关系" class="headerlink" title="进程间关系"></a>进程间关系</h4><h5 id="进程组"><a href="#进程组" class="headerlink" title="进程组"></a>进程组</h5><blockquote>
+<p>Linux下用户有用户id和用户组id</p>
+<p>Linux下的文件对应一个所有者用户、同组用户和其他用户</p>
+</blockquote>
+<p>Linux下的每个进程都隶属一个进程组，都有一个PID和PGID（进程组ID）。每个进程组都有一个首领进程，他的PGID和PID是相同的，进程组会一直存在直到所有进程都退出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int setpgid(pid_t pid, pid_t pgid)</span><br></pre></td></tr></table></figure>
+
+<p>该函数用于将PID为pid的进程的PGID设置为pgid。</p>
+<ul>
+<li>如果pid和pgid相同，则将该进程从原进程组分离出来，并设置为进程组首领。</li>
+<li>pid为0，则默认将当前进程的PGID设置为pgid。</li>
+<li>pgid为0，则使用pid作为目标PGID。</li>
+</ul>
+<p>一个进程只能设置自己或者其子进程PGID, </p>
+<h5 id="会话"><a href="#会话" class="headerlink" title="会话"></a>会话</h5><p>一些有<strong>关联的进程</strong>将形成一个会话（session），下面的函数用于创建一个会话。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pid_t setsid(void);</span><br></pre></td></tr></table></figure>
+
+<p>该函数不能有进程组的首领进程调用，当非首领进程调用该函数时，会产生创建一个新会话，并且：</p>
+<ul>
+<li>调用进程成为会话的首领，此时该进程是新会话的唯一成员</li>
+<li>新建一个进程组，调用进程成为该组的首领</li>
+</ul>
+<p>Linux进程没有提供所谓会话ID的概念，Linux认为它等于会话首领所在的进程组的PGID。提供了如下的方式读取：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pid_t getsid(pid_t pid);</span><br></pre></td></tr></table></figure>
+
+<h5 id="用ps命令查看进程关系"><a href="#用ps命令查看进程关系" class="headerlink" title="用ps命令查看进程关系"></a>用ps命令查看进程关系</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ps -o pid,ppid,pgid,sid,comm | less</span><br><span class="line">    PID    PPID    PGID     SID COMMAND</span><br><span class="line">3535939 3535938 3535939 3535939 bash</span><br><span class="line">3537268 3535939 3537268 3535939 ps</span><br><span class="line">3537269 3535939 3537268 3535939 less</span><br></pre></td></tr></table></figure>
+
+<p>这三个命令创建了一个会话和两个进程组，bash是会话的首领也是进程组3535938的首领，ps命令是进程组3537268的首领。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220194810282.png" class title="image-20241220194810282">
+
+<h4 id="系统资源限制"><a href="#系统资源限制" class="headerlink" title="系统资源限制"></a>系统资源限制</h4><p>Linux上运行的程序会受到系统资源限制的影响，比如物理设备限制（CPU、内存），Linux系统资源限制可以通过如下的函数读取和设置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;sys/resource.h&gt;</span><br><span class="line">int getrlimit(int resource, struct rlimit *rlim);</span><br><span class="line">int setrlimit(int resource, const struct rlimit *lim);</span><br><span class="line">struct rlimit&#123;</span><br><span class="line">	rlim_t rlim_cur; //rlim_t是一个整数类型</span><br><span class="line">	rlim_t rlim_max;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>rlim_cur是指定资源的软限制，而rlim_max是硬限制，（CPU时间超过软限制时，会由系统向进程发送SIGXCPU, 文件尺寸大于软限制时，会由系统向进程发送SIGXFSZ信号）</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220195930448.png" class title="image-20241220195930448">
+
+<h4 id="改变工作目录和根目录"><a href="#改变工作目录和根目录" class="headerlink" title="改变工作目录和根目录"></a>改变工作目录和根目录</h4><blockquote>
+<p>当我们使用相对路径时，系统会以工作目录为起点来查找文件。</p>
+<p>使用绝对路径时，使用根目录为起点来查找文件。如果使用<code>chroot /usr/local</code>，那么这个进程的根目录就会变为<code>/usr/local</code>，此时，即使执行<code>ls /</code>，看到的也是<code>/usr/local</code>目录下的内容。</p>
+</blockquote>
+<p>获取进程当前工作目录和改变进程工作目录的函数分别是：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">char</span> *<span class="title">getcwd</span><span class="params">(<span class="type">char</span> * buf, <span class="type">size_t</span> size)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">chdir</span><span class="params">(<span class="type">const</span> <span class="type">char</span> * path)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>改变进程根目录的函数是chroot（只有特权进程才能改变根目录）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">chroot</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* path)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="服务器程序后台化"><a href="#服务器程序后台化" class="headerlink" title="服务器程序后台化"></a>服务器程序后台化</h4><p>可以使用daemon库函数来实现，也可以亲手实现（创建子进程，关闭父进程，使其父进程变为init，更改文件权限掩码为0，设定本进程为进程组的首领，切换工作目录，关闭输入输出，把输入输出重定向到<code>dev/null</code>）</p>
+<blockquote>
+<p>关闭标准输出后，如果程序还在使用printf打印信息，这些信息会被放到缓冲区，所以建议使用<code>/dev/null</code>来让屏蔽输出。</p>
+</blockquote>
+<h3 id="高性能服务器程序框架"><a href="#高性能服务器程序框架" class="headerlink" title="高性能服务器程序框架"></a>高性能服务器程序框架</h3><p>三个主要模块：</p>
+<ul>
+<li>I&#x2F;O处理单元：四种IO模型和两种事件处理模式</li>
+<li>逻辑单元：两种高效并发方式，以及高效的逻辑处理方式——有限状态机</li>
+<li>存储单元</li>
+</ul>
+<h4 id="服务器模型"><a href="#服务器模型" class="headerlink" title="服务器模型"></a>服务器模型</h4><h5 id="C-x2F-S模型"><a href="#C-x2F-S模型" class="headerlink" title="C&#x2F;S模型"></a>C&#x2F;S模型</h5><p>如下，使用的是IO复用技术之一的select系统调用。</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220212301740.png" class title="image-20241220212301740">
+
+<h5 id="P2P"><a href="#P2P" class="headerlink" title="P2P"></a>P2P</h5><h4 id="服务器编程框架"><a href="#服务器编程框架" class="headerlink" title="服务器编程框架"></a>服务器编程框架</h4><p>服务器的基本框架都是一致的，如下：</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220212627348.png" class title="image-20241220212627348">
+
+<p>该图各个部分的功能如下：</p>
+<img src="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/image-20241220213230390.png" class title="image-20241220213230390">
+
+<ul>
+<li>IO处理单元负责管理客户连接，（数据收发，optional，取决于事件处理模式）</li>
+<li>逻辑单元通常是一个进程、线程、逻辑服务器</li>
+<li>网络存储单元</li>
+</ul>
+<h4 id="IO模型"><a href="#IO模型" class="headerlink" title="IO模型"></a>IO模型</h4><p>socket默认是阻塞的，可以通过socket的第二个参数或fcntl系统调用来将其设置为非阻塞的。阻塞的概念适用于所有文件描述符，阻塞的文件描述符称为阻塞IO，否则称为非阻塞IO。</p>
+<ul>
+<li>如果是阻塞IO，当没有完成操作时，该进程会被阻塞，直到完成操作。可能被阻塞的系统调用包括accept、send、recv、connect。</li>
+<li>如果是非阻塞IO，不管事件有没有发生，系统调用都会立刻返回。如果时间没有立刻发生，系统调用会返回-1，这和出错的情况一样，所以还必须根据errno来区分这两者情况。<ul>
+<li>对accept、send、recv而言，事件未发生时，errno被设置为EAGAIN或EWOULDBLOCK（期望阻塞）。</li>
+<li>对connect而言，时间未发生时，errno被设置为EINPROGRESS（正在处理）。</li>
+</ul>
+</li>
+</ul>
+<p>非阻塞IO必须和其他<strong>IO通知机制</strong>一起使用，比如<strong>IO复用和SIGIO信号</strong>。</p>
+<ul>
+<li>IO复用，应用程序通过IO复用函数向内核注册一组事件，内核通过IO复用函数将其中就绪的事件通知应用程序。常用的IO复用函数包括<code>select, poll, epoll_wait</code>。</li>
+<li>SIGIO信号也可以用来报告IO事件，可以为一个文件指定一个进程。当文件内容改变时，会给对应进程发SIGIO、SIGURG信号。见6.8，10。</li>
+</ul>
+<p>阻塞IO、IO复用、信号驱动IO都是同步IO模型。那什么是异步IO模型呢？（并不是说真的可以忽略数据读写的顺序，而是把读写操作委托给内核）。</p>
+<p>对异步IO而言，用户可以直接对IO执行读写操作，这些操作告诉内核用户读写缓冲区的位置，以及内核通知应用程序的方式。同步IO需要用户自行执行IO操作，而异步IO由内核来执行IO操作（数据在用户缓冲区与内核缓冲区的移动是靠内核完成的），并在完成时通知程序。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/">https://tjzhang-src.github.io/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/web/">web</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/.github.io/2024/12/03/%E5%9B%BE%E8%A7%A3HTTP/" title="图解HTTP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">图解HTTP</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/.github.io/2024/12/03/%E5%9B%BE%E8%A7%A3HTTP/" title="图解HTTP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-03</div><div class="title">图解HTTP</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">43</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">19</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP-x2F-IP%E5%8D%8F%E8%AE%AE%E7%B0%87"><span class="toc-number">1.</span> <span class="toc-text">TCP&#x2F;IP协议簇</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%8D%E4%BD%8D%E6%8A%A5%E6%96%87%E6%AE%B5"><span class="toc-number">1.1.</span> <span class="toc-text">复位报文段</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.1.1.</span> <span class="toc-text">访问不存在的端口</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E7%BB%88%E6%AD%A2%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.1.2.</span> <span class="toc-text">异常终止连接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E5%8D%8A%E6%89%93%E5%BC%80%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.1.3.</span> <span class="toc-text">处理半打开连接</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TCP%E4%BA%A4%E4%BA%92%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">1.2.</span> <span class="toc-text">TCP交互数据流</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TCP%E6%88%90%E5%9D%97%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">1.3.</span> <span class="toc-text">TCP成块数据流</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%A6%E5%A4%96%E6%95%B0%E6%8D%AE"><span class="toc-number">1.4.</span> <span class="toc-text">带外数据</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP-x2F-IP%E9%80%9A%E4%BF%A1%E6%A1%88%E4%BE%8B"><span class="toc-number">2.</span> <span class="toc-text">TCP&#x2F;IP通信案例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80API"><span class="toc-number">3.</span> <span class="toc-text">Linux网络编程基础API</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#socket%E5%9C%B0%E5%9D%80API"><span class="toc-number">3.1.</span> <span class="toc-text">socket地址API</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%AD%97%E8%8A%82%E5%BA%8F%E5%92%8C%E7%BD%91%E7%BB%9C%E5%AD%97%E8%8A%82%E5%BA%8F"><span class="toc-number">3.1.1.</span> <span class="toc-text">主机字节序和网络字节序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E7%94%A8socket%E5%9C%B0%E5%9D%80"><span class="toc-number">3.1.2.</span> <span class="toc-text">通用socket地址</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%93%E7%94%A8socket%E5%9C%B0%E5%9D%80"><span class="toc-number">3.1.3.</span> <span class="toc-text">专用socket地址</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#IP%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%E5%87%BD%E6%95%B0"><span class="toc-number">3.1.4.</span> <span class="toc-text">IP地址转换函数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAsocket"><span class="toc-number">3.2.</span> <span class="toc-text">创建socket</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E5%90%8Dsocket"><span class="toc-number">3.3.</span> <span class="toc-text">命名socket</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%91%E5%90%ACsocket"><span class="toc-number">3.4.</span> <span class="toc-text">监听socket</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A5%E5%8F%97%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.5.</span> <span class="toc-text">接受连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%91%E8%B5%B7%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.6.</span> <span class="toc-text">发起连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.7.</span> <span class="toc-text">关闭连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%86%99"><span class="toc-number">3.8.</span> <span class="toc-text">数据读写</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#TCP%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%86%99"><span class="toc-number">3.8.1.</span> <span class="toc-text">TCP数据读写</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#UDP%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%86%99"><span class="toc-number">3.8.2.</span> <span class="toc-text">UDP数据读写</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%86%99%E5%87%BD%E6%95%B0"><span class="toc-number">3.8.3.</span> <span class="toc-text">通用数据读写函数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%A6%E5%A4%96%E6%A0%87%E8%AE%B0"><span class="toc-number">3.9.</span> <span class="toc-text">带外标记</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E4%BF%A1%E6%81%AF%E5%87%BD%E6%95%B0"><span class="toc-number">3.10.</span> <span class="toc-text">地址信息函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#socket%E9%80%89%E9%A1%B9"><span class="toc-number">3.11.</span> <span class="toc-text">socket选项</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#SO-REUSEADDR%E9%80%89%E9%A1%B9"><span class="toc-number">3.11.1.</span> <span class="toc-text">SO_REUSEADDR选项</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SO-RCVBUF%E5%92%8CSO-SNDBUF"><span class="toc-number">3.11.2.</span> <span class="toc-text">SO_RCVBUF和SO_SNDBUF</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SO-REVLOWAT%E5%92%8CSO-SNDLOWAT%E9%80%89%E9%A1%B9"><span class="toc-number">3.11.3.</span> <span class="toc-text">SO_REVLOWAT和SO_SNDLOWAT选项</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SO-LINGER%E9%80%89%E9%A1%B9"><span class="toc-number">3.11.4.</span> <span class="toc-text">SO_LINGER选项</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AFAPI"><span class="toc-number">3.12.</span> <span class="toc-text">网络信息API</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#gethostbyname%E5%92%8Cgethostbyaddr"><span class="toc-number">3.12.1.</span> <span class="toc-text">gethostbyname和gethostbyaddr</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#getservbyname%E5%92%8Cgetservbyport"><span class="toc-number">3.12.2.</span> <span class="toc-text">getservbyname和getservbyport</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#getaddrinfo"><span class="toc-number">3.12.3.</span> <span class="toc-text">getaddrinfo</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#getnameinfo"><span class="toc-number">3.12.4.</span> <span class="toc-text">getnameinfo</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%BA%A7IO%E5%87%BD%E6%95%B0"><span class="toc-number">4.</span> <span class="toc-text">高级IO函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#PIPE%E5%87%BD%E6%95%B0"><span class="toc-number">4.1.</span> <span class="toc-text">PIPE函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dup%E5%87%BD%E6%95%B0%E5%92%8Cdup2%E5%87%BD%E6%95%B0"><span class="toc-number">4.2.</span> <span class="toc-text">dup函数和dup2函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#readv%E5%87%BD%E6%95%B0%E5%92%8Cwritev%E5%87%BD%E6%95%B0"><span class="toc-number">4.3.</span> <span class="toc-text">readv函数和writev函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sendfile%E5%87%BD%E6%95%B0"><span class="toc-number">4.4.</span> <span class="toc-text">sendfile函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mmap%E5%92%8Cmunmap%E5%87%BD%E6%95%B0"><span class="toc-number">4.5.</span> <span class="toc-text">mmap和munmap函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#splice%E5%87%BD%E6%95%B0"><span class="toc-number">4.6.</span> <span class="toc-text">splice函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#tee%E5%87%BD%E6%95%B0"><span class="toc-number">4.7.</span> <span class="toc-text">tee函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fcntl%E5%87%BD%E6%95%B0"><span class="toc-number">4.8.</span> <span class="toc-text">fcntl函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A8%8B%E5%BA%8F%E8%A7%84%E8%8C%83"><span class="toc-number">5.</span> <span class="toc-text">Linux服务器程序规范</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A5%E5%BF%97"><span class="toc-number">5.1.</span> <span class="toc-text">日志</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Linux%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97"><span class="toc-number">5.1.1.</span> <span class="toc-text">Linux系统日志</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#syslog%E5%87%BD%E6%95%B0"><span class="toc-number">5.1.2.</span> <span class="toc-text">syslog函数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="toc-number">5.2.</span> <span class="toc-text">用户信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#UID%E3%80%81EUID%E3%80%81GID%E5%92%8CEGID"><span class="toc-number">5.2.1.</span> <span class="toc-text">UID、EUID、GID和EGID</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E7%94%A8%E6%88%B7"><span class="toc-number">5.2.2.</span> <span class="toc-text">切换用户</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%85%B3%E7%B3%BB"><span class="toc-number">5.3.</span> <span class="toc-text">进程间关系</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E7%BB%84"><span class="toc-number">5.3.1.</span> <span class="toc-text">进程组</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%9A%E8%AF%9D"><span class="toc-number">5.3.2.</span> <span class="toc-text">会话</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%94%A8ps%E5%91%BD%E4%BB%A4%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E5%85%B3%E7%B3%BB"><span class="toc-number">5.3.3.</span> <span class="toc-text">用ps命令查看进程关系</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6"><span class="toc-number">5.4.</span> <span class="toc-text">系统资源限制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%94%B9%E5%8F%98%E5%B7%A5%E4%BD%9C%E7%9B%AE%E5%BD%95%E5%92%8C%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="toc-number">5.5.</span> <span class="toc-text">改变工作目录和根目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A8%8B%E5%BA%8F%E5%90%8E%E5%8F%B0%E5%8C%96"><span class="toc-number">5.6.</span> <span class="toc-text">服务器程序后台化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A8%8B%E5%BA%8F%E6%A1%86%E6%9E%B6"><span class="toc-number">6.</span> <span class="toc-text">高性能服务器程序框架</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A8%A1%E5%9E%8B"><span class="toc-number">6.1.</span> <span class="toc-text">服务器模型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#C-x2F-S%E6%A8%A1%E5%9E%8B"><span class="toc-number">6.1.1.</span> <span class="toc-text">C&#x2F;S模型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#P2P"><span class="toc-number">6.1.2.</span> <span class="toc-text">P2P</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B%E6%A1%86%E6%9E%B6"><span class="toc-number">6.2.</span> <span class="toc-text">服务器编程框架</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IO%E6%A8%A1%E5%9E%8B"><span class="toc-number">6.3.</span> <span class="toc-text">IO模型</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/" title="Linux高性能服务器编程">Linux高性能服务器编程</a><time datetime="2024-12-04T09:01:31.000Z" title="发表于 2024-12-04 17:01:31">2024-12-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/03/%E5%9B%BE%E8%A7%A3HTTP/" title="图解HTTP">图解HTTP</a><time datetime="2024-12-03T03:35:49.000Z" title="发表于 2024-12-03 11:35:49">2024-12-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/11/28/%E8%87%AA%E9%A1%B6%E5%90%91%E4%B8%8B%E6%96%B9%E6%B3%95/" title="自顶向下方法">自顶向下方法</a><time datetime="2024-11-28T12:05:16.000Z" title="发表于 2024-11-28 20:05:16">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/11/12/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB-%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0/" title="程序员的自我修养-第十一章">程序员的自我修养-第十一章</a><time datetime="2024-11-12T08:29:32.000Z" title="发表于 2024-11-12 16:29:32">2024-11-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/11/12/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB-%E7%AC%AC%E5%8D%81%E7%AB%A0/" title="程序员的自我修养-第十章">程序员的自我修养-第十章</a><time datetime="2024-11-12T03:08:23.000Z" title="发表于 2024-11-12 11:08:23">2024-11-12</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2024 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/'
+    this.page.identifier = '/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/'
+    this.page.title = 'Linux高性能服务器编程'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
