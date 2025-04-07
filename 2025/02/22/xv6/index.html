@@ -1,0 +1,703 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Welcome | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="操作系统接口文件描述符每个进程有一个私有的文件描述符表，这是shell可以执行IO重定向以及管道的基础。 每个文件描述符都有一个与文件关联的偏移。 fork后，子进程拥有和父进程一致的文件描述符表，再次执行exec后，也仍然会保留该文件描述符表（除了使用closeonexec选项）。这允许了IO重定向，使得不同的进程可以访问相同的文件描述符。比如cat的实现：cat &lt; input.txt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Welcome">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2025/02/22/xv6/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="操作系统接口文件描述符每个进程有一个私有的文件描述符表，这是shell可以执行IO重定向以及管道的基础。 每个文件描述符都有一个与文件关联的偏移。 fork后，子进程拥有和父进程一致的文件描述符表，再次执行exec后，也仍然会保留该文件描述符表（除了使用closeonexec选项）。这允许了IO重定向，使得不同的进程可以访问相同的文件描述符。比如cat的实现：cat &lt; input.txt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2025-02-22T13:38:24.000Z">
+<meta property="article:modified_time" content="2025-04-07T11:51:29.829Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2025/02/22/xv6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Welcome',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-07 19:51:29'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">44</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">无题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-02-22T13:38:24.000Z" title="发表于 2025-02-22 21:38:24">2025-02-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-07T11:51:29.829Z" title="更新于 2025-04-07 19:51:29">2025-04-07</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">10.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>31分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><hr>
+<h3 id="操作系统接口"><a href="#操作系统接口" class="headerlink" title="操作系统接口"></a>操作系统接口</h3><h4 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h4><p>每个进程有一个私有的文件描述符表，这是shell可以执行IO重定向以及管道的基础。</p>
+<p>每个文件描述符都有一个与文件关联的偏移。</p>
+<p>fork后，子进程拥有和父进程一致的文件描述符表，再次执行exec后，也仍然会保留该文件描述符表（除了使用closeonexec选项）。这允许了IO重定向，使得不同的进程可以访问相同的文件描述符。比如cat的实现：<code>cat &lt; input.txt</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">char *argv[2];</span><br><span class="line">argv[0] = &quot;cat&quot;;</span><br><span class="line">argv[1] = 0;</span><br><span class="line">if(fork() == 0) &#123;</span><br><span class="line">    close(0);</span><br><span class="line">    open(&quot;input.txt&quot;, O_RDONLY);</span><br><span class="line">    exec(&quot;cat&quot;, argv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>open默认返回最小未使用的文件描述符：0。</p>
+<blockquote>
+<p>为什么不直接给一个创建新进程的接口，而是分为先fork，再exec，因为这样创建的子进程在fork之后exec之前，还有一段时间，这里可以执行一些任务，比如可以修改文件描述符。（其实exec执行的程序不知道文件描述符的事情，他们需要完成的事情只是从0读从1写，文件描述符的修改是由shell进程完成的，毕竟执行exec前的程序都可以看成是父进程即shell进程）</p>
+</blockquote>
+<p>通过fork或者dup系统调用来源自相同的文件描述符共享同一个偏移地址。否则文件描述符不共享偏移，即使是通过open打开相同的文件。</p>
+<p><code>ls existing-file non-existing-file &gt; tmp1 2&gt;&amp;1</code>,这里让文件描述符2是文件描述符1的复制品（dup）。可以让错误输出也输出到文件描述符1上。</p>
+<h4 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h4><p>如果管道没有数据，read会等待直到有数据写到管道上，或者所有写端的文件描述符都被关闭了。</p>
+<p>类似<code>grep fork sh.c | wc -l</code>管道的实现，父进程创建一个管道，然后fork两次，产生两个子进程，（可能会将读端dup到0，写端dup到1），然后执行exec调用两者的子程序。</p>
+<p>相比于临时文件，管道的几个优点：</p>
+<ul>
+<li>管道（进程的）自动清理其中的数据，而临时文件需要收到清理。</li>
+<li>管道可以处理长的数据，而临时文件先需要保证拥有足够的空间来保存这些文件。</li>
+<li>管道允许并行执行，一个进程写一个进程读。而临时文件是一个进程写完后，另一个进程才读。</li>
+<li>管道没有数据就会阻塞，直到有数据。而临时文件为空时，只会收到一个提示。</li>
+</ul>
+<h4 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h4><p>不以<code>/</code>开头的地址，都是相对于当前进程当前目录的相对地址。</p>
+<p>mknod创建一个设备文件，与之关联的是主设备号和次设备号。当使用opeen打开一个设备文件是，read和write不是使用文件系统打开该设备文件，而是通过内核的设备驱动程序来处理。</p>
+<p>目录的数据部分包含者文件名以及与之对应的inode节点，inode节点保存着文件的元数据，比如类型，长度，位置，连接数。</p>
+<h3 id="操作系统组织"><a href="#操作系统组织" class="headerlink" title="操作系统组织"></a>操作系统组织</h3><p>操作系统必须满足<strong>多路复用</strong>，因此又必须实现<strong>隔离和交互</strong>。</p>
+<p>本节介绍针对单内核操作系统是如何实现上面三条规则的。</p>
+<h4 id="抽象物理资源"><a href="#抽象物理资源" class="headerlink" title="抽象物理资源"></a>抽象物理资源</h4><p>强隔离需要应用程序和操作系统之间存在一个边界。以防止内核数据遭到破坏。</p>
+<p>CPU也提供隔离支持。在RISC-V处理器指令集中，有三种指令执行模式：机器模式，管理员模式，和用户模式。（ARM指令集也是类似）</p>
+<ul>
+<li>机器模式：有着完全的权限，Xv6会在这个模式执行几行，然后进入管理员模式</li>
+<li>管理员模式：允许执行特权指令：enable&#x2F;disable 中断，读写页表寄存器（切换上下文有用）</li>
+<li>用户模式</li>
+</ul>
+<blockquote>
+<p>应用程序只能执行用户模式的指令，叫做在用户空间运行。</p>
+<p>在特权模式的软件能执行特权指令，又叫做在特权空间运行。在内核空间运行的软件叫做内核。</p>
+</blockquote>
+<p>在RISC-V中，使用ecall可以切换处理器模式到管理员模式，然后在某一个地址进入内核。</p>
+<h4 id="核心设计"><a href="#核心设计" class="headerlink" title="核心设计"></a>核心设计</h4><p>整个操作系统都在内核模式运行——单内核。</p>
+<ul>
+<li>优点：这种模式很简单，也便于不同的模块之间共享资源。</li>
+<li>缺点：操作系统因为有很多部分组成，所以不同部分之间的接口很复杂，内核开发者容易写bug，在单内核系统中，特权模式的一个bug很容易导致内核崩溃。（可以把内核理解成一个完整的应用程序，他由于不同模块.c.h编译而成）</li>
+</ul>
+<p>为了避免这个缺点：提出了微内核（大部分操作系统代码都在用户空间执行，也即以用户模式运行）</p>
+<img src="/.github.io/2025/02/22/xv6/image-20250224160111050.png" class title="image-20250224160111050">
+
+<p>如上图，文件系统在用户空间运行，如果一个shell想要访问文件系统的话，它需要通过系统调用send发送一条消息给文件服务器并且等待回应。很多系统模块都以这种服务器的形式运行在用户空间。所以内核只需要包含很少的指令，比如启动应用程序，发送消息等。</p>
+<h4 id="进程概览"><a href="#进程概览" class="headerlink" title="进程概览"></a>进程概览</h4><p>隔离的单元是进程。进程抽象防止一个进程破坏另一个进程的资源。</p>
+<p>每个进程都有一个执行线程。每个进程都有用户栈和内核栈。当产生系统调用或者中断时，使用的是内核栈。</p>
+<p>一个进程可以调用ecall指令，来触发一个系统调用，他会提升硬件特权，并且进入到一个内核定义的入口，这个入口的代码会更换栈以及执行系统调用对应的指令，当系统调用完成时，内核通过sret指令切换用户栈并且返回用户空间。</p>
+<h4 id="开始xv6以及第一个进程"><a href="#开始xv6以及第一个进程" class="headerlink" title="开始xv6以及第一个进程"></a>开始xv6以及第一个进程</h4><p>从汇编函数_entry开始,该函数设置了一个栈，然后调用了start函数。</p>
+<p>start执行了一些只在机器模式才有用的配置，禁止管理者模式中的虚拟地址转换，将所有中断和异常委托给管理者模式。然后通过mret返回到管理模式。（这需要往mstatus寄存器写管理者模式，并将返回地址mepc设为main的地址）</p>
+<p>main初始化了几个设备和子系统，通过userinit创建了第一个进程。然后执行exec，创建了几个设备文件，然后通过文件描述符0， 1， 2打开，然后在console上开了个shell。</p>
+<p>&#96;_entry -&gt; （start）start.c -&gt; main.c -&gt; userinit -&gt; （start）initcode.s -&gt; init</p>
+<h3 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h3><h3 id="陷阱以及系统调用"><a href="#陷阱以及系统调用" class="headerlink" title="陷阱以及系统调用"></a>陷阱以及系统调用</h3><h4 id="RISC-V陷阱机制"><a href="#RISC-V陷阱机制" class="headerlink" title="RISC-V陷阱机制"></a>RISC-V陷阱机制</h4><h4 id="来自用户空间的陷阱"><a href="#来自用户空间的陷阱" class="headerlink" title="来自用户空间的陷阱"></a>来自用户空间的陷阱</h4><h4 id="代码：调用系统调用"><a href="#代码：调用系统调用" class="headerlink" title="代码：调用系统调用"></a>代码：调用系统调用</h4><p>参数是通过a0和a1寄存器传递，系统调用号通过a7寄存器传递。系统调用号匹配syscalls数组中的条目。ecall指令陷入内核，然后执行uservec，usertrap，然后是syscall，如我们所见。syscall给<strong>a0寄存器</strong>返回负数代表错误，返回0及正数代表正确。（而C调用惯例也是用a0保存返回值。）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void syscall(void)//至于为什么没有参数，可能是被前两个函数使用了</span><br><span class="line">&#123;</span><br><span class="line">  int num;</span><br><span class="line">  struct proc *p = myproc();</span><br><span class="line">  num = p-&gt;trapframe-&gt;a7;</span><br><span class="line">  if(num &gt; 0 &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num]) &#123;</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = syscalls[num]();//这里根据系统调用号，去执行对应的系统调用。</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    printf(&quot;%d %s: unknown sys call %d\n&quot;,</span><br><span class="line">            p-&gt;pid, p-&gt;name, num);</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = -1;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="系统调用参数"><a href="#系统调用参数" class="headerlink" title="系统调用参数"></a>系统调用参数</h4><p>系统调用需要用户代码传递的参数，因为用户代码会调用系统调用包装函数，而这些参数最初位于RISC-V惯例放的位置-寄存器。内核陷阱代码会报错用户的寄存器到当前进程的陷阱帧，然后内核从陷阱帧中获取参数，这些函数argint、argaddr、argfd代表获取第n个系统调用参数，分别以整数、指针、文件描述符的形式读取。这三个函数都调用argraw从陷阱帧获取数据。</p>
+<p>传参时，面临两个问题：</p>
+<ul>
+<li>如果用户传送错误的指针地址</li>
+<li>用户的页表和内核的页表，不一致，如何保证地址是通用的呢</li>
+</ul>
+<p>为此，内核提供了安全的函数来从用户地址转换数据，getchstr是一个例子。它通过调用copyinstr来获取字符串。</p>
+<p>copyinstr拷贝最多max个字节从用户页表中的虚拟地址srcva到dst。这个函数会使用walkaddr来遍历页表来确定srcva的物理地址pa0。因为进入内核模式后虚拟地址转换是关闭的，所以内核模式的地址就是物理地址，所以copyinstr可以直接将字符串从pa0拷贝到dst。同时，walkaddr还要检查用户提供的虚拟地址是不是该用户的。</p>
+<p>类似的，copyout拷贝数据到用户空间。</p>
+<p><code>layout split</code></p>
+<blockquote>
+<p>一个愚蠢的问题：页表项中存储的地址是虚拟地址还是物理地址？</p>
+<p>物理地址，原因：如果存储的是虚拟地址，那么就需要使用mmu将虚拟地址转换为物理地址，而我们查询页表项就是为了进行从虚拟地址到物理地址的转换。</p>
+</blockquote>
+<h3 id="Trap"><a href="#Trap" class="headerlink" title="Trap"></a>Trap</h3><p>陷阱处理的四个阶段：</p>
+<ul>
+<li>硬件行为，（比如保存状态，切换cpu状态等）</li>
+<li>汇编vector，为c代码做准备</li>
+<li>C trap处理器，决定如何处理这个trap</li>
+<li>系统调用以及设备驱动程序</li>
+</ul>
+<h4 id="trap机制"><a href="#trap机制" class="headerlink" title="trap机制"></a>trap机制</h4><p>RISC-V cpu有很多寄存器用来控制traps以及获取traps的状态。</p>
+<ul>
+<li>stvec，内核往这个寄存器写trap处理程序的地址，然后RISC-V调转到这里进行执行。</li>
+<li>sepc，保存着trap结束后的返回地址，sret(return from trap)会将sepc拷贝到pc寄存器。内核可以往sepc写地址来决定返回到哪里。</li>
+<li>scause，描述产生trap的原因</li>
+<li>sscratch，内核可以在这里放一个值</li>
+<li>sstatus，其中的SIE位用来开关设备中断。关闭之后，设备中断会延迟。SPP位代表trap是从用户模式来的还是从管理员模式来的，这也会决定sret返回的模式。</li>
+</ul>
+<p>机器模式也有对应的寄存器，有特殊的用途比如，计时器中断。</p>
+<p>当中断发生时（处理寄存器中断），<strong>RISC-V硬件</strong>完成如下的步骤：</p>
+<ul>
+<li>当前trap是设备中断并且sstatus的SIE位是被清空的，不做下面的任务。</li>
+<li>清空SIE关闭中断</li>
+<li>拷贝pc到sepc</li>
+<li>保存当前处理器模式到sstatus的SPP位</li>
+<li>设置scause</li>
+<li>设置处理器模式为管理员</li>
+<li>拷贝stvec到pc寄存器。</li>
+<li>开始执行新pc。</li>
+</ul>
+<p>可见硬件只完成必要的操作，切换pc寄存器，并不会切换页表切换栈，这些操作需要在后续程序中实现。</p>
+<h4 id="用户空间的Traps"><a href="#用户空间的Traps" class="headerlink" title="用户空间的Traps"></a>用户空间的Traps</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uservec ---&gt; usertrap ---&gt; usertrapret ---&gt; userret</span><br></pre></td></tr></table></figure>
+
+<p>可以通过系统调用，或者非法操作，或者设备中断可以让traps在用户空间中产生。</p>
+<p>在执行uservec中的程序时，需要切换页表为内核页表，为了切换前后代码执行顺序不变，需要让uservec所在的页面TRAMPOLINE在前后两个页表中有相同的虚拟地址。</p>
+<p>uservec在切换页表前：</p>
+<ul>
+<li>需要保存用户寄存器，将所有寄存器保存到trapframe页面中。在进入用户空间前，sscratch指向每个进程独有的trapframe，交换a0和sscratch寄存器，然后使用a0来保存所有的寄存器。每个进程在初始化时都会分配一个页面用于trapframe，将其映射在虚拟地址TRAPFRAME中，进程的p-&gt;tramframe也指向栈帧的物理地址，这样内核可以直接使用p-&gt;tramframe-&gt;axx来访问所有被保存的寄存器。</li>
+<li>保存了所有的寄存器</li>
+</ul>
+<p>之后，需要从tramframe中读取当前进程的内核栈、当前CPU的hartid、usertrap的地址、内核页表的地址。uservec切换satp，然后调整到usertrap。</p>
+<p>usertrap的工作是确定trap的原因，然后处理，返回。他首先会切换stvec寄存器为kernelvec，因为可能发生内核导致的traps。然后会保存sepc到trapframe中，因为可能出现进程切换而导致sepc被覆盖。然后根据traps的类型决定处理方式：</p>
+<ul>
+<li>系统调用：syscall。会往sepc+4，因为sepc保存到是ecall的地址，需要返回到ecall的下一个指令。对于下面两种情况，因为没有ecall，显然不用+4.</li>
+<li>设备中断：devintr</li>
+<li>异常：kill出错的进程。</li>
+</ul>
+<p>处理完后，判断进程是否被kill或者是否应该让出cpu（如果该trap是一个时钟中断）。</p>
+<p>返回用户空间的第一个调用是usertrapret，这个函数设置了RISC-V的控制寄存器为之后从用户空间到的·trap做准备（包括将stvec设为uservec，准备uservec依赖的trapframes到）。他会配置trapframe中的satp、sp、hartid、trap等。（可以发现，前面触发trap时，会保存寄存器，也会从trapframe中读取这四个值）。会设置sepc，给出trap返回的地址。</p>
+<p>最后需要返回到userret进行执行，在这里会切换用户页表，从trapframe恢复寄存器，然后使用sret返回到trap前的地址。</p>
+<blockquote>
+<p>注意切换页表都需要在trampoline中断代码中完成，只有在这个部分，用户页表和内核页表的地址映射才是完全一致的，切换页表后才不会导致出错。</p>
+</blockquote>
+<h4 id="来自内核的trap"><a href="#来自内核的trap" class="headerlink" title="来自内核的trap"></a>来自内核的trap</h4><blockquote>
+<p>RISC-V本来不针对来自用户的trap和来自内核的trap做区分，但是xv6这里针对来自内核的trap提供了kerneltrap代码。</p>
+</blockquote>
+<p>xv6在内核中又遇到trap时，会保存寄存器到栈中，最终返回时从栈恢复到寄存器。其中只可能遇到两种trap：</p>
+<ul>
+<li>设备中断，这时会处理中断</li>
+<li>异常，在内核中发生异常，肯定是严重错误，需要使用panic</li>
+</ul>
+<blockquote>
+<p>进入trap时，RISC-V自动关闭中断，直到设置stvec后才会重新开启中断。</p>
+</blockquote>
+<h4 id="页错误异常"><a href="#页错误异常" class="headerlink" title="页错误异常"></a>页错误异常</h4><p>页错误异常可以用来实现copy-on-write，lazy allocation，paging from disk，automatically extending stacks and memory-mapped files。</p>
+<p>三种页错误：</p>
+<ul>
+<li>加载页错误——不能加载</li>
+<li>存储页错误——不能存储</li>
+<li>指令页错误——不能翻译指令</li>
+</ul>
+<p>copy-on-write：子进程用于父进程页表的备份以及读权限，需要写时创建新页面。</p>
+<p>lazy allocation：当进程使用sbrk分配内存时，内核将页表项标注为invalid，但是告诉进程分配成功。这样当进程实际使用内存时，才会进行分配。</p>
+<p>paging from disk：可以将物理页写到磁盘，将页表项的设为无效。当需要使用时，内核知道这个页面在磁盘上，会在内存分配页面，将磁盘的页面读入。</p>
+<blockquote>
+<p>vm的两个优点：</p>
+<ul>
+<li>隔离</li>
+<li>重定向</li>
+</ul>
+</blockquote>
+<h4 id="优化方式"><a href="#优化方式" class="headerlink" title="优化方式"></a>优化方式</h4><p>系统调用从用户空间拷贝字符串需要进行很多处理（内核没法直接访问进程的虚拟空间），为了提升效率，可以将内存映射到每个进程的用户页表（加上特定的权限flags），这样内核就可以直接使用用户的页表，提升很多效率。比如linux就有这种设计。（Linux 中的 <strong>内核直接映射</strong>（<code>__PAGE_KERNEL</code>）</p>
+<blockquote>
+<p>read, write系统调用会进行很多函数调用，显得低效，可以将一个文件映射到页表中，实现对文件的直接读写。</p>
+</blockquote>
+<p>类似x86，RISC-V在进入函数时也会创建新的栈帧：第一个位置通常存储返回值，第二个位置存储上一个函数的栈帧起始位置。然后让本函数的栈帧指向第一个位置。（x86的ebp类似于s0，x86的esp类似于sp）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">main</span><br><span class="line">1c:	1141                	addi	sp,sp,-16</span><br><span class="line">1e:	e406                	sd	ra,8(sp)</span><br><span class="line">20:	e022                	sd	s0,0(sp)</span><br><span class="line">22:	0800                	addi	s0,sp,16</span><br></pre></td></tr></table></figure>
+
+<h3 id="中断和设备驱动"><a href="#中断和设备驱动" class="headerlink" title="中断和设备驱动"></a>中断和设备驱动</h3><p>设备驱动执行代码包含两部分，一部分是在内核线程中，他会控制设备执行一些操作，另一部分是在中断，设备会通过中断返回结果。</p>
+<h4 id="console输入"><a href="#console输入" class="headerlink" title="console输入"></a>console输入</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type char -&gt; 中断 -&gt; trap -&gt; devintr -&gt; uartintr -&gt; consoleintr(处理delete等特殊字符) -通过锁唤醒&gt; consoleread</span><br></pre></td></tr></table></figure>
+
+<h4 id="console输出"><a href="#console输出" class="headerlink" title="console输出"></a>console输出</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">write system call -&gt; uartputc -&gt;uartstart</span><br><span class="line">发送完一个字节会收到中断-&gt;uartintr-&gt;uartstart</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>第一种传输方式可以立刻发送发缓冲区的第一个字节，但再发送第二个字节时可能第一个字节还没发送完成，所有会直接返回。第二个及之后的字节会在收到发成完成中断后再发送。</p>
+</blockquote>
+<p>通过中断以及维护着一个uart_tx_buf, uart_rx_buf，成功完成了进程和设备活动的解耦，允许进程与IO并发，尤其是当外部设备是慢速的并且需要快速响应。这又是IO并发。（平衡高速设备和低速设备的一种方式就是<strong>缓冲区</strong>）</p>
+<h4 id="驱动并发"><a href="#驱动并发" class="headerlink" title="驱动并发"></a>驱动并发</h4><p>两个需要关注的问题：</p>
+<p>可以看到，consoleintr需要先使用acquire获取锁，这回包含驱动的数据。</p>
+<p>一个进程在阻塞等待设备输入时，此时中断到来打断了另一个进程，中断没法决定自己打断的是哪个进程，也没法把数据发给用户空间（很难知道用户页表），所以只能做很少的工作（比如将数据拷贝到buffer），然后唤醒使用read的进程来处理。</p>
+<h4 id="时间中断"><a href="#时间中断" class="headerlink" title="时间中断"></a>时间中断</h4><p>有是在硬件产生中断，在usertrap和kerneltrap中使用的yield就会导致进程的切换。</p>
+<p>RISC-V需要在机器模式处理时钟中断，机器模式没有分页有单独的控制寄存器。在启动还处于机器模式时，</p>
+<ul>
+<li>会配置CLINT硬件，让其计数达到一定值时产生中断，</li>
+<li>会设置scratch 区域，用来保存寄存器的值，类似于trapframe。</li>
+<li>设置mtvec，使能定时器中断。</li>
+</ul>
+<p>时钟中断可以在用户或者内核代码中发送，时钟中断必须保证不破坏内核代码，基本策略是，当发生了时钟中断，触发一个软件中断，然后返回。而这个软件中断可以被禁止。</p>
+<h4 id="真实情况"><a href="#真实情况" class="headerlink" title="真实情况"></a>真实情况</h4><p>xv6在执行内核程序时也允许时钟中断，这可以避免某个内核线程消耗太多CPU资源，但是我们也必须小心内核程序可能在某个地方被挂起，然后在其他地方继续运行。</p>
+<p>UART驱动每次获取一个字节，这种是可编程IO，由软件驱动数据的移动，更高效的模式是DMA。</p>
+<p>UART拷贝数据要先到内核的缓冲区，然后才拷贝到应用程序的缓冲区，这降低了效率，一些系统可以直接在用户空间和设备硬件之间移动数据。</p>
+<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p>xv6内核可以交叉执行多个任务，原因有：</p>
+<ul>
+<li>多个处理器硬件</li>
+<li>分时复用CPU</li>
+<li>设备中断</li>
+</ul>
+<blockquote>
+<p>The word concurrency refers to situations in which<br>multiple instruction streams are interleaved, due to multiprocessor parallelism, thread switching,<br>or interrupts.</p>
+</blockquote>
+<p>并发控制技术：针对以及支持并发性的技术。（锁）</p>
+<h4 id="竞态条件"><a href="#竞态条件" class="headerlink" title="竞态条件"></a>竞态条件</h4><h4 id="锁-1"><a href="#锁-1" class="headerlink" title="锁"></a>锁</h4><blockquote>
+<p>某些任务需要要么执行完，要么不执行，如果执行了但没有完全执行，那么当前的状态是无效的，单条指令或者原子指令不用考虑这个问题，因为他们占用CPU一个计算周期，不可能被分为两部分，如果有多条指令，则需要使用关中断或者锁来进行保护，使其不被打断。</p>
+</blockquote>
+<p>spinlock以及sleep-locks</p>
+<p>避免死锁：按照一定顺序申请锁。</p>
+<p>避免中断申请被中断代码获得的锁：再使用中断使用过的锁之前，都应该关闭中断。（也可以更加保守一点，只要代码申请了任何锁，都要关闭中断）关中断只是关闭当前CPU的中断，其他CPU也可以产生中断，并且申请当前CPU已经获得的锁，这样是可以的。</p>
+<p>编译器和CPU都可以对指令重新排序，这不会改变运行的结果，并发执行很可能导致多处理器上的不正确行为。CPU的顺序规则称为内存模型。</p>
+<p>使用<code>__sync_synchronize()</code>来产生内存屏障。不能重排序存储和加载指令超过这个屏障。</p>
+<p>spinlock的缺点：浪费时间，拥有spinlock时不能yield。（拥有spinlock时，中断处于关闭状态）</p>
+<p>sleeplock使用spinlock来来保护锁的状态，并且会yield CPU并且释放spinlock。不能在中断使用sleeplock，因为会导致yield。</p>
+<ul>
+<li>不能在spinlock临界区使用sleeplock，因为可能导致yield</li>
+<li>但可以在sleeplock临界区使用spinlock。</li>
+</ul>
+<h4 id="真实世界"><a href="#真实世界" class="headerlink" title="真实世界"></a>真实世界</h4><p>最好将锁隐藏在高级的结构（比如同步队列中）。</p>
+<p>如果直接使用锁，最好使用一个工具来判断静态条件，因为很容易会忽略需要锁的不变量。</p>
+<p>许多cpu都需要访问锁时，原子指令需要从其他cpu的cache移动到另一个缓存。这可能导致很多的资源消耗。</p>
+<p>为了避免消耗，许多操作系统使用无锁数据结构或者算法，比如直接使用原子指令来插入链表，但这更复杂。</p>
+<h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><p>共享内存的线程？</p>
+<ul>
+<li>xv6 kernel thread，每个用户进程有一个内核线程，这些内核线程之间共享相同的地址空间。</li>
+<li>用户进程，不共享地址空间。</li>
+</ul>
+<h4 id="复用"><a href="#复用" class="headerlink" title="复用"></a>复用</h4><p>实现复用有如下挑战：</p>
+<ul>
+<li>如何切换进程</li>
+<li>如何透明的切换用户进程——时钟中断</li>
+<li>CPU可能同时切换进程，这需要锁</li>
+<li>进程的资源需要被释放，但某些东西不能自己释放，比如内核栈。</li>
+<li>每个cpu应该知道当前执行的进程是什么，以便于系统调用影响正确的进程的状态。</li>
+<li>sleep和wakeup，要注意避免通知的丢失。</li>
+</ul>
+<img src="/.github.io/2025/02/22/xv6/image-20250312120929366.png" class title="image-20250312120929366">
+
+<h4 id="调度-1"><a href="#调度-1" class="headerlink" title="调度"></a>调度</h4><p>进程切换期间也需要维护不变量，（这些不变量只有全部更改后才能到达一个有效的状态）。</p>
+<ul>
+<li>不变量（切换出时的）：进程状态、进程内核线程的的寄存器，c-&gt;proc指向本进程</li>
+<li>不变量（切换到的）：进程状态，p-&gt;context需要保存进程寄存器，c-&gt;proc指向本进程。</li>
+</ul>
+<h4 id="睡眠和唤醒"><a href="#睡眠和唤醒" class="headerlink" title="睡眠和唤醒"></a>睡眠和唤醒</h4><p>当在等待信号量时，为了避免空等，可以使用睡眠。当信号量计数增加时，可以使用唤醒。如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">void V(struct semaphore *s)</span><br><span class="line">&#123;</span><br><span class="line">    acquire(&amp;s-&gt;lock);</span><br><span class="line">    s-&gt;count += 1;</span><br><span class="line">    wakeup(s);</span><br><span class="line">    release(&amp;s-&gt;lock);</span><br><span class="line">&#125;</span><br><span class="line">void P(struct semaphore *s)</span><br><span class="line">&#123;</span><br><span class="line">    acquire(&amp;s-&gt;lock);</span><br><span class="line">    while(s-&gt;count == 0)</span><br><span class="line">    	sleep(s, &amp;s-&gt;lock);</span><br><span class="line">    s-&gt;count -= 1;</span><br><span class="line">    release(&amp;s-&gt;lock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键在于判断P 判断 s-&gt;count之后，消费者sleep之前，可以有一个生产者通过V增加信号量的计数，这样，消费者就丢失了一次唤醒信号。为了解决这个问题，在sleep的参数中加上一个s-&gt;lock, </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void</span><br><span class="line">sleep(void *chan, struct spinlock *lk)</span><br><span class="line">&#123;</span><br><span class="line">  struct proc *p = myproc();</span><br><span class="line">  acquire(&amp;p-&gt;lock);  //DOC: sleeplock1</span><br><span class="line">  release(lk);</span><br><span class="line"></span><br><span class="line">  p-&gt;chan = chan;</span><br><span class="line">  p-&gt;state = SLEEPING;</span><br><span class="line">  sched();</span><br><span class="line">  p-&gt;chan = 0;</span><br><span class="line">  release(&amp;p-&gt;lock);</span><br><span class="line">  acquire(lk);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，sleep可以在申请p-&gt;lock后再来释放信号量的锁。因为就算此时有一个生产者通过wakeup来唤醒消费者，也必须先获得该进程的锁，而sleep代码中已经获得了进程锁，这就保证了生产者的wakeup没法再消费者彻底sleep前执行。（进程锁是在scheduler中的for-loop单次循环结束时释放）</p>
+<blockquote>
+<p>有没有可能其他进程获取了进程锁，比如父进程调用wait，</p>
+<p>可能有一种想法认为，有没有可能在sleep获取进程锁之前，消费者修改了信号量计数，但这是不可能的，因为V操作也必须遵循锁的申请顺序，先申请信号量锁，然后是进程锁。而当前进程已经获得了信号量锁，这避免了其他CPU的进程调用wakeup。而且信号量锁是spinlock，它在申请时会关闭中断，这也避免了当前CPU出现进程切换。</p>
+</blockquote>
+<h4 id="真实世界-1"><a href="#真实世界-1" class="headerlink" title="真实世界"></a>真实世界</h4><p>xv6直接使用for-loop进行调度，而真实系统会有更多目标，比如公平以及高吞吐量。这可能导致<strong>优先级反转和车队效应</strong>。</p>
+<ul>
+<li>优先级反转：高优先级进程等待低优先级进程的锁。</li>
+<li>车队效应：</li>
+</ul>
+<p>sleep和wakeup是简单有效的同步方式，还有其他方式，第一个挑战是，避免<strong>丢失唤醒</strong>问题，</p>
+<ul>
+<li>单CPU环境下，可以在关闭中断，就可以避免当前进程被打断，同时因为没有别的CPU，就可以避免其他的wakeup执行。</li>
+<li>xv6 &amp;&amp; FreeBSD，在sleep中添加了一个锁，在sleep时，因为涉及到进程状态修改，还需要获得进程的锁，所有可以在获取进程的锁后释放sleep参数中的锁。</li>
+<li>文献plan9：使用一个回调函数，即将sleep前检测一次。</li>
+<li>Linux，使用进程等待队列，这个队列有内部锁。</li>
+</ul>
+<blockquote>
+<p>All of these mechanisms share the same flavor: the sleep condition is protected by some<br>kind of lock dropped atomically during sleep.</p>
+<p>在条件变量领域，sleep和wakeup又被称为wait和signal。</p>
+</blockquote>
+<p>中断进程已经清理是非常复杂的。被清理的进程可能处于内核睡眠中，许多操作系统使用显示的机制比如longjmp（通常用于异常处理）来展开栈。还有其他方法可以唤醒睡眠的进程，即使等待的事件没有发生，比如Unix的信号，系统调用直接返回-1。</p>
+<h3 id="文件系统-1"><a href="#文件系统-1" class="headerlink" title="文件系统"></a>文件系统</h3><p>如下几个挑战：</p>
+<ul>
+<li>文件系统需要使用磁盘上的数据结构来代表命名的文件夹以及文件，来记录块的属性。</li>
+<li>文件系统必须支持crash恢复，比如掉电之后，文件系统也必须是有效的。（类似于原子操作，保持不变量）</li>
+<li>不同进程都可以同时操控文件系统，所有文件系统的代码必须协调维持不变量。</li>
+<li>磁盘比内存慢很多，所以需要在内存维护常用的块。</li>
+</ul>
+<h4 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h4><img src="/.github.io/2025/02/22/xv6/image-20250314093051398.png" class title="image-20250314093051398">
+
+<p>在xv6中，文件系统犹如上分层：</p>
+<ul>
+<li>磁盘层：从磁盘读或者写blocks。</li>
+<li>Buffer cache层，缓存磁盘块以及同步，确保同时只有一个内核进程可以修改它。</li>
+<li>logging 层，给上层提供接口，使之可以在一次事务中对多个块进行多个操作，以及确保操作的原子性。</li>
+<li>inode层，提供了独立的文件，由一个inode数字以及一些包含文件数据的块组成。</li>
+<li>文件夹层，包含inode数字以及文件名。</li>
+<li>pathname层，一个路径，比如<code>/usr/rtm/xv6/fs.c</code>。</li>
+<li>文件描述符层，抽象Unix资源。</li>
+</ul>
+<p>如何在磁盘存储数据以及其他信息，</p>
+<img src="/.github.io/2025/02/22/xv6/image-20250314094547163.png" class title="image-20250314094547163">
+
+<h4 id="Buffer-cache层"><a href="#Buffer-cache层" class="headerlink" title="Buffer cache层"></a>Buffer cache层</h4><p>buffer cache有两个任务：</p>
+<ul>
+<li>同步访问磁盘，确保内存只有一个该块的备份，以及同时只有一个线程可以使用那个块。</li>
+<li>缓存常用的块。</li>
+</ul>
+<p>提供的接口：bread、bwrite、brealese。</p>
+<ul>
+<li>bread返回一个内存cache，可以在该区域读或者写磁盘。返回的buffer被spinlock锁上了，保证只有一个线程可以访问。</li>
+<li>bwrite将内存cache写入磁盘</li>
+</ul>
+<p>buffer cache大小是固定的，当读取的磁盘block时，也会出现换入换出。</p>
+<blockquote>
+<p>release策略，释放时，将buffer放到链表头的后面(虽然release了，但是没有释放对应的buffer，因为要从硬盘加载时，可以直接加载，避免分配空buffer页面，然后从硬盘读数据)，这样最近访问过的会停留在链表的开头，最久访问的停在链表的结尾</p>
+</blockquote>
+<p>tips:</p>
+<ul>
+<li>在磁盘缓存寻找磁盘上的某个扇区时的数据时，从bcache.head向后开始找（MRU），最近被访问过的也许很容易再次被访问。</li>
+<li>在磁盘缓存寻找空闲缓冲区时，从bcache.head往前开始找（LRU), 没有被使用过的更可能是空闲的。</li>
+</ul>
+<h4 id="Logging-layer"><a href="#Logging-layer" class="headerlink" title="Logging layer"></a>Logging layer</h4><p>对磁盘文件进行操作时，因为涉及到多个操作，不是原子操作，当执行了部分指令突然掉电，产生的后果不可想象。xv6使用logging来解决这个问题。xv6系统不会直接往文件系统写数据结构，取而代之的是，</p>
+<ul>
+<li>它在磁盘上放一个log来描述将要对磁盘的所以写操作。</li>
+<li>一旦系统调用log了所有的操作，会向磁盘写一个特殊的commit记录来表示之前的log是一个完整的操作。</li>
+<li>系统调用将写操作复制到磁盘上的文件系统数据结构中。（如果在这里crash了，那么部分区域会被写两次，但也不影响数据的有效性）</li>
+<li>这些完成之后，系统调用会擦除磁盘的log。</li>
+</ul>
+<p>如果系统crash以及reboot了，会根据log是否完整来恢复操作或者忽略。</p>
+<blockquote>
+<p>先commit记录，然后再进行复制</p>
+</blockquote>
+<h4 id="Log的设计"><a href="#Log的设计" class="headerlink" title="Log的设计"></a>Log的设计</h4><p>磁盘超级块会指定log的地址。它由一个header块和一串待更新的块组成。header块包含一个含有扇区数字的数组，还有一个log扇区的数量，这个值为0代表没有完整的commit，非零代表存在完整的commit。</p>
+<p>可以将多个进程的操作合并为一个事务，然后commit。系统调用中指定的写操作要保证原子性为了避免上述情况，<strong>log系统只在没有文件系统调用时才提交事务</strong>。</p>
+<p>当多个文件系统系统调用完成，并执行end_op后，在最后的commit部分，会执行几个步骤：</p>
+<ul>
+<li>从缓存往磁盘的log区域写数据</li>
+<li>往磁盘的header块写数据——commit点</li>
+<li>根据log的内容往磁盘写数据</li>
+<li>清空header块</li>
+</ul>
+<h4 id="Block-allocator"><a href="#Block-allocator" class="headerlink" title="Block allocator"></a>Block allocator</h4><p>使用balloc和bfree来获取磁盘block，这两个函数必须在事务事务之间调用。</p>
+<p>balloc根据bitmap来查找空闲的block，balloc会将从buffer中读取每一个block的状态，而buffer刚好是排他访问的（第二个进程访问该buffer时会sleep），所以balloc不用显示的锁。</p>
+<h4 id="Inode-layer"><a href="#Inode-layer" class="headerlink" title="Inode layer"></a>Inode layer</h4><p><strong>inode</strong>可以指在磁盘的数据，它包含一个文件的大小，磁盘块序号等。也可以指在内存中的inode。</p>
+<p><strong>inode数字</strong>指的是inode的序号。</p>
+<p>iget和iput用于获取inode节点指针（并不保证inode指向磁盘某个文件），每次调用iget，inode的ref值加一，调用iput，inode的ref减一，在ref大于0时，系统会保持该inode在cache中。iget提供<strong>非排他</strong>的访问。</p>
+<p>ilock可以保证指定inode是从磁盘中读取出来的，该inode对应着磁盘的某个文件。（可以用来从磁盘读inode，也可以只是锁定inode）</p>
+<p>在某些情况下，将索引节点指针的获取与锁定分离有助于避免死锁。inode的作用主要是同步对inode的访问，避免多个进程修改同个文件。</p>
+<blockquote>
+<p>xv6 文件系统</p>
+<p>硬盘文件系统结构dinode，目录项dirent</p>
+<p>内存文件系统结构inode buffer，block buffer。</p>
+<p>如何找到一个路径对应的文件：</p>
+<p>首先内存中应该缓存有根目录的inode节点。从根目录开始，逐级解析，找给定路径名中的每个目录。比如找根目录下的<code>home</code>文件夹，首先要知道根目录对应的inode number，这个应该要记录在内存中，然后从磁盘把该inode number 对应的dinode结构体加载到内存的inode buffer，然后根据内存中的inode buffer获取根目录data部分对应的block number，然后从磁盘加载这些内容到block buffer，每个目录项目由名字和inode number两部分构成，检查其中的名字是否匹配我们的path中的文件名，找到了则会记录该次寻找的inode number。（之后在把该inode在磁盘的结构dinode加载到inode buffer……）,不断寻找，直到找到或者没有找到。</p>
+</blockquote>
+<h4 id="ext3"><a href="#ext3" class="headerlink" title="ext3"></a>ext3</h4><blockquote>
+<p>什么是IO并发：I&#x2F;O并发允许系统在等待一个I&#x2F;O操作完成的同时继续处理其他I&#x2F;O请求。常见实现方式包括：多线程，异步IO，IO多路复用，DMA。</p>
+</blockquote>
+<ul>
+<li><p>异步系统调用——&gt;进而实现IO并发</p>
+<ul>
+<li>缺陷：调用返回了，文件操作可能未完成。</li>
+<li>解决方式：使用fsync同步。</li>
+</ul>
+</li>
+<li><p>batching，</p>
+<ul>
+<li>每隔一定时间，关闭并写入当前事务，并打开新的事务</li>
+<li>写吸收，对多个相同块的写入只会导致一个块被写入磁盘。</li>
+<li>集中写入更高效（利于寻道）</li>
+</ul>
+</li>
+<li><p>并发性</p>
+<ul>
+<li>许多系统调用可以同时进行</li>
+</ul>
+</li>
+</ul>
+<h3 id="提供给用户空间的虚拟内存"><a href="#提供给用户空间的虚拟内存" class="headerlink" title="提供给用户空间的虚拟内存"></a>提供给用户空间的虚拟内存</h3><p>之前的内容，是在内核空间处理页错误，以便实现lazy alloc等。unix也给用户空间提供了捕获错误，处理错误的机会。比如使用信号捕获页错误，在信号处理函数中使用mmap，munmap，mprotect来处理页错误。</p>
+<ul>
+<li>示例，但需要使用很多页面来存放斐波拉奇数列时，可以在用户空间处理页错误，每次访问新页面时，munmap旧页面，使得我们实际上同时只使用了一个页面。</li>
+</ul>
+<h3 id="微内核"><a href="#微内核" class="headerlink" title="微内核"></a>微内核</h3><h3 id="VMM"><a href="#VMM" class="headerlink" title="VMM"></a>VMM</h3><ul>
+<li>HPA：Host Physical Address</li>
+<li>HVA：Host Virtual Address</li>
+<li>GPA：Guest Physical Address</li>
+<li>GVA：Guest Virtual Address</li>
+<li>PDBR：页目录表物理基地址寄存器，X86上叫CR3</li>
+<li>EPT：扩展页表</li>
+</ul>
+<ul>
+<li>影子页表——主要通过软件实现。<ul>
+<li>创建：将物理页面设为写保护的，操作系统尝试写时，会触发vm exit，在其中进行gpa到hva的页面映射(类似malloc)，完成hva到hpa的映射（使用直接映射应该可以吧）。建立从gva到hpa的映射，即影子页表。</li>
+<li>使用：操作系统载入页表基址到PDBR时，会将被VMM截获这一特权指令，VMM会将对应的影子页表加载到PDBR, 从而实现真正的内存访问。</li>
+</ul>
+</li>
+<li>EPT——引入EPTP寄存器，用来指向EPT页表基地址，查询得到GPA后，还会通过EPT进行再次转换得到HPA。（由于页表的地址也必须是物理地址，所以访问每级页表时，都需要先通过EPT得到HPA）</li>
+<li><img src="/.github.io/2025/02/22/xv6/77a67db1bc2b72112ce3910e30c64a19.jpg" class title="img"></li>
+</ul>
+<h4 id="虚拟设备"><a href="#虚拟设备" class="headerlink" title="虚拟设备"></a>虚拟设备</h4><img src="/.github.io/2025/02/22/xv6/image-20250404114409606.png" class title="image-20250404114409606">
+
+<ul>
+<li>第一种方式，对硬件的完全的虚拟，当guest system访问硬件的寄存器时，产生vm exit 到 vmm中，由vmm进行模拟。相当低效。</li>
+<li>第二种方式，vmm建立虚拟设备，guest system也需要安装次虚拟设备对应的驱动，避免像第一种方式反复产生vmm exit。</li>
+<li>第三种方式，直接访问硬件，通常单个硬件可以供多个guest system使用。</li>
+</ul>
+<h4 id="对虚拟机的硬件支持-VT-x"><a href="#对虚拟机的硬件支持-VT-x" class="headerlink" title="对虚拟机的硬件支持 VT-x"></a>对虚拟机的硬件支持 VT-x</h4><p>guest system可以使用一套单独的特权寄存器。比如（stvec，scause  ）</p>
+<h3 id="meltdown"><a href="#meltdown" class="headerlink" title="meltdown"></a>meltdown</h3><p>有一些技术可以实现对内核的攻击，能够是我们在用户空间访问内核数据或者程序，即使pte设置了权限。有一种攻击方式是利用cpu的实现细节，比如：预测执行，缓存。</p>
+<h4 id="预测执行——提升性能的方式"><a href="#预测执行——提升性能的方式" class="headerlink" title="预测执行——提升性能的方式"></a>预测执行——提升性能的方式</h4><p>通常在从内存加载一个数据时，需要花费几百个时钟周期，在这段时间内，CPU可能继续预测执行，等到数据加载完成时，再来确定是保留还是撤销预测执行的指令。（像下面第二行，会有分支预测，第四行ye’you）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">r0 = &lt;something&gt;</span><br><span class="line">r1 = valid // valid is in ram</span><br><span class="line">if(r1 == 1)&#123;</span><br><span class="line">	r2 = *r0</span><br><span class="line">	r3 = r2 + 1</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">	r3 = 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>内存屏障，如下代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">critical_section();</span><br><span class="line">unlock();</span><br></pre></td></tr></table></figure>
+
+<p>实际执行时，可能因为乱序执行（编译器重排或者CPU乱序执行），导致unlock之后，才回去更新critical中的内存，这导致了错误，所以通过memory barrier来保证：在它前面的 <strong>所有读写指令</strong> 必须完成。</p>
+<p>什么时候需要考虑乱序执行：</p>
+<ul>
+<li>在多线程程序中访问共享变量时</li>
+<li>实现锁、CAS、自旋、无锁队列等低层同步原语时</li>
+<li>在不使用同步机制时尝试自己“优化”并发</li>
+</ul>
+</blockquote>
+<img src="/.github.io/2025/02/22/xv6/image-20250407152050361.png" class title="image-20250407152050361">
+
+<p>基本思想：将内核信息比如某一个bit为0还是1表示为某一个page是cached还是没有cached。流程如下：</p>
+<ul>
+<li>执行大量加载操作，这可能要花费很多时钟周期，这导致后续的一段指令会以预测执行开始执行，比如9-13.</li>
+<li>找到内核地址，读取其中的数据（如果L1cache命中了，预测执行时并不会检测页表标志位，会在retire时检测），根据其中一个位为0还是1将buffer[0-4096]还是buffer[4096-8192]加载到cache中。</li>
+<li>内核检测到错误，引发pagefault，进入用户定义的pagefault handler，返回到用户程序。</li>
+<li>检测从buffer[0-4096]和buffer[4096-8192]读取数据的时间差别，小的是cached过的，代表内核数据的对应位置是0.</li>
+<li>重复很多次，将内核数据统统读取出来。</li>
+</ul>
+<h3 id="RCU——READ-COPY-UPDATE"><a href="#RCU——READ-COPY-UPDATE" class="headerlink" title="RCU——READ-COPY-UPDATE"></a>RCU——READ-COPY-UPDATE</h3><p>很多内核数据需要大量读，少量写，为此，出现了读写锁。</p>
+<img src="/.github.io/2025/02/22/xv6/image-20250407165842673.png" class title="image-20250407165842673">
+
+<p>读写锁可以很好的包含数据，但是降低了效率。主要是因为在执行CAS时，在修改l-&gt;n这个共享变量时，需要无效化该变量在不同cache上的对应的副本。（我们想避免在<strong>读取数据</strong>时修改n这个共享变量——避免使用读锁，因为它会导致性能的大幅降低）</p>
+<p>不使用读锁时的一些问题：</p>
+<ul>
+<li>写者正在修改链表中的某个元素——可能读到无效的数据</li>
+<li>写者正在向链表插入某个元素——可能提前遇到尾节点。</li>
+<li>写者正在从链表删除某个元素——可能读到freelist中的数据。</li>
+</ul>
+<p>针对上面的问题，提出了一些解决方法：</p>
+<ul>
+<li>先创建一个新的节点，在其中更新数据，将他的尾指针指向正确的位置，然后让他的前一个节点指向这个新的节点（应该不用使用原子指令吧，本来也只有一条指令）。</li>
+<li>增加内存屏蔽指令，比如插入节点时，两个指针的修改是有先后顺序的。</li>
+<li>什么时候删除被delete的节点<ul>
+<li>肯定不能直接删除，因为可能有进程正在读取该节点</li>
+<li>为每个节点维持一个引用计数怎么样？肯定不行，我们就是为了避免读者修改引用计数才考虑使用RCU, 这里又给每一个节点增加一个引用计数，工作量大了n倍。</li>
+<li>给出如下两个限制，来保证删除时间<ul>
+<li>读者使用RCU时，不能进行上下文切换。（能切换时，说明已经不使用上面的节点了）</li>
+<li>写者会等待所以核心进行一次上下文切换后，才删除上面的节点。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>tips. 要不咋不共享了吧，太麻烦了吧。😧</p>
+<ul>
+<li>比如kalloc实验，为每个核心维护一个半共享的链表。</li>
+</ul>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2025/02/22/xv6/">https://tjzhang-src.github.io/.github.io/2025/02/22/xv6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/" title="Linux高性能服务器编程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux高性能服务器编程</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">44</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3"><span class="toc-number">1.</span> <span class="toc-text">操作系统接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-number">1.1.</span> <span class="toc-text">文件描述符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%A1%E9%81%93"><span class="toc-number">1.2.</span> <span class="toc-text">管道</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.3.</span> <span class="toc-text">文件系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%BB%84%E7%BB%87"><span class="toc-number">2.</span> <span class="toc-text">操作系统组织</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%BD%E8%B1%A1%E7%89%A9%E7%90%86%E8%B5%84%E6%BA%90"><span class="toc-number">2.1.</span> <span class="toc-text">抽象物理资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1"><span class="toc-number">2.2.</span> <span class="toc-text">核心设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%A6%82%E8%A7%88"><span class="toc-number">2.3.</span> <span class="toc-text">进程概览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%80%E5%A7%8Bxv6%E4%BB%A5%E5%8F%8A%E7%AC%AC%E4%B8%80%E4%B8%AA%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.4.</span> <span class="toc-text">开始xv6以及第一个进程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B5%E8%A1%A8"><span class="toc-number">3.</span> <span class="toc-text">页表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%B7%E9%98%B1%E4%BB%A5%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">陷阱以及系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#RISC-V%E9%99%B7%E9%98%B1%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.</span> <span class="toc-text">RISC-V陷阱机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A5%E8%87%AA%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E9%99%B7%E9%98%B1"><span class="toc-number">4.2.</span> <span class="toc-text">来自用户空间的陷阱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%EF%BC%9A%E8%B0%83%E7%94%A8%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">代码：调用系统调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%8F%82%E6%95%B0"><span class="toc-number">4.4.</span> <span class="toc-text">系统调用参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Trap"><span class="toc-number">5.</span> <span class="toc-text">Trap</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#trap%E6%9C%BA%E5%88%B6"><span class="toc-number">5.1.</span> <span class="toc-text">trap机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84Traps"><span class="toc-number">5.2.</span> <span class="toc-text">用户空间的Traps</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A5%E8%87%AA%E5%86%85%E6%A0%B8%E7%9A%84trap"><span class="toc-number">5.3.</span> <span class="toc-text">来自内核的trap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%B5%E9%94%99%E8%AF%AF%E5%BC%82%E5%B8%B8"><span class="toc-number">5.4.</span> <span class="toc-text">页错误异常</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F"><span class="toc-number">5.5.</span> <span class="toc-text">优化方式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E5%92%8C%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8"><span class="toc-number">6.</span> <span class="toc-text">中断和设备驱动</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#console%E8%BE%93%E5%85%A5"><span class="toc-number">6.1.</span> <span class="toc-text">console输入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#console%E8%BE%93%E5%87%BA"><span class="toc-number">6.2.</span> <span class="toc-text">console输出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A9%B1%E5%8A%A8%E5%B9%B6%E5%8F%91"><span class="toc-number">6.3.</span> <span class="toc-text">驱动并发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E4%B8%AD%E6%96%AD"><span class="toc-number">6.4.</span> <span class="toc-text">时间中断</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9C%9F%E5%AE%9E%E6%83%85%E5%86%B5"><span class="toc-number">6.5.</span> <span class="toc-text">真实情况</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81"><span class="toc-number">7.</span> <span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AB%9E%E6%80%81%E6%9D%A1%E4%BB%B6"><span class="toc-number">7.1.</span> <span class="toc-text">竞态条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%94%81-1"><span class="toc-number">7.2.</span> <span class="toc-text">锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9C%9F%E5%AE%9E%E4%B8%96%E7%95%8C"><span class="toc-number">7.3.</span> <span class="toc-text">真实世界</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6"><span class="toc-number">8.</span> <span class="toc-text">调度</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%8D%E7%94%A8"><span class="toc-number">8.1.</span> <span class="toc-text">复用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6-1"><span class="toc-number">8.2.</span> <span class="toc-text">调度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9D%A1%E7%9C%A0%E5%92%8C%E5%94%A4%E9%86%92"><span class="toc-number">8.3.</span> <span class="toc-text">睡眠和唤醒</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9C%9F%E5%AE%9E%E4%B8%96%E7%95%8C-1"><span class="toc-number">8.4.</span> <span class="toc-text">真实世界</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-1"><span class="toc-number">9.</span> <span class="toc-text">文件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%A7%88"><span class="toc-number">9.1.</span> <span class="toc-text">概览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Buffer-cache%E5%B1%82"><span class="toc-number">9.2.</span> <span class="toc-text">Buffer cache层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Logging-layer"><span class="toc-number">9.3.</span> <span class="toc-text">Logging layer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Log%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">9.4.</span> <span class="toc-text">Log的设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Block-allocator"><span class="toc-number">9.5.</span> <span class="toc-text">Block allocator</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Inode-layer"><span class="toc-number">9.6.</span> <span class="toc-text">Inode layer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ext3"><span class="toc-number">9.7.</span> <span class="toc-text">ext3</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E4%BE%9B%E7%BB%99%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">10.</span> <span class="toc-text">提供给用户空间的虚拟内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%AE%E5%86%85%E6%A0%B8"><span class="toc-number">11.</span> <span class="toc-text">微内核</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VMM"><span class="toc-number">12.</span> <span class="toc-text">VMM</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E8%AE%BE%E5%A4%87"><span class="toc-number">12.1.</span> <span class="toc-text">虚拟设备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9A%84%E7%A1%AC%E4%BB%B6%E6%94%AF%E6%8C%81-VT-x"><span class="toc-number">12.2.</span> <span class="toc-text">对虚拟机的硬件支持 VT-x</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#meltdown"><span class="toc-number">13.</span> <span class="toc-text">meltdown</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%84%E6%B5%8B%E6%89%A7%E8%A1%8C%E2%80%94%E2%80%94%E6%8F%90%E5%8D%87%E6%80%A7%E8%83%BD%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">13.1.</span> <span class="toc-text">预测执行——提升性能的方式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCU%E2%80%94%E2%80%94READ-COPY-UPDATE"><span class="toc-number">14.</span> <span class="toc-text">RCU——READ-COPY-UPDATE</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/02/22/xv6/" title="无题">无题</a><time datetime="2025-02-22T13:38:24.000Z" title="发表于 2025-02-22 21:38:24">2025-02-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/" title="Linux高性能服务器编程">Linux高性能服务器编程</a><time datetime="2024-12-04T09:01:31.000Z" title="发表于 2024-12-04 17:01:31">2024-12-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/03/%E5%9B%BE%E8%A7%A3HTTP/" title="图解HTTP">图解HTTP</a><time datetime="2024-12-03T03:35:49.000Z" title="发表于 2024-12-03 11:35:49">2024-12-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/11/28/%E8%87%AA%E9%A1%B6%E5%90%91%E4%B8%8B%E6%96%B9%E6%B3%95/" title="自顶向下方法">自顶向下方法</a><time datetime="2024-11-28T12:05:16.000Z" title="发表于 2024-11-28 20:05:16">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/11/12/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB-%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0/" title="程序员的自我修养-第十一章">程序员的自我修养-第十一章</a><time datetime="2024-11-12T08:29:32.000Z" title="发表于 2024-11-12 16:29:32">2024-11-12</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2025 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2025/02/22/xv6/'
+    this.page.identifier = '/.github.io/2025/02/22/xv6/'
+    this.page.title = ''
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
