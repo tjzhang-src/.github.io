@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>muduo | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="线程安全的对象生命周期管理析构函数&amp;多线程多线程共享对象，对象的线程安全特性可以由对象内的同步原语保护。但是对象的析构没法通过内部的同步原语保护。（猜测要通过外部的同步原语保护）  比如如何保证在执行成员函数期间，对象不会被其他线程析构。  线程安全线程安全的类满足如下三个条件：  多线程可以同时访问，表现正常。 无论这些线程的执行顺序如何交织。 调用端无需同步操作。   C++大部分类，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="muduo">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2025/04/08/muduo/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="线程安全的对象生命周期管理析构函数&amp;多线程多线程共享对象，对象的线程安全特性可以由对象内的同步原语保护。但是对象的析构没法通过内部的同步原语保护。（猜测要通过外部的同步原语保护）  比如如何保证在执行成员函数期间，对象不会被其他线程析构。  线程安全线程安全的类满足如下三个条件：  多线程可以同时访问，表现正常。 无论这些线程的执行顺序如何交织。 调用端无需同步操作。   C++大部分类，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2025-04-08T01:30:10.000Z">
+<meta property="article:modified_time" content="2025-04-11T07:31:09.236Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="c++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2025/04/08/muduo/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'muduo',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-11 15:31:09'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">muduo</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-04-08T01:30:10.000Z" title="发表于 2025-04-08 09:30:10">2025-04-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-11T07:31:09.236Z" title="更新于 2025-04-11 15:31:09">2025-04-11</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>12分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="muduo"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h3 id="线程安全的对象生命周期管理"><a href="#线程安全的对象生命周期管理" class="headerlink" title="线程安全的对象生命周期管理"></a>线程安全的对象生命周期管理</h3><h4 id="析构函数-amp-多线程"><a href="#析构函数-amp-多线程" class="headerlink" title="析构函数&amp;多线程"></a>析构函数&amp;多线程</h4><p>多线程共享对象，对象的线程安全特性可以由对象内的同步原语保护。但是对象的析构没法通过内部的同步原语保护。（猜测要通过外部的同步原语保护）</p>
+<blockquote>
+<p>比如如何保证在执行成员函数期间，对象不会被其他线程析构。</p>
+</blockquote>
+<h5 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h5><p>线程安全的类满足如下三个条件：</p>
+<ul>
+<li>多线程可以同时访问，表现正常。</li>
+<li>无论这些线程的执行顺序如何交织。</li>
+<li>调用端无需同步操作。</li>
+</ul>
+<blockquote>
+<p>C++大部分类，string，vector都不是线程安全的，也可以理解，毕竟需要线程安全的时间也不多，没必要增加额外的开销。</p>
+</blockquote>
+<h4 id="对象构造-amp-线程安全"><a href="#对象构造-amp-线程安全" class="headerlink" title="对象构造&amp;线程安全"></a>对象构造&amp;线程安全</h4><p>如何保证对象构造的线程安全：在构造期间不要泄露<code>this</code>指针。</p>
+<p>可以使用两段式构造。</p>
+<h4 id="对象销毁-amp-线程安全"><a href="#对象销毁-amp-线程安全" class="headerlink" title="对象销毁&amp;线程安全"></a>对象销毁&amp;线程安全</h4><p>很难解决的问题。文章从面对对象程序设计的角度提出了一些问题。</p>
+<p>对象的关系包括三种：</p>
+<ul>
+<li>composition(组合)：如<code>struct A&#123;struct B b;&#125;;</code>b的生命周期由A决定，A对象被析构时，b也被析构。</li>
+<li>association(关联)：在形式上与下面一条很类似，生命周期独立。</li>
+<li>aggregation(聚合)：如<code>struct A&#123;struct B* b&#125;;</code>b，生命周期独立。如果b被释放，则会面临竞态条件。</li>
+</ul>
+<blockquote>
+<p>shared_ptr，循环引用导致两者都没办法被释放。</p>
+</blockquote>
+<blockquote>
+<p>空悬指针：指向已经被释放内存的指针，比如a，b同时指向一段内存，但是a释放了该段内存。</p>
+</blockquote>
+<h4 id="shared-ptr"><a href="#shared-ptr" class="headerlink" title="shared_ptr"></a>shared_ptr</h4><blockquote>
+<p>传递原始指针简直就是一个灾难，前者没法判断后者对指针的操作，后者也没办法判断前者对指针的操作。</p>
+</blockquote>
+<p>shared_ptr是强引用，会增加对象的引用，而weak_ptr不会，他只想想知道对象是否存在。</p>
+<p>使用智能指针通常可以解决如下问题：</p>
+<ul>
+<li>缓冲区溢出：可以自动记录缓冲区的长度，通过成员函数访问</li>
+<li>空悬指针：用智能指针就不空悬了</li>
+<li>重复释放&#x2F;内存泄漏</li>
+<li>不配对的new&#x2F;delete</li>
+</ul>
+<p>这两个智能指针都是值语意，不会有如下写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">auto ptr = new shared_ptr&lt;Foo&gt;(new Foo);//谁能干出这种事啊？</span><br></pre></td></tr></table></figure>
+
+<h4 id="shared-ptr的线程安全"><a href="#shared-ptr的线程安全" class="headerlink" title="shared_ptr的线程安全"></a>shared_ptr的线程安全</h4><p>shared_ptr的内部数据包含计数的地址和内存区域的地址，包含两个值，多线程同时读写一个shared_ptr对象时，可能导致错误。——<strong>即shared_ptr对象本身不是线程安全的。</strong></p>
+<p><strong>对shared_ptr指向的内存区域也不一定是内存安全的</strong>，需要程序员包含。</p>
+<p>使用shared_ptr时，<strong>只能保证对引用计数的更新是线程安全的。</strong></p>
+<h4 id="shared-ptr的陷阱"><a href="#shared-ptr的陷阱" class="headerlink" title="shared_ptr的陷阱"></a>shared_ptr的陷阱</h4><ol>
+<li>使用shared_ptr会导致引用计数无法归零。</li>
+</ol>
+<blockquote>
+<p>书上的一个例子，observer在observable中注册了一个对自己（observer）的shared_ptr, 当observer被析构时，当然也希望observable中的shared_ptr被删除。</p>
+<p>一种办法是在在observer中的析构函数中调用observerable的取消注册函数，这本身就是一个悖论，因为只有在引用计数为0才会执行析构函数，而observable中保留着引用，那么引用用于不会归零，也就导致永远都不会调用析构函数。</p>
+</blockquote>
+<ol start="2">
+<li><p>可以使用const &amp;来传递shared_ptr, 来减小开销。</p>
+</li>
+<li><p>RAII handle。为了避免循环引用，对象的所有者应该使用shared_ptr, 而一些不太需要对象的需要使用weak_ptr。</p>
+</li>
+</ol>
+<h4 id="对象池"><a href="#对象池" class="headerlink" title="对象池"></a>对象池</h4><h3 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h3><p>四项原则：</p>
+<ul>
+<li>尽量少共享对象，如果要暴露，先考虑immutable对象，其次才是可以修改的对象，但需要充分的同步措施来保护他。</li>
+<li>使用高级的并发编程构件：TaskQueue、Producer-Consumer Qeueu。</li>
+<li>最后不得已才使用底层同步原语，只使用<strong>非递归</strong>的互斥器和条件变量，<strong>慎用读写锁，不用信号量</strong>。</li>
+<li>除了使用原子操作，不要使用无锁代码， 不要使用内核级同步原语。</li>
+</ul>
+<blockquote>
+<p>仔细想想，还是1和2方面讷</p>
+</blockquote>
+<h4 id="互斥器"><a href="#互斥器" class="headerlink" title="互斥器"></a>互斥器</h4><p>互斥器保护了临界区，基本原则：</p>
+<ul>
+<li>用RAII封装mutex。</li>
+<li>只用不可重入的mutex。</li>
+<li>使用guard。</li>
+<li>每次构造guard对象是，思考一路上已经持有的锁，防止加锁顺序不同而死锁。看调用栈就可以分析用锁的情况。</li>
+</ul>
+<p>次要原则包括：</p>
+<ul>
+<li>不使用跨进程的mutex，进程间通信只使用sockets。</li>
+<li>必要的时候使用PTHREAD_MUTEX_ERRORCHECK来排错。</li>
+</ul>
+<h5 id="只使用非递归的mutex"><a href="#只使用非递归的mutex" class="headerlink" title="只使用非递归的mutex"></a>只使用非递归的mutex</h5><p>使用非递归锁可以把程序的逻辑错误暴露出来。</p>
+<blockquote>
+<p>gdb 使用thread apply all bt打印所有栈的信息</p>
+</blockquote>
+<h5 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h5><h4 id="条件变量（管程）"><a href="#条件变量（管程）" class="headerlink" title="条件变量（管程）"></a>条件变量（管程）</h4><ol>
+<li>必须和mutex一起使用</li>
+<li>在mutex上锁的时候才能调用wait</li>
+<li>把布尔条件和wait放到while循环中</li>
+</ol>
+<p>条件变量是非常底层的同步原语，很少直接使用，一般使用它实现的高层的同步措施。如BlockingQueue或CountDownLatch。</p>
+<h4 id="不要用读写锁和信号量"><a href="#不要用读写锁和信号量" class="headerlink" title="不要用读写锁和信号量"></a>不要用读写锁和信号量</h4><h4 id="封装MutexLock、MutexLockGuard、Condition"><a href="#封装MutexLock、MutexLockGuard、Condition" class="headerlink" title="封装MutexLock、MutexLockGuard、Condition"></a>封装MutexLock、MutexLockGuard、Condition</h4><h4 id="利用shared-ptr实现copy-on-write"><a href="#利用shared-ptr实现copy-on-write" class="headerlink" title="利用shared_ptr实现copy-on-write"></a>利用shared_ptr实现copy-on-write</h4><p>利用shared_ptr替代读写锁，shared_ptr本身包含计数，可以代替信号量的作用，shared_ptr引用为1时，写进程可以进行写，如果引用大于1时，此时其他使用该引用的进程。</p>
+<h3 id="多线程服务器"><a href="#多线程服务器" class="headerlink" title="多线程服务器"></a>多线程服务器</h3><h4 id="单线程服务器的编程模型"><a href="#单线程服务器的编程模型" class="headerlink" title="单线程服务器的编程模型"></a>单线程服务器的编程模型</h4><p>常用的模式：non-blocking IO + IO multiplexing模式，即Reactor模式。</p>
+<p>程序的结构：事件循环，以事件驱动+事件回调的方式实现业务逻辑。</p>
+<p>缺点：回调函数应该是非阻塞的。</p>
+<h4 id="多线程服务器编程模型"><a href="#多线程服务器编程模型" class="headerlink" title="多线程服务器编程模型"></a>多线程服务器编程模型</h4><h5 id="one-loop-per-thread"><a href="#one-loop-per-thread" class="headerlink" title="one loop per thread"></a>one loop per thread</h5><h4 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h4><p>首选TCP，主要是可以跨主机，改改host:port就能直接用。</p>
+<h4 id="多线程服务器的适用场合"><a href="#多线程服务器的适用场合" class="headerlink" title="多线程服务器的适用场合"></a>多线程服务器的适用场合</h4><h5 id="必须使用（多进程）单线程的场合"><a href="#必须使用（多进程）单线程的场合" class="headerlink" title="必须使用（多进程）单线程的场合"></a>必须使用（多进程）单线程的场合</h5><ul>
+<li>程序可能fork的时候，（多线程程序不应该fork，因为fork之后，只有执行fork的哪个线程占据新进程的资源，其他线程会消失，如果遇到锁，会产生大问题）</li>
+<li>限制程序的CPU占用率，单线程即使发生busy-wait，CPU利用率也只有12.5%，而如果是多线程，可能导致多个线程跑满核心。</li>
+</ul>
+<h5 id="适用多线程程序的场景"><a href="#适用多线程程序的场景" class="headerlink" title="适用多线程程序的场景"></a>适用多线程程序的场景</h5><p>无论是IO bound任务还是CPU bound任务，多线程程序都没有什么性能优势。</p>
+<ul>
+<li>IO bound，任务的执行速度瓶颈在于IO, IO跑满后，cpu仍然没有达到上限。改为多线程程序当然也不会提升性能。</li>
+<li>CPU bound，任务的执行速度瓶颈在于CPU。改为多线程程序当然也不会提升性能。</li>
+</ul>
+<p>使用多线程的场景：提高响应速度，让IO和计算相互重叠，降低latency。<strong>虽然多线程不能提升绝对性能，但能提高平均相对性能。（比如说单线程遇到IO就会陷入系统调用，CPU没有被利用，而多线程则可以利用CPU执行一些其他任务）</strong>大致要满足如下条件：</p>
+<ul>
+<li>多核</li>
+<li>线程间有能修改的共享数据，不能修改的共享数据可以用多进程单线程来实现。</li>
+</ul>
+<blockquote>
+<p>看需不需要共享资源来选择多线程还是多进程，</p>
+<p>比如处理IO任务，通常需要从listen线程先worker线程传送文件描述符，传送文件描述符这项操作只能在同进程内操作。所以这个任务适合使用多线程。</p>
+<p>比如书上72页的例子，多个任务都需要根据机群的状态来决定处理的措施，这也适合用多线程。</p>
+</blockquote>
+<p>线程的分类：</p>
+<ul>
+<li>IO线程，线程主循环时IO multiplexing，阻塞的等在select&#x2F;poll&#x2F;epoll等系统调用上。</li>
+<li>计算线程，这类线程的主循环是blocking queue，阻塞的等在condition variable上，这类线程一般位于thread pool上，一般不涉及IO。</li>
+<li>第三方库的线程，比如logging，database connection。</li>
+</ul>
+<h5 id="问答"><a href="#问答" class="headerlink" title="问答"></a>问答</h5><p>BlockingQueue：</p>
+<p>通常工作线程需要往磁盘写log，这本身不属于线程的业务范围，为了提升线程的响应速度，可以将写任务通通交给一个日志线程去做。</p>
+<p>线程没法减少工作量，通过调配，能让工期提早结束。</p>
+<h3 id="C-多线程系统编程"><a href="#C-多线程系统编程" class="headerlink" title="C++多线程系统编程"></a>C++多线程系统编程</h3><p>要注意，程序可能在任何时候中断，在任何时候启动。</p>
+<h4 id="基本线程原语的选用"><a href="#基本线程原语的选用" class="headerlink" title="基本线程原语的选用"></a>基本线程原语的选用</h4><p>posix函数中最有用的十几个：</p>
+<ul>
+<li>线程的创建和等待结束（join)。muduo::Thread</li>
+<li>mutex的创建、销毁、加锁、解锁。muduo::MutexLock</li>
+<li>条件变量的创建、消耗、等待、通知、广播。muduo::Condition。</li>
+</ul>
+<h4 id="C-x2F-C-系统库的线程安全性"><a href="#C-x2F-C-系统库的线程安全性" class="headerlink" title="C&#x2F;C++系统库的线程安全性"></a>C&#x2F;C++系统库的线程安全性</h4><p>glibc库函数很多都是线程安全的，但是将多个库函数组合起来就不一定了。（比如先lseek在read，这之间可能被第三者打断）</p>
+<p>C++标准库和string都不是线程安全的。</p>
+<p>C++标准库大部分泛型算法是线程安全的，因为他们是无状态的。</p>
+<p>iostream也不是线程安全的。因为</p>
+<p><code>cout &lt;&lt; &quot;Now is&quot; &lt;&lt; time(NULL);</code>等于如下两个函数调用</p>
+<p><code>cout.operator&lt;&lt;(&quot;Now is&quot;).operator(time(NULL));</code>这之间可能被其他线程打断。</p>
+<p>可以改用printf实现线程安全的输出。</p>
+<blockquote>
+<p>tips:</p>
+<p>a();b();这两个函数一起执行不是线程安全的，不代表这两个函数都不是线程安全的。一个函数是不是线程安全的需要看其内部是不是对某个全局可写变量进行了非原子的多次操作。（个人看法）</p>
+</blockquote>
+<h4 id="Linux上的线程标识"><a href="#Linux上的线程标识" class="headerlink" title="Linux上的线程标识"></a>Linux上的线程标识</h4><ul>
+<li>内核标识——tid，通过syscall(SYS_gettid)访问，用于操作系统内核进行线程调度和管理</li>
+<li>POSIX标识，pthread_t, 在不同的平台代表的意义不一致：指针，结构体之类的。glibc的pthreads把pthread_t作为一个结构体指针，指向一块动态分配的内存，这块内存可能被反复使用，所以不能根据pthread_t的值来判断多个线程是否是同一个线程，需要通过pthread_equal来判断。</li>
+</ul>
+<p>推荐使用gettid系统调用的返回值作为线程id。</p>
+<h4 id="线程的创建和销毁的规则"><a href="#线程的创建和销毁的规则" class="headerlink" title="线程的创建和销毁的规则"></a>线程的创建和销毁的规则</h4><p>创建规则：</p>
+<ul>
+<li>应该精心规划线程数量，库不能偷偷的创建背景线程，这样也会导致没法安全的fork。</li>
+<li>用相同的方式创建线程。</li>
+<li>进入main之前不启动线程。如果不这样，创建的子线程可能访问到未初始化的全局变量。</li>
+<li>线程的创建最好能在初始化阶段全部完成。</li>
+</ul>
+<p>线程的销毁形式：</p>
+<ul>
+<li>自然死亡——从线程主函数返回</li>
+<li>非自然死亡——主函数抛出异常或者触发segfault信号等。</li>
+<li>自杀——线程调用<code>pthread_exit()</code></li>
+<li>他杀——其他线程调用pthread_cancel来终止某个线程</li>
+</ul>
+<p><strong>避免他杀</strong>：这会导致锁出现很多bug。</p>
+<p>如果想要强行终止一个耗时很长的任务，可以考虑为该任务创建一个新的进程，这样kill该进程会安全很多，前提是不使用共享内存或者跨进程的互斥器等。</p>
+<h5 id="pthred-cancel"><a href="#pthred-cancel" class="headerlink" title="pthred_cancel"></a>pthred_cancel</h5><p>如果程序执行到cancellation point这个位置，其他线程调用了pthread_cancel时，该线程可能被终止，通常先会抛出异常，指向 stack unwind。</p>
+<h5 id="exit不是线程安全的"><a href="#exit不是线程安全的" class="headerlink" title="exit不是线程安全的"></a>exit不是线程安全的</h5><p>exit除了终止进程，还会析构全局对象和构造完的静态对象，，这可能产生死锁。</p>
+<p>可以使用_exit()代替，他不会析构全局对象，也不会执行其他清理工作。</p>
+<h4 id="善用-thread关键词（C-11可以用thread-local替代）"><a href="#善用-thread关键词（C-11可以用thread-local替代）" class="headerlink" title="善用__thread关键词（C++11可以用thread_local替代）"></a>善用__thread关键词（C++11可以用thread_local替代）</h4><p><code>__thread</code>是gcc内置的<strong>线程局部存储设施</strong>，可以修饰全局、静态变量，但不能修饰class类型、局部变量等。<code>__thread</code>变量的初始化只能用编译期常量。<code>__thread</code>是<strong>每一个线程都有一个独立实体</strong>。</p>
+<img src="/.github.io/2025/04/08/muduo/image-20250411103123081.png" class title="image-20250411103123081">
+
+<h4 id="多线程-amp-IO"><a href="#多线程-amp-IO" class="headerlink" title="多线程&amp;IO"></a>多线程&amp;IO</h4><p>对于epollfd的修改，可能已经有线程wait在epollfd上，这时某个线程对epollfd进行修改，</p>
+<p>可以把对epollfd的操作都放到同一个线程执行。（epollfd如果被多个线程写、监听，可能导致不一致）</p>
+<p>尽量让单个单个线程独占的读写一个文件描述符。（pread和pwrite可以从指定的偏移量读写， UDP也可以，因为消息是彼此独立的）</p>
+<h4 id="用RAII包装文件描述符"><a href="#用RAII包装文件描述符" class="headerlink" title="用RAII包装文件描述符"></a>用RAII包装文件描述符</h4><p>POSIX要求每次打开文件的时候必须使用最小可用的文件描述符号码。</p>
+<p>避免多线程对单个文件描述符进行操作。比如A线程读fd6，B线程关闭fd6，C线程打开了新的fd6。这样A会读到错误的文件。</p>
+<p>如何解决这个问题：使用RAII，用socket对象包装文件描述符，<strong>所有对文件描述符的操作都通过socket对象进行访问</strong>。（对象在则文件描述符在，对象不在则文件描述符不在）</p>
+<p>服务端程序不应该关闭标准输出和标准错误，而是将stdout和stderr重定向到磁盘文件（最好不要是<code>/dev/null</code>）。</p>
+<p>（客户端关闭连接时，TCPConnection对象不应该立刻被关闭，因为这会导致其中的socket对象被关闭。）</p>
+<h4 id="RAII和fork"><a href="#RAII和fork" class="headerlink" title="RAII和fork"></a>RAII和fork</h4><p>通常使用对象保存资源，<strong>将资源管理和对象生命周期关联起来</strong>（RAII）;</p>
+<blockquote>
+<p>前面提到：如果一个多线程程序使用了锁，一个锁可能被各种线程持有，假如线程A调用fork，而此时线程B持有锁，那么fork后，其实只fork了调用fork函数的子线程——线程A的代码，子进程将不包含线程B，自然没有办法解锁，导致线程A也没法使用。</p>
+<p>解决方法就是：由调用fork的线程在fork前持有所有锁，然后调用fork后，在父子进程中解开所有锁。（这可以防止锁被其他线程持有，导致解不开锁）。可以利用<code>pthread_atfork</code>来实现这个方法。</p>
+</blockquote>
+<p>但是如果程序会fork，这一假设就被破坏了。对象可能构造单次，析构多次。</p>
+<p>fork之后，子进程会继承地址空间和文件描述符，因此fork后，动态内存和文件描述符可以正常使用。但子进程不会继承：</p>
+<ul>
+<li>父进程的内存锁，mlock，mlockall</li>
+<li>父进程文件锁，fcntl</li>
+<li>父进程的某些定时器，setitimer，alarm，timer_create</li>
+</ul>
+<p><strong>在编写程序时，是否允许fork需要慎重考虑。</strong></p>
+<h4 id="多线程和fork"><a href="#多线程和fork" class="headerlink" title="多线程和fork"></a>多线程和fork</h4><p>多线程程序fork后，子进程就相当于处于<strong>signal handler</strong>中（类似于xv6中的中断一样，中断中可以使用spinlock，但绝对不可以使用sleeplock，但用户空间的锁肯定是sleeplock，<strong>所以所有锁都不应该使用</strong>），将没法调用线程安全的函数（因为其他多半需要加锁，但锁很有可能处于失效状态），只能调用异步信号安全的函数。比如不能调用：</p>
+<ul>
+<li>malloc，访问全局状态时需要加锁</li>
+<li>new、map::insert</li>
+<li>任何pthread函数</li>
+<li>printf函数</li>
+</ul>
+<h4 id="多线程-amp-signal"><a href="#多线程-amp-signal" class="headerlink" title="多线程&amp;signal"></a>多线程&amp;signal</h4></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2025/04/08/muduo/">https://tjzhang-src.github.io/.github.io/2025/04/08/muduo/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/c/">c++</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/.github.io/2025/02/22/xv6/" title="xv6"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">xv6</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/.github.io/2023/02/28/c-%E5%9F%BA%E7%A1%801/" title="c++基础1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-28</div><div class="title">c++基础1</div></div></a></div><div><a href="/.github.io/2024/09/17/cplusplusprimer/" title="cplusplusprimer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">cplusplusprimer</div></div></a></div><div><a href="/.github.io/2024/09/17/effective-cplusplus/" title="effective_cplusplus"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">effective_cplusplus</div></div></a></div><div><a href="/.github.io/2024/09/17/more-effective-cpulsplus/" title="more_effective_cpulsplus"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">more_effective_cpulsplus</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E5%AF%B9%E8%B1%A1%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">线程安全的对象生命周期管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0-amp-%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">析构函数&amp;多线程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="toc-number">1.1.1.</span> <span class="toc-text">线程安全</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E6%9E%84%E9%80%A0-amp-%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="toc-number">1.2.</span> <span class="toc-text">对象构造&amp;线程安全</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E9%94%80%E6%AF%81-amp-%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="toc-number">1.3.</span> <span class="toc-text">对象销毁&amp;线程安全</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#shared-ptr"><span class="toc-number">1.4.</span> <span class="toc-text">shared_ptr</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#shared-ptr%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="toc-number">1.5.</span> <span class="toc-text">shared_ptr的线程安全</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#shared-ptr%E7%9A%84%E9%99%B7%E9%98%B1"><span class="toc-number">1.6.</span> <span class="toc-text">shared_ptr的陷阱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E6%B1%A0"><span class="toc-number">1.7.</span> <span class="toc-text">对象池</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="toc-number">2.</span> <span class="toc-text">线程同步</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%92%E6%96%A5%E5%99%A8"><span class="toc-number">2.1.</span> <span class="toc-text">互斥器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%AA%E4%BD%BF%E7%94%A8%E9%9D%9E%E9%80%92%E5%BD%92%E7%9A%84mutex"><span class="toc-number">2.1.1.</span> <span class="toc-text">只使用非递归的mutex</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%AD%BB%E9%94%81"><span class="toc-number">2.1.2.</span> <span class="toc-text">死锁</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%EF%BC%88%E7%AE%A1%E7%A8%8B%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">条件变量（管程）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%92%8C%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-number">2.3.</span> <span class="toc-text">不要用读写锁和信号量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%81%E8%A3%85MutexLock%E3%80%81MutexLockGuard%E3%80%81Condition"><span class="toc-number">2.4.</span> <span class="toc-text">封装MutexLock、MutexLockGuard、Condition</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8shared-ptr%E5%AE%9E%E7%8E%B0copy-on-write"><span class="toc-number">2.5.</span> <span class="toc-text">利用shared_ptr实现copy-on-write</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">多线程服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.1.</span> <span class="toc-text">单线程服务器的编程模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.2.</span> <span class="toc-text">多线程服务器编程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#one-loop-per-thread"><span class="toc-number">3.2.1.</span> <span class="toc-text">one loop per thread</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="toc-number">3.3.</span> <span class="toc-text">进程间通信</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E5%90%88"><span class="toc-number">3.4.</span> <span class="toc-text">多线程服务器的适用场合</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BF%85%E9%A1%BB%E4%BD%BF%E7%94%A8%EF%BC%88%E5%A4%9A%E8%BF%9B%E7%A8%8B%EF%BC%89%E5%8D%95%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%9C%BA%E5%90%88"><span class="toc-number">3.4.1.</span> <span class="toc-text">必须使用（多进程）单线程的场合</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%A8%8B%E5%BA%8F%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="toc-number">3.4.2.</span> <span class="toc-text">适用多线程程序的场景</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%97%AE%E7%AD%94"><span class="toc-number">3.4.3.</span> <span class="toc-text">问答</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B"><span class="toc-number">4.</span> <span class="toc-text">C++多线程系统编程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BA%BF%E7%A8%8B%E5%8E%9F%E8%AF%AD%E7%9A%84%E9%80%89%E7%94%A8"><span class="toc-number">4.1.</span> <span class="toc-text">基本线程原语的选用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-x2F-C-%E7%B3%BB%E7%BB%9F%E5%BA%93%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E6%80%A7"><span class="toc-number">4.2.</span> <span class="toc-text">C&#x2F;C++系统库的线程安全性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux%E4%B8%8A%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A0%87%E8%AF%86"><span class="toc-number">4.3.</span> <span class="toc-text">Linux上的线程标识</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8C%E9%94%80%E6%AF%81%E7%9A%84%E8%A7%84%E5%88%99"><span class="toc-number">4.4.</span> <span class="toc-text">线程的创建和销毁的规则</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#pthred-cancel"><span class="toc-number">4.4.1.</span> <span class="toc-text">pthred_cancel</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#exit%E4%B8%8D%E6%98%AF%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84"><span class="toc-number">4.4.2.</span> <span class="toc-text">exit不是线程安全的</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%96%84%E7%94%A8-thread%E5%85%B3%E9%94%AE%E8%AF%8D%EF%BC%88C-11%E5%8F%AF%E4%BB%A5%E7%94%A8thread-local%E6%9B%BF%E4%BB%A3%EF%BC%89"><span class="toc-number">4.5.</span> <span class="toc-text">善用__thread关键词（C++11可以用thread_local替代）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B-amp-IO"><span class="toc-number">4.6.</span> <span class="toc-text">多线程&amp;IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8RAII%E5%8C%85%E8%A3%85%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-number">4.7.</span> <span class="toc-text">用RAII包装文件描述符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RAII%E5%92%8Cfork"><span class="toc-number">4.8.</span> <span class="toc-text">RAII和fork</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%92%8Cfork"><span class="toc-number">4.9.</span> <span class="toc-text">多线程和fork</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B-amp-signal"><span class="toc-number">4.10.</span> <span class="toc-text">多线程&amp;signal</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/04/08/muduo/" title="muduo">muduo</a><time datetime="2025-04-08T01:30:10.000Z" title="发表于 2025-04-08 09:30:10">2025-04-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/02/22/xv6/" title="xv6">xv6</a><time datetime="2025-02-22T13:38:24.000Z" title="发表于 2025-02-22 21:38:24">2025-02-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/" title="Linux高性能服务器编程">Linux高性能服务器编程</a><time datetime="2024-12-04T09:01:31.000Z" title="发表于 2024-12-04 17:01:31">2024-12-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/03/%E5%9B%BE%E8%A7%A3HTTP/" title="图解HTTP">图解HTTP</a><time datetime="2024-12-03T03:35:49.000Z" title="发表于 2024-12-03 11:35:49">2024-12-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/11/28/%E8%87%AA%E9%A1%B6%E5%90%91%E4%B8%8B%E6%96%B9%E6%B3%95/" title="自顶向下方法">自顶向下方法</a><time datetime="2024-11-28T12:05:16.000Z" title="发表于 2024-11-28 20:05:16">2024-11-28</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2025 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2025/04/08/muduo/'
+    this.page.identifier = '/.github.io/2025/04/08/muduo/'
+    this.page.title = 'muduo'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
