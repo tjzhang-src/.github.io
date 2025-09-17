@@ -1,0 +1,419 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>mit6824 | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="mapreduceMapReduce (2004)介绍及例子用户需要指定map以及reduce函数，map函数负责建立中间键值的映射关系，reduce将所有的值合并到相同的键上。（如wordcount程序） 12reduce  (k2,list(v2))   → list(v2)map     (k1,v1)         → list(k2,v2)  输入键和值是从与输出键和值不同的域中绘制的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mit6824">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2025/09/11/mit6824/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="mapreduceMapReduce (2004)介绍及例子用户需要指定map以及reduce函数，map函数负责建立中间键值的映射关系，reduce将所有的值合并到相同的键上。（如wordcount程序） 12reduce  (k2,list(v2))   → list(v2)map     (k1,v1)         → list(k2,v2)  输入键和值是从与输出键和值不同的域中绘制的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2025-09-11T13:19:34.000Z">
+<meta property="article:modified_time" content="2025-09-17T14:36:27.026Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2025/09/11/mit6824/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'mit6824',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-17 22:36:27'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">47</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">mit6824</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-11T13:19:34.000Z" title="发表于 2025-09-11 21:19:34">2025-09-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-09-17T14:36:27.026Z" title="更新于 2025-09-17 22:36:27">2025-09-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="mit6824"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h3 id="mapreduceMapReduce-2004"><a href="#mapreduceMapReduce-2004" class="headerlink" title="mapreduceMapReduce (2004)"></a>mapreduce<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/papers/mapreduce.pdf">MapReduce (2004)</a></h3><h4 id="介绍及例子"><a href="#介绍及例子" class="headerlink" title="介绍及例子"></a>介绍及例子</h4><p>用户需要指定<code>map</code>以及<code>reduce</code>函数，map函数负责建立中间键值的映射关系，reduce将所有的值合并到相同的键上。（如wordcount程序）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reduce  (k2,list(v2))   → list(v2)</span><br><span class="line">map     (k1,v1)         → list(k2,v2)</span><br></pre></td></tr></table></figure>
+
+<p>输入键和值是从与输出键和值不同的域中绘制的。此外，中间键和值与输出键和值来自相同的域。</p>
+<h5 id="分布式Grep"><a href="#分布式Grep" class="headerlink" title="分布式Grep"></a>分布式Grep</h5><p>map ：在匹配到一行时发射一行</p>
+<p>reduce：将中间数据复制到输出</p>
+<h5 id="url访问频率统计"><a href="#url访问频率统计" class="headerlink" title="url访问频率统计"></a>url访问频率统计</h5><p>map：输出 &lt;URL, 1&gt;</p>
+<p>reduce: 对来自相同url的相加然后发送&lt;URL, TOTAL count&gt;</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>Map调用通过将输入数据自动分割为 M 段 分布在多个机器上。</p>
+<p>Map函数执行完之后，会通过分区函数将中间键划分为R个互不重叠的分区。（默认分区函数可以是hash函数，这样可以将相同的键放到同一个分区，即将该类键都分到某一个具体的分区中，由某一个任务执行）</p>
+<img src="/.github.io/2025/09/11/mit6824/image-20250911224917053.png" class title="image-20250911224917053">
+
+<h5 id="任务粒度"><a href="#任务粒度" class="headerlink" title="任务粒度"></a>任务粒度</h5><p>当用户提供的map以及reduce操作都是确定性的（相同输入必定产生相同输出），那么mapreduce的分布式执行结果也会类似于单机顺序执行的结果。</p>
+<p>M和R的数量可以尽可能比worker数量大，可以实现负载均衡，出错时可以可以快速failback。</p>
+<p>还是有些具体限制的，比如master主机必须做出O(M+R)调度决策，以及在内存保存O(M*R)中状态</p>
+<h5 id="备份执行"><a href="#备份执行" class="headerlink" title="备份执行"></a>备份执行</h5><p>多台worker之间存在掉队者现象，由于一些原因导致该worker虽然能正常运行，但是执行速度相当慢，这会导致整个MapReduce的时间非常长。解决办法是，在MapReduce将要完成时，将还在执行的任务备份到另一个worker进行执行，这两个worker任意一个执行完成都会导致该任务执行完成。</p>
+<h4 id="拓展功能"><a href="#拓展功能" class="headerlink" title="拓展功能"></a>拓展功能</h4><h5 id="分区函数"><a href="#分区函数" class="headerlink" title="分区函数"></a>分区函数</h5><p>数据在Map之后会被分区，默认分区函数时hash函数，当有特殊需求时，可以提供特殊的分区函数。</p>
+<h5 id="顺序保证"><a href="#顺序保证" class="headerlink" title="顺序保证"></a>顺序保证</h5><p>每个分区中，中间键值对会按照键递增顺序处理，这可以使得每个分区生成<strong>有序的</strong>生成文件。</p>
+<h5 id="组合函数"><a href="#组合函数" class="headerlink" title="组合函数"></a>组合函数</h5><p>组合函数与Reduce函数的功能相同，但是组合函数是在执行Map任务的机器上执行的。（先组合再进行网络传输，可以少传输一点数据）</p>
+<h5 id="输入输出格式"><a href="#输入输出格式" class="headerlink" title="输入输出格式"></a>输入输出格式</h5><p>可以将输入数据按照多种格式读入。</p>
+<ul>
+<li>文本格式将每一行是为一个键值对，唔讲的偏移是键，而该行作为值。</li>
+</ul>
+<p>读取器不一定从文件读取数据，额可以定义读取器从数据库读取。</p>
+<h5 id="副作用"><a href="#副作用" class="headerlink" title="副作用"></a>副作用</h5><h5 id="跳过坏记录"><a href="#跳过坏记录" class="headerlink" title="跳过坏记录"></a>跳过坏记录</h5><p>通过信号处理器函数捕获异常，多次发现错误时，master 指示跳过。</p>
+<h5 id="本地执行"><a href="#本地执行" class="headerlink" title="本地执行"></a>本地执行</h5><p>便于调试。</p>
+<h5 id="状态信息"><a href="#状态信息" class="headerlink" title="状态信息"></a>状态信息</h5><p>主节点提供http页面供观察</p>
+<h5 id="计数器"><a href="#计数器" class="headerlink" title="计数器"></a>计数器</h5><h3 id="Lecture01"><a href="#Lecture01" class="headerlink" title="Lecture01"></a>Lecture01</h3><p>使用分布式系统的两个原因：性能与容错。</p>
+<p>该课程依赖的基础架构：存储，通信，计算。</p>
+<p>能否提供些抽象的接口，将分布式特性隐藏在整个系统内。</p>
+<p>构建分布系统时，使用了很多的工具：</p>
+<ul>
+<li>RPC, 目标就是掩盖我们正在不可靠网络上通信的事实。</li>
+<li>线程，</li>
+<li>并发控制，比如锁</li>
+</ul>
+<h4 id="可拓展性"><a href="#可拓展性" class="headerlink" title="可拓展性"></a>可拓展性</h4><p>一个系统跑在多个计算机上就会有多倍的性能。（系统拓展了，性能也会对应的拓展，这种可拓展性在一段范围内是生效的，当达到系统瓶颈时，将失去可拓展性，这需要我们再次优化架构设计)</p>
+<h4 id="可用性"><a href="#可用性" class="headerlink" title="可用性"></a>可用性</h4><p>单台计算机大概率是可靠的，但是如果一个服务器集群，很可能会出现错误。</p>
+<ul>
+<li><p>容错：发生某些错误时，系统仍然能够正常运行，像没有错误一样。</p>
+</li>
+<li><p>可用（Availability）系统是指，在特定的故障范围内，系统仍然能够提供服务。（比如一个有两个拷贝的系统，一台有故障，那么系统仍然是可用的）</p>
+</li>
+<li><p>可恢复性（Recoverablity），一个更弱的容错特性，指的是发生会导致服务中止的错误时，系统会停止工作，不在响应请求，等待修复完成后，系统可以正常运行。（比如系统需要通过日志将数据&#x2F;状态写入硬盘，这样发生错误——断电时，系统停止工作，重启后，会从磁盘读取数据正常运行）</p>
+</li>
+</ul>
+<p>一个好的可用的系统，也应该是可恢复的。为了实现这些特性，需要很多工具，比如：</p>
+<ul>
+<li>硬盘，为了实现容错需要频繁写入，为了性能应该减少写入</li>
+<li>复制，如果管理多系统中的副本是个问题，他们可能轻易的偏离同步的状态，而不再是副本。</li>
+</ul>
+<h4 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h4><blockquote>
+<p>很多问题，比如分布式kv数据库，有两台主机，向一台主机put了数据，这台主机可能无法及时同步到另一台主机上，造成不一致。</p>
+</blockquote>
+<ul>
+<li>强一致，get请求会返回最近一次完成的put请求写入的值，</li>
+<li>弱一致，不会做上面的保证，所有弱一致系统的get可能返回一个旧数据。</li>
+</ul>
+<p>虽然强一致很完美，但是弱一致也让人感兴趣。因为强一致的代价太大，用户需要向所有的主机get数据，使用最新的数据作为get返回的数据，带来了很大的资源开销。当服务器相隔很远时，人们会构建弱一致系统，当然，为了让弱一致更有意义，还会定义很多的规则。</p>
+<h4 id="Map-amp-Reduce"><a href="#Map-amp-Reduce" class="headerlink" title="Map &amp; Reduce"></a>Map &amp; Reduce</h4><p>以<code>wordcount</code>为例：</p>
+<p>Map函数使用一个key以及value作为参数，key通常是输入文件的名字（或者索引），通常被忽略，值包含了要统计的文本。Map函数对于每一个单词，通过emit函数传到MarReduce库，比如<code>emit(&#39;w&#39;, 1)</code>。</p>
+<p>Reduce函数</p>
+<p>Reduce函数的入参是某一个key的所有实例，比如参数为，<code>(w, [1, 1, 1, 1,1])</code>。该函数也可以使用emit函数，该函数需要一个参数value，这个value会作为传入参数key的最终输出。</p>
+<blockquote>
+<p>编码过程中，遇到了问题，是cpu跑满了，但是执行速度仍然十分慢，io速度也很慢：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">filename := fmt.Sprintf(<span class="string">&quot;mr-%v-%v&quot;</span>, reply.MIndex, ihash(kvs[first].Key)%reply.RNum)</span><br><span class="line">file, err := os.Create(filename)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line"> fmt.Println(<span class="string">&quot;Cannot create file: &quot;</span>, err)</span><br><span class="line"> <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//利用缓冲区，避免每次调用encode都会触发系统调用write</span></span><br><span class="line">wfile := bufio.NewWriterSize(file, <span class="number">64</span>*<span class="number">1024</span>)</span><br><span class="line">enc := json.NewEncoder(wfile)</span><br><span class="line"><span class="keyword">for</span> _, kv := <span class="keyword">range</span> kvs[first:i] &#123;</span><br><span class="line"> err := enc.Encode(&amp;kv)</span><br><span class="line"> <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">     fmt.Println(<span class="string">&quot;Encode to json failed: &quot;</span>, err)</span><br><span class="line">     <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一开始猜测是缓冲区太小，导致每次通过encode时，都会触发io，速度很慢，</p>
+<p>实际上，操作系统本来就具有缓冲区，写入量达到一定程度时才会写入磁盘。这里可能是因为每次使用encode都触发了<strong>write系统调用</strong>，虽然write只是将数据写到内存上的磁盘缓冲区中，但毕竟是系统调用，十分耗时间，导致这里十分慢。</p>
+<p>这里可使用这两种内存缓冲区，<code>bufio.Writer</code> 内部维护一个内存缓冲区（大小可指定，比如 64KB）。</p>
+<p>每次写入先写到缓冲区（无需系统调用），只有缓冲区满或者调用 <code>Flush()</code>才会写到磁盘缓冲区中，进而写入磁盘。</p>
+<p>发现速度也很慢，后面查看火焰图，是json的encode方法占用了大量的cpu，可以从这里优化，</p>
+<ul>
+<li>就是使用更快的json库：github.com&#x2F;goccy&#x2F;go-json，</li>
+<li>每次写入读取keyvalue的切片，而非单个keyvalue</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>极其隐蔽的bug：</strong></p>
+<p>Go 的 <code>net/rpc</code> 包使用 <strong>反射机制</strong> 来序列化和反序列化结构体字段。<br><strong>只有大写字母开头的字段（即导出字段）才会被反射访问到</strong>，小写字母开头的字段是<strong>未导出的，无法被外部RPC包访问</strong>，因此：<strong>小写字段会被忽略，不会参与编码传输。</strong></p>
+</blockquote>
+<h3 id="容错虚拟机Fault-Tolerant-Virtual-Machines-2010"><a href="#容错虚拟机Fault-Tolerant-Virtual-Machines-2010" class="headerlink" title="容错虚拟机Fault-Tolerant Virtual Machines (2010)"></a>容错虚拟机<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf">Fault-Tolerant Virtual Machines (2010)</a></h3><blockquote>
+<p>默认使用共享磁盘，主虚拟机与备份虚拟机访问相同的虚拟磁盘。</p>
+</blockquote>
+<p>两种备份方式：</p>
+<ul>
+<li>全量状态复制，将主虚拟机的全部状态传输至备份端：cpu状态，内存数据，io设备的操作状态。</li>
+<li>状态机复制，保证输入一致，然后同步所有输入请求（数据包，用户操作指令），以及一些其他的非确定性操作信息，比如中断时机。</li>
+</ul>
+<p>对多核处理器上较难实现，因为涉及到共享内存，多个进程均可对一块内存区域进行访问。（那感觉没啥实际意义啊）</p>
+<h4 id="基本设计"><a href="#基本设计" class="headerlink" title="基本设计"></a>基本设计</h4><p>为了检测 主、备份虚拟机是否有故障，使用了两种机制，</p>
+<ul>
+<li>一是在服务器之间建立心跳连接，</li>
+<li>二是对日志通道上的流量进行监控。</li>
+</ul>
+<h4 id="确定性重放"><a href="#确定性重放" class="headerlink" title="确定性重放"></a>确定性重放</h4><h5 id="FT-协议"><a href="#FT-协议" class="headerlink" title="FT 协议"></a>FT 协议</h5><p>主虚拟机的输出信息也需要通过特殊的日志传输给备份虚拟机，备份虚拟机确认后再由主虚拟机发送。</p>
+<p>但是备份虚拟机接管时，仍然不知道主虚拟机是否执行了最后的输出，</p>
+<ul>
+<li>幸运的是网络基础设施，操作系统（TCP）等通过设计能处理数据包丢失以及重复的情况。（重复以及丢失感觉都行，最主要的是避免服务器状态的不一致，比如主服务器收到自增数据包，再备用服务器未确认LOG前就给客户端回发了包，如果LOG和主服务器同时崩了，那么备用服务器的内部状态就和主服务器<strong>不一致</strong>；只要主服务器没有输出，感觉不管丢失多少LOG日志都没有问题，只要外部客户端能重发消息就行了）</li>
+<li>也可以是使用两阶段提交（以一种分布式一致性协议），保证多个参与者要么全部成功，要么全部失败。</li>
+</ul>
+<h5 id="检测以及响应错误"><a href="#检测以及响应错误" class="headerlink" title="检测以及响应错误"></a>检测以及响应错误</h5><h3 id="具有一致性语义的键值服务器"><a href="#具有一致性语义的键值服务器" class="headerlink" title="具有一致性语义的键值服务器"></a>具有一致性语义的键值服务器</h3><p>不管有多少服务器副本，有多少客户端在操作，看起来就像是所有人都在访问 <strong>同一份全局的单机 key&#x2F;value 存储</strong>。</p>
+<h4 id="用-KV（键值存储）实现锁"><a href="#用-KV（键值存储）实现锁" class="headerlink" title="用 KV（键值存储）实现锁"></a>用 KV（键值存储）实现锁</h4><p>键值存储只提供了两个方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">func (kvtest.IKVClerk) Put(string, string, rpc.Tversion) rpc.Err</span><br><span class="line">func (kvtest.IKVClerk) Get(string) (string, rpc.Tversion, rpc.Err)</span><br></pre></td></tr></table></figure>
+
+<p>实现如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">func (lk *Lock) Acquire() &#123;</span><br><span class="line">	// Your code here</span><br><span class="line">	quit := false</span><br><span class="line">	for !quit &#123;</span><br><span class="line">		err := lk.ck.Put(lk.l, &quot;on&quot;, (lk.ver))</span><br><span class="line">		switch err &#123;</span><br><span class="line">		case rpc.OK:</span><br><span class="line">			quit = true</span><br><span class="line">			lk.ver = lk.ver + 1</span><br><span class="line">		case rpc.ErrNoKey:</span><br><span class="line">			fmt.Println(&quot;why, this should&#x27;t happend.&quot;)</span><br><span class="line">		case rpc.ErrMaybe:</span><br><span class="line">			//不确定，重试吧</span><br><span class="line">		case rpc.ErrVersion:</span><br><span class="line">			stat, newver, _ := lk.ck.Get(lk.l)</span><br><span class="line">			if stat == &quot;on&quot; &#123;</span><br><span class="line">				//服务器有用户，抢下一个版本号</span><br><span class="line">				lk.ver = newver + 1</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				//服务器无用户，抢这个版本号</span><br><span class="line">				lk.ver = newver</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (lk *Lock) Release() &#123;</span><br><span class="line">	// Your code here</span><br><span class="line">	quit := false</span><br><span class="line">	for !quit &#123;</span><br><span class="line">		err := lk.ck.Put(lk.l, &quot;off&quot;, (lk.ver))</span><br><span class="line">		switch err &#123;</span><br><span class="line">		case rpc.OK:</span><br><span class="line">			quit = true</span><br><span class="line">			lk.ver = lk.ver + 1 //方便下次上锁</span><br><span class="line">		case rpc.ErrNoKey:</span><br><span class="line">			fmt.Println(&quot;why, this should&#x27;t happend.&quot;)</span><br><span class="line">		case rpc.ErrMaybe:</span><br><span class="line">			//不确定，重试吧,暂不支持maybe</span><br><span class="line">			quit = true</span><br><span class="line">		case rpc.ErrVersion:</span><br><span class="line">			fmt.Println(&quot;Lock has been stoled by others.&quot;)</span><br><span class="line">			//_, newver, _ := lk.ck.Get(lk.l)</span><br><span class="line">			//lk.ver = newver + 1</span><br><span class="line">			quit = true</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要思路是<code>lk.ver</code>存储了当前线程最可能获取到锁的version，初始为0，</p>
+<ul>
+<li>获取成功则标记value，让其他线程知道锁被占用。</li>
+<li>失败则获取最新的version，将其作为 <code>lk.version</code>,然后判断当前锁是否被占用再执行对应的操作</li>
+</ul>
+<blockquote>
+<p>貌似下面的方法更简单：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(lk *Lock)</span></span> Acquire() &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		id, version, err := lk.ck.Get(lk.lockStr)</span><br><span class="line">		<span class="keyword">if</span> id == lk.id &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> err == rpc.ErrNoKey || id == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">			err := lk.ck.Put(lk.lockStr, lk.id, version)</span><br><span class="line">			<span class="keyword">if</span> err == rpc.OK &#123;</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		time.Sleep(<span class="number">10</span> * time.Millisecond)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(lk *Lock)</span></span> Release() &#123;</span><br><span class="line">	id, version, err := lk.ck.Get(lk.lockStr)</span><br><span class="line">	<span class="keyword">if</span> err == rpc.OK &amp;&amp; id == lk.id &#123;</span><br><span class="line">		lk.ck.Put(lk.lockStr, <span class="string">&quot;&quot;</span>, version)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<h3 id="分布式系统的线性化"><a href="#分布式系统的线性化" class="headerlink" title="分布式系统的线性化"></a>分布式系统的线性化</h3><p>需要保证线性一致性，线性化是一种强一致性模型，因此在线性化系统之上构建其他系统相对容易。比如如下的操作是符合线性一致性的，我们能够找到每一个操作的线性化点，这样系统仍然具有线性的：</p>
+<img src="/.github.io/2025/09/11/mit6824/image-20250917195526272.png" class title="image-20250917195526272">
+
+<h3 id="Raft共识算法"><a href="#Raft共识算法" class="headerlink" title="Raft共识算法"></a>Raft共识算法</h3><p>Raft和Paxos等价，但更好理解。</p>
+<h4 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h4><p>共识算法能够让一组机器协同工作，形成一个统一的整体，即便部分机器出现故障，该整体仍能正常运行。（要满足基本目标一致性）</p>
+<p>Raft算法分为三个部分：领导者选举、日志复制和安全性</p>
+<p>Raft有很多新特性：</p>
+<ul>
+<li>强领导者机制：日志条目只会从领导者流向其他服务器。</li>
+<li>领导者选举：再选举领导者时，使用随机计时器。</li>
+<li>集群成员变更</li>
+</ul>
+<h4 id="复制状态机"><a href="#复制状态机" class="headerlink" title="复制状态机"></a>复制状态机</h4><p>一致性算法来源自复制状态机。复制状态机通常通过复制日志来实现，每台服务器都会存储一个包含一系列命令的日志，其状态机会按顺序执行这些命令。所有日志都包含相同的命令，且命令顺序一致，因此每个状态机处理的命令序列完全相同。所以<strong>关键问题就是如何保证复制LOG的一致性。</strong></p>
+<p>服务器上的共识模块会接收客户端发送的命令并将其添加到本地日志中，同时与其他服务器的共识模块通信，以确保即便部分服务器发生故障，所有日志最终仍会包含相同的请求，且请求顺序完全一致。一旦命令完成正确复制，每台服务器的状态机就会按日志顺序执行这些命令，并将执行结果返回给客户端。最终，这些服务器对外呈现为一个单一且高可靠的状态机。</p>
+<img src="/.github.io/2025/09/11/mit6824/image-20250917213926189.png" class title="image-20250917213926189">
+
+<blockquote>
+<p>拜占庭故障：节点可能恶意撒谎、发送错误信息、或者不一致的消息。（感觉节点可能被人入侵了，有叛徒）</p>
+</blockquote>
+<p>一致性算法通常有如下特性：</p>
+<ul>
+<li>非拜占庭故障场景下，都能保证安全性（比如延迟，丢包，重复以及乱序，分区故障即整个网络分为了若干个互相无法联系的分区）</li>
+<li>只要集群中任意多数派服务器处于正常运行状态，且能彼此通信并与客户端交互，共识算法就能保持完全可用（即具备可用性）</li>
+<li>不依赖节点的本地时钟，来保证日志的一致性，坏消息&#x2F;慢消息最多只会导致卡顿，但不会威胁到一致性（不管机器的物理时钟漂移有多严重，Raft 依旧能确保所有副本的日志保持一致。）</li>
+<li>在常见场景下，只要集群中多数派服务器对一轮远程过程调用（RPC）做出响应，一条命令就能完成执行；<strong>少数响应缓慢的服务器不会影响系统的整体性能。</strong></li>
+</ul>
+<h4 id="Paxos算法的优势与不足"><a href="#Paxos算法的优势与不足" class="headerlink" title="Paxos算法的优势与不足"></a>Paxos算法的优势与不足</h4><h4 id="提升算法可理解性的通用方法"><a href="#提升算法可理解性的通用方法" class="headerlink" title="提升算法可理解性的通用方法"></a>提升算法可理解性的通用方法</h4><ul>
+<li>问题拆分</li>
+<li>减少需要考虑的状态数量，</li>
+</ul>
+<h4 id="Raft共识算法-1"><a href="#Raft共识算法-1" class="headerlink" title="Raft共识算法"></a>Raft共识算法</h4><p>Raft就是管理<strong>复制日志</strong>的算法。</p>
+<p>Raft首先选举一个特定的领导者，这个领导者独占管理复制日志的权限。领导者从客户端接收日志条目，将其复制到其他服务器上，并且靠苏服务器什么时候可以安全的将日志应用到状态机（执行的意思吧）。</p>
+<p>基于领导者机制，Raft可分为三个独立的子问题：</p>
+<ul>
+<li>领导者选举</li>
+<li>复制日志，领导者接收客户端的日志，并且将日志复制到集群，强制其他服务器的日志与自身一致</li>
+<li>安全，状态机安全。若任一服务器已将某条特定日志条目应用到其状态机中，则其他所有服务器绝不能将不同的命令应用到相同的日志索引位置。（否则一致性就没了）</li>
+</ul>
+<h5 id="Raft基础"><a href="#Raft基础" class="headerlink" title="Raft基础"></a>Raft基础</h5></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2025/09/11/mit6824/">https://tjzhang-src.github.io/.github.io/2025/09/11/mit6824/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/go/">go</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/.github.io/2025/09/01/tiny-muduo/" title="tiny_muduo"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">tiny_muduo</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">47</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#mapreduceMapReduce-2004"><span class="toc-number">1.</span> <span class="toc-text">mapreduceMapReduce (2004)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BE%8B%E5%AD%90"><span class="toc-number">1.1.</span> <span class="toc-text">介绍及例子</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8FGrep"><span class="toc-number">1.1.1.</span> <span class="toc-text">分布式Grep</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#url%E8%AE%BF%E9%97%AE%E9%A2%91%E7%8E%87%E7%BB%9F%E8%AE%A1"><span class="toc-number">1.1.2.</span> <span class="toc-text">url访问频率统计</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.2.</span> <span class="toc-text">实现</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%B2%92%E5%BA%A6"><span class="toc-number">1.2.1.</span> <span class="toc-text">任务粒度</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E4%BB%BD%E6%89%A7%E8%A1%8C"><span class="toc-number">1.2.2.</span> <span class="toc-text">备份执行</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8B%93%E5%B1%95%E5%8A%9F%E8%83%BD"><span class="toc-number">1.3.</span> <span class="toc-text">拓展功能</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%86%E5%8C%BA%E5%87%BD%E6%95%B0"><span class="toc-number">1.3.1.</span> <span class="toc-text">分区函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A1%BA%E5%BA%8F%E4%BF%9D%E8%AF%81"><span class="toc-number">1.3.2.</span> <span class="toc-text">顺序保证</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%84%E5%90%88%E5%87%BD%E6%95%B0"><span class="toc-number">1.3.3.</span> <span class="toc-text">组合函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.3.4.</span> <span class="toc-text">输入输出格式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%89%AF%E4%BD%9C%E7%94%A8"><span class="toc-number">1.3.5.</span> <span class="toc-text">副作用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B7%B3%E8%BF%87%E5%9D%8F%E8%AE%B0%E5%BD%95"><span class="toc-number">1.3.6.</span> <span class="toc-text">跳过坏记录</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%89%A7%E8%A1%8C"><span class="toc-number">1.3.7.</span> <span class="toc-text">本地执行</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.8.</span> <span class="toc-text">状态信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="toc-number">1.3.9.</span> <span class="toc-text">计数器</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lecture01"><span class="toc-number">2.</span> <span class="toc-text">Lecture01</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E6%8B%93%E5%B1%95%E6%80%A7"><span class="toc-number">2.1.</span> <span class="toc-text">可拓展性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">可用性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">2.3.</span> <span class="toc-text">一致性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Map-amp-Reduce"><span class="toc-number">2.4.</span> <span class="toc-text">Map &amp; Reduce</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E9%94%99%E8%99%9A%E6%8B%9F%E6%9C%BAFault-Tolerant-Virtual-Machines-2010"><span class="toc-number">3.</span> <span class="toc-text">容错虚拟机Fault-Tolerant Virtual Machines (2010)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AE%BE%E8%AE%A1"><span class="toc-number">3.1.</span> <span class="toc-text">基本设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E6%80%A7%E9%87%8D%E6%94%BE"><span class="toc-number">3.2.</span> <span class="toc-text">确定性重放</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#FT-%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.2.1.</span> <span class="toc-text">FT 协议</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%A3%80%E6%B5%8B%E4%BB%A5%E5%8F%8A%E5%93%8D%E5%BA%94%E9%94%99%E8%AF%AF"><span class="toc-number">3.2.2.</span> <span class="toc-text">检测以及响应错误</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E6%9C%89%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%AD%E4%B9%89%E7%9A%84%E9%94%AE%E5%80%BC%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">具有一致性语义的键值服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8-KV%EF%BC%88%E9%94%AE%E5%80%BC%E5%AD%98%E5%82%A8%EF%BC%89%E5%AE%9E%E7%8E%B0%E9%94%81"><span class="toc-number">4.1.</span> <span class="toc-text">用 KV（键值存储）实现锁</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BA%BF%E6%80%A7%E5%8C%96"><span class="toc-number">5.</span> <span class="toc-text">分布式系统的线性化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="toc-number">6.</span> <span class="toc-text">Raft共识算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">6.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="toc-number">6.2.</span> <span class="toc-text">复制状态机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Paxos%E7%AE%97%E6%B3%95%E7%9A%84%E4%BC%98%E5%8A%BF%E4%B8%8E%E4%B8%8D%E8%B6%B3"><span class="toc-number">6.3.</span> <span class="toc-text">Paxos算法的优势与不足</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E5%8D%87%E7%AE%97%E6%B3%95%E5%8F%AF%E7%90%86%E8%A7%A3%E6%80%A7%E7%9A%84%E9%80%9A%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">6.4.</span> <span class="toc-text">提升算法可理解性的通用方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95-1"><span class="toc-number">6.5.</span> <span class="toc-text">Raft共识算法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Raft%E5%9F%BA%E7%A1%80"><span class="toc-number">6.5.1.</span> <span class="toc-text">Raft基础</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/09/11/mit6824/" title="mit6824">mit6824</a><time datetime="2025-09-11T13:19:34.000Z" title="发表于 2025-09-11 21:19:34">2025-09-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/09/01/tiny-muduo/" title="tiny_muduo">tiny_muduo</a><time datetime="2025-09-01T01:45:58.000Z" title="发表于 2025-09-01 09:45:58">2025-09-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/04/08/muduo/" title="muduo">muduo</a><time datetime="2025-04-08T01:30:10.000Z" title="发表于 2025-04-08 09:30:10">2025-04-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/02/22/xv6/" title="xv6">xv6</a><time datetime="2025-02-22T13:38:24.000Z" title="发表于 2025-02-22 21:38:24">2025-02-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2024/12/04/Linux%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BC%96%E7%A8%8B/" title="Linux高性能服务器编程">Linux高性能服务器编程</a><time datetime="2024-12-04T09:01:31.000Z" title="发表于 2024-12-04 17:01:31">2024-12-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2025 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2025/09/11/mit6824/'
+    this.page.identifier = '/.github.io/2025/09/11/mit6824/'
+    this.page.title = 'mit6824'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
