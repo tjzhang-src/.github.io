@@ -1,0 +1,616 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>tiny-lsm | Welcome</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前置   英文术语 常见中文译名 含义说明    LSM Tree 日志结构合并树 &#x2F; 日志结构合并型树 一种为写入优化的分层有序存储结构，将随机写转为顺序写。   MemTable 内存表 &#x2F; 内存有序表 保存在内存中的有序键值集合，用于接收写入请求。   Immutable MemTable 不可变内存表 已经写满、只读等待刷盘的内存表。   SSTable (Sorted">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tiny-lsm">
+<meta property="og:url" content="https://tjzhang-src.github.io/.github.io/2025/10/27/tiny-lsm/index.html">
+<meta property="og:site_name" content="Welcome">
+<meta property="og:description" content="前置   英文术语 常见中文译名 含义说明    LSM Tree 日志结构合并树 &#x2F; 日志结构合并型树 一种为写入优化的分层有序存储结构，将随机写转为顺序写。   MemTable 内存表 &#x2F; 内存有序表 保存在内存中的有序键值集合，用于接收写入请求。   Immutable MemTable 不可变内存表 已经写满、只读等待刷盘的内存表。   SSTable (Sorted">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2025-10-27T01:50:45.000Z">
+<meta property="article:modified_time" content="2025-12-08T08:35:28.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="c++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/.github.io/img/favicon.png"><link rel="canonical" href="https://tjzhang-src.github.io/.github.io/2025/10/27/tiny-lsm/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4cc6526274b17acfe67a4be7d70e8d1c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FF1BJEGK51"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-FF1BJEGK51');
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/.github.io/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'tiny-lsm',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-12-08 16:35:28'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (false) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">48</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><nav id="nav"><span id="blog-info"><a href="/.github.io/" title="Welcome"><span class="site-name">Welcome</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/.github.io/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/.github.io/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/.github.io/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/.github.io/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/.github.io/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">tiny-lsm</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-10-27T01:50:45.000Z" title="发表于 2025-10-27 09:50:45">2025-10-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-12-08T08:35:28.000Z" title="更新于 2025-12-08 16:35:28">2025-12-08</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="tiny-lsm"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h3 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h3><table>
+<thead>
+<tr>
+<th>英文术语</th>
+<th>常见中文译名</th>
+<th>含义说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LSM Tree</strong></td>
+<td>日志结构合并树 &#x2F; 日志结构合并型树</td>
+<td>一种为写入优化的分层有序存储结构，将随机写转为顺序写。</td>
+</tr>
+<tr>
+<td><strong>MemTable</strong></td>
+<td>内存表 &#x2F; 内存有序表</td>
+<td>保存在内存中的有序键值集合，用于接收写入请求。</td>
+</tr>
+<tr>
+<td><strong>Immutable MemTable</strong></td>
+<td>不可变内存表</td>
+<td>已经写满、只读等待刷盘的内存表。</td>
+</tr>
+<tr>
+<td><strong>SSTable (Sorted String Table)</strong></td>
+<td>有序字符串表 &#x2F; 有序表文件</td>
+<td>存储在磁盘上的不可变、有序的数据文件，是 LSM 的核心持久层。</td>
+</tr>
+<tr>
+<td><strong>WAL (Write-Ahead Log)</strong></td>
+<td>预写日志 &#x2F; 写前日志</td>
+<td>确保数据落盘前的可靠性，防止断电丢失数据。</td>
+</tr>
+<tr>
+<td><strong>Flush</strong></td>
+<td>刷盘 &#x2F; 刷新</td>
+<td>将内存表（MemTable）写入磁盘形成 SSTable 的过程。</td>
+</tr>
+<tr>
+<td><strong>Compaction</strong></td>
+<td>压实 &#x2F; 合并压缩 &#x2F; 层级合并</td>
+<td>将多个 SSTable 合并成新的 SSTable，删除过期或重复键。</td>
+</tr>
+<tr>
+<td><strong>Leveling</strong></td>
+<td>层级压实策略</td>
+<td>控制每一层容量上限的合并策略（RocksDB 默认）。</td>
+</tr>
+<tr>
+<td><strong>Tiering</strong></td>
+<td>分层压实策略 &#x2F; 批量合并策略</td>
+<td>多个文件合并为更大文件后再下放到下一层。</td>
+</tr>
+<tr>
+<td><strong>Bloom Filter</strong></td>
+<td>布隆过滤器</td>
+<td>判断 key 是否可能存在于某个 SSTable，用于加速查询。</td>
+</tr>
+<tr>
+<td><strong>Manifest</strong></td>
+<td>元数据文件 &#x2F; 清单文件</td>
+<td>记录各层 SSTable 的组织与状态，类似文件目录结构。</td>
+</tr>
+<tr>
+<td><strong>Write Amplification</strong></td>
+<td>写放大</td>
+<td>同一数据被多次写入磁盘的效应。</td>
+</tr>
+<tr>
+<td><strong>Read Amplification</strong></td>
+<td>读放大</td>
+<td>一次查询需访问多个文件的效应。</td>
+</tr>
+<tr>
+<td><strong>Space Amplification</strong></td>
+<td>空间放大</td>
+<td>由于多版本与未清理数据导致的额外磁盘占用。</td>
+</tr>
+<tr>
+<td><strong>Key-Value Pair</strong></td>
+<td>键值对</td>
+<td>存储的基本单元。</td>
+</tr>
+<tr>
+<td><strong>Delete Marker (Tombstone)</strong></td>
+<td>删除标记 &#x2F; 墓碑标记</td>
+<td>用于延迟删除数据的逻辑标记，在合并时真正清除。</td>
+</tr>
+<tr>
+<td><strong>Level 0, Level 1, …</strong></td>
+<td>第0层、第1层…</td>
+<td>磁盘层次，每层存储不同大小的 SSTable。</td>
+</tr>
+<tr>
+<td><strong>Compaction Filter</strong></td>
+<td>压实过滤器</td>
+<td>压实时用于决定保留或丢弃键值的逻辑。</td>
+</tr>
+<tr>
+<td><strong>Seek &#x2F; Point Lookup</strong></td>
+<td>查找 &#x2F; 精确查找</td>
+<td>查找单个 key 的过程。</td>
+</tr>
+<tr>
+<td><strong>Range Query &#x2F; Scan</strong></td>
+<td>范围查询 &#x2F; 扫描</td>
+<td>按顺序遍历多个键的操作。</td>
+</tr>
+</tbody></table>
+<p>LSM Tree（Log-Structured Merge-Tree） 用于磁盘存储的数据结构</p>
+<p><a target="_blank" rel="noopener" href="https://linjiapeng.cn/posts/%E7%AE%80%E5%8D%95%E8%81%8A%E8%81%8Alsm/">LSM 存储结构：从原理到应用，简单聊聊</a></p>
+<img src="/.github.io/2025/10/27/tiny-lsm/tiny-lsm-arch.drawio.png" class title="Fig 1">
+
+<ul>
+<li><p>存储数据结构</p>
+<ul>
+<li>B树，单节点可以包含多个键，从而降低树的高度，降低从磁盘读取数据的次数。（写入为页内更新和<strong>随机写</strong>， 不适合<strong>写密集型</strong>负载）</li>
+<li>LSM Tree，写入先入内存（MemTable），再批量写磁盘；合并压缩读优化</li>
+</ul>
+</li>
+<li><p>一般数据结构：AVL Tree、Red-Black Tree、Heap、Graph、Hash Table</p>
+</li>
+</ul>
+<p>LSM优化：</p>
+<ul>
+<li><strong>Bloom Filter</strong>：快速判断某 key 是否存在于某个 SSTable，减少不必要的磁盘查找。</li>
+<li><strong>Index Block &#x2F; Block Cache</strong>：缓存热点数据页，加速读请求。</li>
+<li><strong>Tiered &#x2F; Leveled Compaction</strong>：通过分层或分阶段合并，平衡写放大与读放大。</li>
+</ul>
+<p>clangd：一个<code>C/C++</code>语言服务器, 其可以提供代码补全、代码跳转、代码高亮等功能。</p>
+<h3 id="skiplist"><a href="#skiplist" class="headerlink" title="skiplist"></a>skiplist</h3><h4 id="shared-mutex-读写锁"><a href="#shared-mutex-读写锁" class="headerlink" title="shared_mutex 读写锁"></a>shared_mutex 读写锁</h4><p>允许多线程同时读取数据，但只有一个线程可以写入数据。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">std::shared_mutex rwMutex;</span><br><span class="line">rwMutex.<span class="built_in">lock_shared</span>();  <span class="comment">// 获取共享锁</span></span><br><span class="line">rwMutex.<span class="built_in">unlock_shared</span>();  <span class="comment">// 释放共享锁</span></span><br><span class="line">rwMutex.<span class="built_in">lock</span>();  <span class="comment">// 获取独占锁</span></span><br><span class="line">rwMutex.<span class="built_in">unlock</span>();  <span class="comment">// 释放独占锁</span></span><br></pre></td></tr></table></figure>
+
+<p>利用 shared_lock 进行优化。类似于使用 <code>std::lock_gurad</code> 或者 <code>unique_lock</code> 来锁定 <code>std::mutex</code> ，<code>shared_lock</code> 析构时可以自动进行锁的释放。<code>shared_lock</code>可以自动管理读锁的获取以及释放，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::shared_lock&lt;std::shared_mutex&gt; lock(rwMutex);  // 自动获取和释放共享锁</span><br></pre></td></tr></table></figure>
+
+<p>代码中的一种写法是：<code>std::shared_ptr&lt;std::shared_lock&lt;std::shared_mutex&gt;&gt; lock</code>，通过共享指针封装shared_lock，但共享指针引用计数归零时，<code>shared_lock</code> 也会被析构，进而导致其中的<code>shared_mutex</code> 被析构。</p>
+<h4 id="谓词查询"><a href="#谓词查询" class="headerlink" title="谓词查询"></a>谓词查询</h4><p>因为skiplist本身是单调的，所以他也支持上层进行单调的查询。比如范围查询，单调的谓词查询。</p>
+<p>谓词：返回 “真（true）” 或 “假（false）” 的逻辑表达式，用来描述数据必须满足的条件。</p>
+<blockquote>
+<p>函数的返回值通常是 某一个具体的类型，比如 指针， 数，那么如果该指针、数不存在应该如何表示呢，这时可以将一个特殊的值比如 0 设定为表示空值，假如返回该值则代表值为0。</p>
+<ul>
+<li>这样做有个缺陷是 0 本质上是一个有效的值，但用来表示空值，语义上不完整。</li>
+<li>而且如果程序员不小心，可能将 0 当作非空值处理了。</li>
+</ul>
+<p>可以通过cpp17引入的<code>std::optional</code>来改进，这可以显示区分究竟是有值还是没有：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">std::optional&lt;int&gt; find_first_even(const std::vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">    if (num % 2 == 0) &#123;</span><br><span class="line">        return num; // 返回有值的 optional</span><br><span class="line">    &#125;</span><br><span class="line">    return std::nullopt; // 未找到，返回无值</span><br><span class="line">&#125;</span><br><span class="line">int main() &#123;</span><br><span class="line">    std::vector&lt;int&gt; vec1 = &#123;1, 3, 5, 4&#125;;</span><br><span class="line">    auto res1 = find_first_even(vec1);</span><br><span class="line">    if (res1) &#123; // 直接判断是否有值（等价于 res1.has_value()）</span><br><span class="line">        std::cout &lt;&lt; &quot;第一个偶数：&quot; &lt;&lt; *res1 &lt;&lt; std::endl; // 输出：4（可通过 * 解引用获取值）</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<h3 id="memtable"><a href="#memtable" class="headerlink" title="memtable"></a>memtable</h3><p>memtable 分为currenttable以及frozentable，这样可以通常查询多个表，以便提升并发度。</p>
+<img src="/.github.io/2025/10/27/tiny-lsm/tiny-lsm-arch.drawio-1762308582949-1.png" class title="Fig 1">
+
+<p>LSM的写入是追加写入，新的数据会覆盖旧的数据，因此查询时也需要按照从新到旧的顺序查询，一旦成功即可返回。</p>
+<blockquote>
+<p>std::unique_lock 会调用模板参数类型的 lock以及unlock，</p>
+<p>std::shared_lock会调用模板参数类型的 lock_shared 以及unlock_shared。</p>
+</blockquote>
+<p>基类有一个方法, 派生类重写后，返回值是使用基类的返回值类型还是派生类的返回值类型。<strong>两种方法都是可行的</strong>，第二种方法涉及到返回类型协变。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BaseIterator</span> &#123;</span><br><span class="line">    <span class="keyword">virtual</span> BaseIterator &amp;<span class="keyword">operator</span>++() = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeapIterator</span> : <span class="keyword">public</span> BaseIterator &#123;</span><br><span class="line">    BaseIterator &amp;<span class="keyword">operator</span>++() <span class="keyword">override</span>;</span><br><span class="line">    <span class="comment">//HeapIterator &amp;operator++() override;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>移动构造函数，传统的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">HeapIterator</span>(std::vector&lt;SearchItem&gt; &amp;&amp;item_vec, <span class="type">uint64_t</span> max_tranc_id);</span><br><span class="line"><span class="comment">//为了避免二义性，拷贝构造函数应该是如下所示。假如没有 const 以及 &amp;，那么如果传入一个右值，可以同时匹配上下两个函数</span></span><br><span class="line"><span class="built_in">HeapIterator</span>(<span class="type">const</span> std::vector&lt;SearchItem&gt; &amp; item_vec, <span class="type">uint64_t</span> max_tranc_id);</span><br></pre></td></tr></table></figure>
+
+<p>现代的：<strong>Pass-by-value and move”</strong>（按值传参并移动）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class Foo &#123;</span><br><span class="line">public:</span><br><span class="line">    Foo(std::string name) : name_(std::move(name)) &#123;&#125;   // 👈 就这一版</span><br><span class="line">private:</span><br><span class="line">    std::string name_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>假如实际传递给Foo的参数是 右值，那么会触发string的移动构造函数，内部只需要修改指针，开销很小。</p>
+<p>假如传递的是左值，需要触发拷贝构造函数。</p>
+<p>在函数内部，都需要触发一次移动构造函数。</p>
+<p><strong>在性能上，两者几乎一样，但略有差别：</strong></p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>双重重载（<code>const&amp;</code> + <code>&amp;&amp;</code>）</th>
+<th>Pass-by-value-and-move</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>传入右值（临时对象）</strong></td>
+<td>✅ <strong>最快</strong>（一次移动）</td>
+<td>✅ <strong>一样快</strong>（一次移动）</td>
+</tr>
+<tr>
+<td><strong>传入左值（已有变量）</strong></td>
+<td>✅ <strong>最快</strong>（一次拷贝）</td>
+<td>⚠️ <strong>略慢</strong>（一次拷贝 + 一次移动）</td>
+</tr>
+<tr>
+<td><strong>代码复杂度</strong></td>
+<td>❌ 需要写两份函数</td>
+<td>✅ 简洁，易维护</td>
+</tr>
+<tr>
+<td><strong>可读性</strong></td>
+<td>中</td>
+<td>✅ 高</td>
+</tr>
+</tbody></table>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">for (int frist = 0, last = offsets.size(), idx = (offsets.size()) / 2;</span><br><span class="line">     frist &lt;= last; idx = (frist + last) / 2) &#123;</span><br><span class="line">&#125;</span><br><span class="line">//https://github.com/tjzhang-src/lsm/blob/main/src/block/block.cpp：get_monotony_predicate_iters</span><br></pre></td></tr></table></figure>
+
+<p> 针对上述的二分查找，失败的情况下first，end指向哪里，可以分析一下，end，begin都是</p>
+<p> 最靠近目标值的位置，并分别位于目标值其前后。因为可以发现每次退出前，都会经历一次first&#x3D;&#x3D;last的情况(可以归纳一下，所有原始的list最后都换变成 lsit为 3 或者 2 的list，而这两者都会经过first &#x3D;&#x3D; last的一次判断才会退出)，这就导致了first 变为了 idx + 1，（或者last变为了idx -1），而另外一者不变。</p>
+</blockquote>
+<blockquote>
+<p>小tip：下面的调试结果很奇怪：因为它不是连续内存, 而调试器必须根据指针 map 去渲染，而假设block map 尚未加载，就会导致下面的情况。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p kv.second.<span class="built_in">size</span>()</span><br><span class="line">(std::deque&lt;<span class="type">long</span> <span class="type">unsigned</span> <span class="type">int</span>, std::allocator&lt;<span class="type">long</span> <span class="type">unsigned</span> <span class="type">int</span>&gt; &gt;::size_type) <span class="number">1</span></span><br><span class="line">p kv.<span class="built_in">second</span></span><br><span class="line">(std::deque&lt;<span class="type">long</span> <span class="type">unsigned</span> <span class="type">int</span>, std::allocator&lt;<span class="type">long</span> <span class="type">unsigned</span> <span class="type">int</span>&gt; &gt;) size=<span class="number">0</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="LSM-Engine"><a href="#LSM-Engine" class="headerlink" title="LSM Engine"></a>LSM Engine</h3><h4 id="LSM-Tree-的优化"><a href="#LSM-Tree-的优化" class="headerlink" title="LSM Tree 的优化"></a>LSM Tree 的优化</h4><h5 id="BlockCache"><a href="#BlockCache" class="headerlink" title="BlockCache"></a>BlockCache</h5><p><code>LRU-K</code>（Least Recently Used with K accesses）是一种基于访问频率和时间的缓存淘汰策略。相比于传统的<code>LRU</code>（最近最少使用），<code>LRU-K</code>考虑了更复杂的访问模式，能够更好地适应实际应用场景中的数据访问特性。</p>
+<blockquote>
+<p>使用boost库时，cplusincludepath不要直接设置为boost的include文件夹，要设置为boost的include的上一层文件夹，然后这样使用#include &lt;boost&#x2F;asio.hpp&gt;，避免boost头文件与系统库头文件冲突。</p>
+<p><code>/usr/include</code>这个路径以及默认处于搜索路径之中了，不需要再次include这个路径，否则如果遇到 <code>include_next</code>时，可能导致找不到对应的头文件。</p>
+</blockquote>
+<h4 id="compact"><a href="#compact" class="headerlink" title="compact"></a>compact</h4><p>本项目的<code>compact</code>机制采用了一种混合方法，主要在第0层使用基于大小的分层压缩，而在更高层则转向分层压缩。</p>
+<p>当磁盘中写入了大量的日志，就涉及到压缩了，如果不压缩，会导致查询效率低下，如果压缩过快，会消耗大量计算资源，在什么时候压缩就成为了一个关键问题。两种基础的压缩策略：level vs size&#x2F;tier。（参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/112574579">LSM Tree的Leveling 和 Tiering Compaction </a>）</p>
+<h5 id="Level-compaction"><a href="#Level-compaction" class="headerlink" title="Level compaction"></a>Level compaction</h5><p>每层level维护唯一一个run，每层中的所有sstable是有序的，并且每层中的sstable保存不重叠的key 区间。</p>
+<h5 id="Tier-x2F-Size-Compaction"><a href="#Tier-x2F-Size-Compaction" class="headerlink" title="Tier&#x2F;Size Compaction"></a>Tier&#x2F;Size Compaction</h5><p>每一层的sstable足够了之后，将这一层的sstable 压缩后放到下一层，它能够保证每个sstable是sorted，但是不能保证每一层只有一个Run。（只能在最大的一层保证run）</p>
+<p>如下图，leveling 中 level1 变为 level2时，会维持level2的有序并且不重叠关系。</p>
+<img src="/.github.io/2025/10/27/tiny-lsm/v2-7a104c0203097084c18c55cf51dffb5e_1440w.jpg" class title="img">
+
+<p>使用Tier&#x2F;Size Compaction：简单，写入高效，导致读放大。</p>
+<p>使用leveled Compaction: 减少读放大，合并导致了写放大（Li-1层可能和Li层的 10 个 sstable都重复了，导致在写入数据时花费大量资源）</p>
+<p>将两者结合可以实现更高效。</p>
+<blockquote>
+<p>代码写的越简单越好，一个if 语句 假如有很多个 与、或表达式，记得将他们拆成多个 if语句（3个 判断就意味着有16种情况了，太难判断了）</p>
+</blockquote>
+<h4 id="布隆过滤器"><a href="#布隆过滤器" class="headerlink" title="布隆过滤器"></a>布隆过滤器</h4><p>用于检索一个元素是否在一个集合中。它的优点是</p>
+<ul>
+<li>时间复杂度低，增加和查询元素的时间复杂为O(N)</li>
+<li>布隆过滤器不存储元素本身</li>
+</ul>
+<p>布隆过滤器的缺点：</p>
+<ul>
+<li>有点一定的误判率</li>
+</ul>
+<blockquote>
+<p>布隆过滤器可以告诉我们 <strong>“某样东西一定不存在或者可能存在”，也就是说布隆过滤器说这个数不存在则一定不存，布隆过滤器说这个数存在可能不存在</strong></p>
+</blockquote>
+<p>布隆过滤器由一个很长的二进制向量和一系列随机映射函数组成。</p>
+<p>Redis中的布隆过滤器底层是一个大型位数组（二进制数组）+多个无偏hash函数。</p>
+<h5 id="增加元素"><a href="#增加元素" class="headerlink" title="增加元素"></a>增加元素</h5><ul>
+<li>通过k个无偏hash函数计算得到k个hash值</li>
+<li>依次取模数组长度，得到数组索引</li>
+<li>将计算得到的数组索引下标位置数据修改为1</li>
+</ul>
+<h5 id="查询元素"><a href="#查询元素" class="headerlink" title="查询元素"></a>查询元素</h5><ul>
+<li>通过k个无偏hash函数计算得到k个hash值</li>
+<li>依次取模数组长度，得到数组索引</li>
+<li>判断索引处的值是否全部为1，<strong>如果全部为1则存在（这种存在可能是误判），如果存在一个0则必定不存在</strong></li>
+</ul>
+<h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>事务（Transaction）是指一组原子性操作的执行单元，需要满足 ACID 性质。</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>定义</th>
+<th>技术实现</th>
+<th>KV存储中的特殊表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>原子性</strong> (Atomicity)</td>
+<td>事务内的操作要么全部成功，要么全部失败，不存在中间状态。</td>
+<td>- WAL（Write-Ahead Logging） - 两阶段提交（2PC） - 操作回滚日志</td>
+<td>- 单键操作天然原子 - 跨键原子性需显式事务（如批量提交） - LSM-Tree依赖WAL保证崩溃恢复</td>
+</tr>
+<tr>
+<td><strong>一致性</strong> (Consistency)</td>
+<td>事务执行后数据库必须保持预设的业务规则（如唯一性、完整性约束）。即执行前后都必须是有效的。</td>
+<td>- 关系型：外键、触发器 - 声明式约束（DDL） - 事务回滚机制</td>
+<td>- 业务逻辑一致性需应用层实现</td>
+</tr>
+<tr>
+<td><strong>隔离性</strong> (Isolation)</td>
+<td>并发事务相互隔离，避免脏读、不可重复读、幻读。</td>
+<td>- 锁机制（悲观锁） - MVCC（多版本并发控制） - 快照隔离（Snapshot Isolation）</td>
+<td>- 通常采用乐观锁（版本号校验） - 全局时间戳实现快照隔离 - 弱隔离级别常见（如Read Committed）</td>
+</tr>
+<tr>
+<td><strong>持久性</strong> (Durability)</td>
+<td>事务提交后，数据永久存储，即使系统崩溃也不丢失。</td>
+<td>- 同步刷盘（<code>fsync</code>） - 副本复制（Replication） - 冗余存储（如RAID）</td>
+<td>- LSM-Tree依赖SSTable落盘 - 内存数据需通过WAL持久化 - 异步刷盘可能牺牲部分持久性（如Redis AOF）</td>
+</tr>
+</tbody></table>
+<p>针对写的话：</p>
+<ul>
+<li>写操作：必须保证 “同一数据不会被两个事务同时修改并提交”<strong>（避免脏写，这是所有隔离级别都必须遵守的底线 —— 哪怕是最低的 “读未提交”，也不允许脏写）。</strong></li>
+</ul>
+<p>隔离性：</p>
+<ul>
+<li>脏读，事务 A 读取了事务 B “未提交” 的修改。</li>
+<li>不可重复读，事务过程中，当一行数据被检索两次，而两次检索的行内值不同。</li>
+<li>幻读，当执行了两个相同的查询，而第二个查询返回的行集合与第一个不同时。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读(Dirty Read)</th>
+<th>不可重复读(Non-Repeatable Read)</th>
+<th>幻读(Phantom Read)</th>
+<th>典型实现方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>读未提交</strong>（允许读取未提交的数据）</td>
+<td>允许</td>
+<td>允许</td>
+<td>允许</td>
+<td>- 无版本控制 - 直接读取内存最新值</td>
+</tr>
+<tr>
+<td><strong>读已提交</strong>（只允许读取已经提交的数据）</td>
+<td>禁止</td>
+<td>允许</td>
+<td>允许</td>
+<td>- 单版本快照 - 每次读获取最新提交版本</td>
+</tr>
+<tr>
+<td><strong>可重复读</strong></td>
+<td>禁止</td>
+<td>禁止</td>
+<td>允许</td>
+<td>- 多版本快照 - 事务级版本锚定（如MySQL InnoDB的MVCC，查询一定trancid之前的信息，这样就算有新的值提交了，也不会显示），或者使用行锁。</td>
+</tr>
+<tr>
+<td><strong>可串行化</strong></td>
+<td>禁止</td>
+<td>禁止</td>
+<td>禁止</td>
+<td>- 严格锁机制 - 冲突范围检测（如FoundationDB）</td>
+</tr>
+</tbody></table>
+<h5 id="另一种隔离级别，Snapshot-Isolation"><a href="#另一种隔离级别，Snapshot-Isolation" class="headerlink" title="另一种隔离级别，Snapshot Isolation"></a>另一种隔离级别，<strong>Snapshot Isolation</strong></h5><ul>
+<li>事务的读操作从Committed快照中读取数据，快照时间可以是事务的第一次读操作之前的任意时间，记为StartTimestamp</li>
+<li>事务准备提交时，获取一个CommitTimestamp，它需要比现存的StartTimestamp和CommitTimestamp都大</li>
+<li>事务提交时进行冲突检查，如果没有其他事务在[StartTS, CommitTS]区间内提交了与自己的<strong>WriteSet</strong>有交集的数据，则本事务可以提交；这里阻止了Lost Update异常</li>
+</ul>
+<p><strong>不会</strong>出现脏读、不可重复度和幻读三种读异常。缺点是可能导致读写冲突。</p>
+<h5 id="Serializable-Snapshot-Isolation"><a href="#Serializable-Snapshot-Isolation" class="headerlink" title="Serializable Snapshot Isolation"></a>Serializable Snapshot Isolation</h5><p>在Multi-Version的串行图中，增加一种称之为RW依赖的边，即事务T1先写了一个版本，事务T2读了这个版本，则产生RW依赖。当这个图产生环时，则违背了Serializable。需要abort某个事务。</p>
+<h5 id="Write-Snapshot-Isolation"><a href="#Write-Snapshot-Isolation" class="headerlink" title="Write-Snapshot Isolation"></a>Write-Snapshot Isolation</h5><p>提出：SI中的LostUpdate异常，不一定需要阻止WW冲突；换成RW检测，允许WW冲突，既能够阻止LostUpdate异常，同时能够实现Serializable。</p>
+<p>如何检测RW冲突：事务读写过程中维护ReadSet，提交时检查自己的ReadSet是否被其他事务修改过</p>
+<p>W检测会带来很多好处：</p>
+<ul>
+<li>只读事务不需要检测冲突，它的StartTS和CommitTS一样</li>
+<li>只写事务不需要检测冲突，它的ReadSet为空</li>
+</ul>
+<h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><p>如果是传统的数据库（可以随意读取内存，而非lsm这种增量式的数据形式），实现 si，ssi，wsi 并不需要给相关的事务加锁以便来检测事务冲突。</p>
+<p>si ——检测写写冲突，只需要给每一行添加一个最新的版本号。当某一行提交时，检测该版本号与当前事务开启时的版本号是否一致即可。</p>
+<p>wsi——检测读写冲突，我读过的版本是否被某个并发事务覆盖了。读数据时，将事务A的信息记录下来，后续有事务B要往改行写入数据时，可以判断A的写集是否有效。</p>
+<p>ssi——一个事务是否同时具有inbound RW conflict，outbound RW conflict，且事务存活时间满足条件</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://tjzhang-src.github.io/.github.io/2025/10/27/tiny-lsm/">https://tjzhang-src.github.io/.github.io/2025/10/27/tiny-lsm/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://tjzhang-src.github.io/.github.io" target="_blank">Welcome</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/.github.io/tags/c/">c++</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/.github.io/2026/02/06/PyTorch1/" title=""><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info"></div></div></a></div><div class="next-post pull-right"><a href="/.github.io/2025/09/11/mit6824/" title="mit6824"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mit6824</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/.github.io/2024/09/17/cplusplusprimer/" title="cplusplusprimer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">cplusplusprimer</div></div></a></div><div><a href="/.github.io/2023/02/28/c-%E5%9F%BA%E7%A1%801/" title="c++基础1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-28</div><div class="title">c++基础1</div></div></a></div><div><a href="/.github.io/2024/09/17/effective-cplusplus/" title="effective_cplusplus"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">effective_cplusplus</div></div></a></div><div><a href="/.github.io/2024/09/17/more-effective-cpulsplus/" title="more_effective_cpulsplus"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="title">more_effective_cpulsplus</div></div></a></div><div><a href="/.github.io/2025/09/01/tiny-muduo/" title="tiny_muduo"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-01</div><div class="title">tiny_muduo</div></div></a></div><div><a href="/.github.io/2025/04/08/muduo/" title="muduo"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-08</div><div class="title">muduo</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Waline</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/.github.io/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/.github.io/archives/"><div class="headline">文章</div><div class="length-num">48</div></a><a href="/.github.io/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/.github.io/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/tjzhang-src"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE"><span class="toc-number">1.</span> <span class="toc-text">前置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#skiplist"><span class="toc-number">2.</span> <span class="toc-text">skiplist</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#shared-mutex-%E8%AF%BB%E5%86%99%E9%94%81"><span class="toc-number">2.1.</span> <span class="toc-text">shared_mutex 读写锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B0%93%E8%AF%8D%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.2.</span> <span class="toc-text">谓词查询</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#memtable"><span class="toc-number">3.</span> <span class="toc-text">memtable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LSM-Engine"><span class="toc-number">4.</span> <span class="toc-text">LSM Engine</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LSM-Tree-%E7%9A%84%E4%BC%98%E5%8C%96"><span class="toc-number">4.1.</span> <span class="toc-text">LSM Tree 的优化</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#BlockCache"><span class="toc-number">4.1.1.</span> <span class="toc-text">BlockCache</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#compact"><span class="toc-number">4.2.</span> <span class="toc-text">compact</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Level-compaction"><span class="toc-number">4.2.1.</span> <span class="toc-text">Level compaction</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Tier-x2F-Size-Compaction"><span class="toc-number">4.2.2.</span> <span class="toc-text">Tier&#x2F;Size Compaction</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">4.3.</span> <span class="toc-text">布隆过滤器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A2%9E%E5%8A%A0%E5%85%83%E7%B4%A0"><span class="toc-number">4.3.1.</span> <span class="toc-text">增加元素</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%85%83%E7%B4%A0"><span class="toc-number">4.3.2.</span> <span class="toc-text">查询元素</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1"><span class="toc-number">5.</span> <span class="toc-text">事务</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%A6%E4%B8%80%E7%A7%8D%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%EF%BC%8CSnapshot-Isolation"><span class="toc-number">5.0.1.</span> <span class="toc-text">另一种隔离级别，Snapshot Isolation</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Serializable-Snapshot-Isolation"><span class="toc-number">5.0.2.</span> <span class="toc-text">Serializable Snapshot Isolation</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Write-Snapshot-Isolation"><span class="toc-number">5.0.3.</span> <span class="toc-text">Write-Snapshot Isolation</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">5.0.4.</span> <span class="toc-text">其他</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2026/02/06/PyTorch1/" title="无题">无题</a><time datetime="2026-02-06T08:27:52.992Z" title="发表于 2026-02-06 16:27:52">2026-02-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/10/27/tiny-lsm/" title="tiny-lsm">tiny-lsm</a><time datetime="2025-10-27T01:50:45.000Z" title="发表于 2025-10-27 09:50:45">2025-10-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/09/11/mit6824/" title="mit6824">mit6824</a><time datetime="2025-09-11T13:19:34.000Z" title="发表于 2025-09-11 21:19:34">2025-09-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/09/01/tiny-muduo/" title="tiny_muduo">tiny_muduo</a><time datetime="2025-09-01T01:45:58.000Z" title="发表于 2025-09-01 09:45:58">2025-09-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/.github.io/2025/04/08/muduo/" title="muduo">muduo</a><time datetime="2025-04-08T01:30:10.000Z" title="发表于 2025-04-08 09:30:10">2025-04-08</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s2.loli.net/2023/02/26/9fQnztK2ImqyLwS.webp')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2026 By John Doe</div><div class="footer_custom_text">Hi, welcome to my <a href="https://tjzhang-src.github.io/.github.io/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/.github.io/js/utils.js"></script><script src="/.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadWaline () {
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://blog-comment-bfstu88s1-ttj2023.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, null))
+  }
+
+  const walineCSSLoad = document.getElementById('waline-css')
+
+  if (typeof Waline === 'object') {
+    walineCSSLoad ? initWaline() : getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(initWaline)
+  }
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css','waline-css').then(() => {
+      getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js').then(initWaline)
+    })
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://tjzhang-src.github.io/.github.io/2025/10/27/tiny-lsm/'
+    this.page.identifier = '/.github.io/2025/10/27/tiny-lsm/'
+    this.page.title = 'tiny-lsm'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Waline' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
